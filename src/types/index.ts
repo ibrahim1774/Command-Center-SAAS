@@ -1,6 +1,6 @@
 // Platform types
 export type Platform = "instagram" | "youtube" | "facebook" | "twitter" | "tiktok" | "linkedin";
-export type TabId = "overview" | "hq" | "youtube" | "deals" | "instagram";
+export type TabId = "overview" | "hq" | "youtube" | "deals" | "instagram" | "goals";
 
 // Shared
 export interface MetricCard {
@@ -160,8 +160,11 @@ export interface Email {
 }
 
 // Deals page
-export type DealStage = "inquiry" | "negotiating" | "in-progress" | "completed";
+export type DealStage = "inquiry" | "negotiating" | "confirmed" | "in-progress" | "completed";
+export type PaymentStatus = "unpaid" | "invoiced" | "paid";
+export type DealType = "sponsored_post" | "brand_ambassador" | "affiliate" | "product_review" | "ugc" | "other";
 
+// Legacy mock types (kept for mock-data.ts compatibility)
 export interface Deal {
   id: string;
   brand: string;
@@ -184,6 +187,100 @@ export interface Payout {
 export interface MonthlyEarning {
   month: string;
   amount: number;
+}
+
+// CRM Deal types (Supabase-backed)
+export interface BrandDeal {
+  id: string;
+  user_id: string;
+  brand_name: string;
+  contact_person: string | null;
+  contact_email: string | null;
+  deal_value: number;
+  platforms: string[];
+  deal_type: DealType;
+  description: string | null;
+  deadline: string | null;
+  status: DealStage;
+  payment_status: PaymentStatus;
+  payment_received: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DealNote {
+  id: string;
+  deal_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+}
+
+export interface DealChecklistItem {
+  id: string;
+  deal_id: string;
+  user_id: string;
+  label: string;
+  completed: boolean;
+  sort_order: number;
+  created_at: string;
+}
+
+// Goals & Journal types
+export type MoodType = "amazing" | "good" | "okay" | "tough" | "rough";
+export type TaskPriority = "urgent" | "important" | "normal";
+export type TaskCategory = "content" | "deals" | "admin" | "personal";
+export type GoalCategory = "growth" | "revenue" | "content" | "personal" | "brand";
+export type EventType = "content_deadline" | "brand_deal" | "meeting" | "personal" | "other";
+
+export interface Goal {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  category: GoalCategory;
+  target_value: number;
+  current_value: number;
+  unit: string;
+  deadline: string | null;
+  why: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface JournalEntry {
+  id: string;
+  user_id: string;
+  content: string;
+  mood: MoodType | null;
+  tags: string[];
+  entry_date: string;
+  created_at: string;
+}
+
+export interface Task {
+  id: string;
+  user_id: string;
+  title: string;
+  due_date: string | null;
+  priority: TaskPriority;
+  category: TaskCategory;
+  related_deal_id: string | null;
+  is_completed: boolean;
+  completed_at: string | null;
+  created_at: string;
+}
+
+export interface CalendarEvent {
+  id: string;
+  user_id: string;
+  title: string;
+  event_date: string;
+  event_time: string | null;
+  event_type: EventType;
+  notes: string | null;
+  color: string | null;
+  created_at: string;
 }
 
 // Settings page
