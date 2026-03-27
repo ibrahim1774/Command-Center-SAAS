@@ -20,7 +20,6 @@ export interface AIInsightsResponse {
     whats_working: InsightItem[];
     whats_flopping: InsightItem[];
   };
-  email_summary: string;
   top_comments: {
     platform: string;
     username: string;
@@ -39,9 +38,3 @@ export interface DeepAnalysisResponse {
   revenue_opportunities: string;
 }
 
-export interface EmailCategorization {
-  email_id: string;
-  category: "brand_deal" | "customer" | "newsletter" | "other";
-  priority: "high" | "medium" | "low";
-  needs_response: boolean;
-}

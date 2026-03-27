@@ -33,7 +33,7 @@ function KanbanColumn({ stage, deals, onCardClick }: { stage: DealStage; deals: 
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-xl p-3 min-h-[300px] min-w-[220px] transition-colors ${isOver ? "ring-2 ring-accent-primary/30" : ""}`}
+      className={`rounded-xl p-3 min-h-[300px] min-w-[260px] snap-start transition-colors ${isOver ? "ring-2 ring-accent-primary/30" : ""}`}
       style={{ backgroundColor: config.bg }}
     >
       <div className="flex items-center gap-2 mb-3 px-1">
@@ -103,7 +103,7 @@ export function DealKanbanBoard({ deals, onStatusChange, onCardClick }: Props) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex gap-4 overflow-x-auto pb-2">
+      <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory md:snap-none">
         {STAGES.map((stage) => (
           <KanbanColumn
             key={stage}

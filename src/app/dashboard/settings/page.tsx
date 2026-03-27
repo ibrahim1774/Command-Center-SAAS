@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import {
-  Mail,
   User,
   Bell,
   Shield,
@@ -33,16 +32,43 @@ const PLATFORMS = [
   { key: "instagram", label: "Instagram", icon: Camera },
   { key: "youtube", label: "YouTube", icon: Play },
   { key: "facebook", label: "Facebook", icon: Globe },
-  { key: "gmail", label: "Gmail", icon: Mail },
 ] as const;
 
-const planFeatures = [
-  "Unlimited connected accounts",
-  "AI-powered daily briefings",
-  "Advanced analytics dashboard",
-  "Priority brand deal matching",
-  "Custom reporting & exports",
-];
+const PLAN_INFO: Record<string, { name: string; price: number; features: string[] }> = {
+  free: {
+    name: "Starter",
+    price: 0,
+    features: ["1 platform connection", "Basic analytics dashboard", "Community access"],
+  },
+  starter: {
+    name: "Starter",
+    price: 0,
+    features: ["1 platform connection", "Basic analytics dashboard", "Community access"],
+  },
+  pro: {
+    name: "Pro",
+    price: 29,
+    features: [
+      "All platforms (Instagram, YouTube, Facebook)",
+      "Daily AI insights & briefings",
+      "Brand deal CRM with kanban",
+      "Goals, journal & task management",
+      "Calendar with smart scheduling",
+      "Priority support",
+    ],
+  },
+  business: {
+    name: "Business",
+    price: 79,
+    features: [
+      "Everything in Pro",
+      "Deep analysis reports",
+      "Team access (5 seats)",
+      "Custom weekly reports",
+      "Dedicated support",
+    ],
+  },
+};
 
 function formatTimeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -284,35 +310,89 @@ function SettingsContent() {
       </Card>
 
       {/* Section 3: Subscription */}
-      <Card padding="lg">
+      <Card padding="lg" id="subscription">
         <h2 className="font-display text-xl text-text-primary mb-6">
           Subscription
         </h2>
 
-        <div className="rounded-lg border border-card-border p-5 mb-6 max-w-lg">
-          <div className="flex items-center justify-between mb-4">
-            <Badge variant="info" size="md">
-              {session?.user?.plan === "pro" ? "Pro Plan" : "Free Plan"}
-            </Badge>
-            <span className="font-display text-xl text-text-primary">
-              {session?.user?.plan === "pro" ? "$29" : "$0"}
-              <span className="text-sm font-body text-text-secondary">/month</span>
-            </span>
-          </div>
+        {(() => {
+          const userPlan = (session?.user?.plan as string) || "free";
+          const info = PLAN_INFO[userPlan] || PLAN_INFO.free;
+          return (
+            <>
+              <div className="rounded-lg border border-card-border p-5 mb-6 max-w-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <Badge variant={userPlan === "free" || userPlan === "starter" ? "neutral" : "info"} size="md">
+                    {info.name} Plan
+                  </Badge>
+                  <span className="font-display text-xl text-text-primary">
+                    ${info.price}
+                    <span className="text-sm font-body text-text-secondary">/month</span>
+                  </span>
+                </div>
 
-          <ul className="space-y-2.5">
-            {planFeatures.map((feature) => (
-              <li key={feature} className="flex items-center gap-2.5 text-sm text-text-secondary">
-                <Check className="w-4 h-4 text-success flex-shrink-0" />
-                {feature}
-              </li>
-            ))}
-          </ul>
-        </div>
+                <ul className="space-y-2.5">
+                  {info.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2.5 text-sm text-text-secondary">
+                      <Check className="w-4 h-4 text-success flex-shrink-0" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-        <Button variant="secondary" size="md">
-          Upgrade to Enterprise
-        </Button>
+              <div className="flex flex-wrap gap-3">
+                {(userPlan === "free" || userPlan === "starter") && (
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={async () => {
+                      const res = await fetch("/api/stripe/checkout", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ planId: "pro" }),
+                      });
+                      const data = await res.json();
+                      if (data.url) window.location.href = data.url;
+                    }}
+                  >
+                    Upgrade to Pro — $29/mo
+                  </Button>
+                )}
+                {userPlan === "pro" && (
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={async () => {
+                      const res = await fetch("/api/stripe/checkout", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ planId: "business" }),
+                      });
+                      const data = await res.json();
+                      if (data.url) window.location.href = data.url;
+                    }}
+                  >
+                    Upgrade to Business — $79/mo
+                  </Button>
+                )}
+                {userPlan !== "free" && userPlan !== "starter" && (
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    onClick={async () => {
+                      const res = await fetch("/api/stripe/portal", { method: "POST" });
+                      const data = await res.json();
+                      if (data.url) window.location.href = data.url;
+                    }}
+                  >
+                    Manage Subscription
+                  </Button>
+                )}
+              </div>
+            </>
+          );
+        })()}
       </Card>
 
       {/* Section 4: Notifications */}

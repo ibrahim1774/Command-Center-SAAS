@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Play, Globe, Mail } from "lucide-react";
+import { Camera, Play, Globe } from "lucide-react";
 import { Card } from "./Card";
 import { Button } from "./Button";
 
@@ -8,11 +8,10 @@ const PLATFORM_CONFIG = {
   instagram: { label: "Instagram", icon: Camera, color: "#E4405F" },
   youtube: { label: "YouTube", icon: Play, color: "#FF0000" },
   facebook: { label: "Facebook", icon: Globe, color: "#1877F2" },
-  gmail: { label: "Gmail", icon: Mail, color: "#EA4335" },
 } as const;
 
 interface ConnectAccountCardProps {
-  platform: "instagram" | "youtube" | "facebook" | "gmail";
+  platform: "instagram" | "youtube" | "facebook";
 }
 
 export function ConnectAccountCard({ platform }: ConnectAccountCardProps) {

@@ -1,15 +1,11 @@
 export const TAB_ITEMS = [
   { id: "overview", label: "Overview", href: "/dashboard" },
-  { id: "hq", label: "HQ", href: "/dashboard/facebook" },
-  { id: "youtube", label: "YouTube", href: "/dashboard/youtube" },
-  { id: "deals", label: "Deals", href: "/dashboard/deals" },
   { id: "instagram", label: "Instagram", href: "/dashboard/instagram" },
+  { id: "youtube", label: "YouTube", href: "/dashboard/youtube" },
+  { id: "facebook", label: "Facebook", href: "/dashboard/facebook" },
+  { id: "deals", label: "Deals", href: "/dashboard/deals" },
   { id: "goals", label: "Goals", href: "/dashboard/goals" },
-] as const;
-
-export const SECONDARY_NAV = [
-  { label: "Email", href: "/dashboard/email", icon: "Mail" },
-  { label: "Settings", href: "/dashboard/settings", icon: "Settings" },
+  { id: "settings", label: "Settings", href: "/dashboard/settings" },
 ] as const;
 
 export const PLATFORM_CONFIG = {

@@ -12,7 +12,6 @@ const INSIGHTS_SCHEMA = `{
   "instagram": { "whats_working": [{ "text": "IG-specific insight", "metric": "optional metric" }], "whats_flopping": [{ "text": "IG-specific insight", "metric": "optional metric" }] },
   "youtube": { "whats_working": [{ "text": "YT-specific insight", "metric": "optional" }], "whats_flopping": [{ "text": "YT-specific insight", "metric": "optional" }], "content_ideas": ["idea 1", "idea 2", "idea 3"] },
   "facebook": { "whats_working": [{ "text": "FB-specific insight", "metric": "optional" }], "whats_flopping": [{ "text": "FB-specific insight", "metric": "optional" }] },
-  "email_summary": "Summary of important emails and what needs attention",
   "top_comments": [{ "platform": "instagram|youtube|facebook", "username": "...", "text": "comment text", "post_reference": "which post it's on" }]
 }`;
 
@@ -85,7 +84,7 @@ export async function POST(req: NextRequest) {
     .toISOString()
     .split("T")[0];
 
-  const [igPosts, ytVideos, fbPosts, emails, igComments, ytComments] =
+  const [igPosts, ytVideos, fbPosts, igComments, ytComments] =
     await Promise.all([
       supabase
         .from("instagram_posts")
@@ -111,13 +110,6 @@ export async function POST(req: NextRequest) {
         .order("created_time", { ascending: false })
         .limit(20),
       supabase
-        .from("emails")
-        .select("from_name, subject, category, priority, received_at")
-        .eq("user_id", userId)
-        .gte("received_at", thirtyDaysAgo)
-        .order("received_at", { ascending: false })
-        .limit(30),
-      supabase
         .from("instagram_comments")
         .select("username, text")
         .eq("user_id", userId)
@@ -135,7 +127,6 @@ export async function POST(req: NextRequest) {
     instagram_posts: igPosts.data || [],
     youtube_videos: ytVideos.data || [],
     facebook_posts: fbPosts.data || [],
-    emails: emails.data || [],
     instagram_comments: igComments.data || [],
     youtube_comments: ytComments.data || [],
   };
@@ -159,7 +150,7 @@ export async function POST(req: NextRequest) {
       model: "claude-haiku-4-5-20251001",
       max_tokens: 4096,
       system:
-        "You are an elite social media strategist analyzing a content creator's performance across Instagram, YouTube, Facebook, and email. " +
+        "You are an elite social media strategist analyzing a content creator's performance across Instagram, YouTube, and Facebook. " +
         "Be specific with numbers. Reference actual post captions and video titles from the data. Give actionable, data-driven advice. " +
         "Each whats_working and whats_flopping array should have 3-4 items. " +
         "The metric field should be a short stat like '+24% engagement' or '340K views'. " +

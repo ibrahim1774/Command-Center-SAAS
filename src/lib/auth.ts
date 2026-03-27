@@ -115,6 +115,15 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.plan = user.plan ?? "free";
       }
+      // Refresh plan from DB on subsequent requests to reflect Stripe webhook updates
+      if (!user && token.id) {
+        const { data } = await getSupabaseAdmin()
+          .from("users")
+          .select("plan")
+          .eq("id", token.id)
+          .single();
+        if (data) token.plan = data.plan;
+      }
       return token;
     },
 

@@ -1,12 +1,12 @@
 import { getSupabaseAdmin } from "./supabase-admin";
 
 /**
- * Get a valid Google access token for YouTube or Gmail.
+ * Get a valid Google access token for YouTube.
  * Refreshes automatically if expired or about to expire (within 5 min).
  */
 export async function getValidGoogleToken(
   userId: string,
-  platform: "youtube" | "gmail"
+  platform: "youtube"
 ): Promise<string> {
   const supabase = getSupabaseAdmin();
 

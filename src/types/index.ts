@@ -1,6 +1,6 @@
 // Platform types
 export type Platform = "instagram" | "youtube" | "facebook" | "twitter" | "tiktok" | "linkedin";
-export type TabId = "overview" | "hq" | "youtube" | "deals" | "instagram" | "goals";
+export type TabId = "overview" | "instagram" | "youtube" | "facebook" | "deals" | "goals" | "settings";
 
 // Shared
 export interface MetricCard {
@@ -144,19 +144,6 @@ export interface FacebookComment {
 export interface PostReachPoint {
   date: string;
   reach: number;
-}
-
-// Email page
-export interface Email {
-  id: string;
-  from: string;
-  subject: string;
-  preview: string;
-  timestamp: string;
-  category: "brand-deals" | "customer" | "newsletter";
-  priority: "high" | "medium" | "low";
-  read: boolean;
-  needsResponse: boolean;
 }
 
 // Deals page
@@ -321,7 +308,7 @@ export interface DbUser {
 export interface DbConnectedAccount {
   id: string;
   user_id: string;
-  platform: "instagram" | "youtube" | "facebook" | "gmail";
+  platform: "instagram" | "youtube" | "facebook";
   access_token: string;
   refresh_token: string | null;
   token_expires_at: string | null;

@@ -3,7 +3,7 @@ import type {
   FollowerGrowthPoint, CommunityMember, InstagramAccount, ProgressGoal,
   InstagramPost, InstagramComment, DailyReachPoint, YouTubeVideo,
   YouTubeComment, ViewsDataPoint, FacebookPost, FacebookComment,
-  PostReachPoint, Email, Deal, Payout, MonthlyEarning, ConnectedAccount,
+  PostReachPoint, Deal, Payout, MonthlyEarning, ConnectedAccount,
   UserProfile, NotificationSetting
 } from "@/types";
 
@@ -254,37 +254,6 @@ export const facebookInsights = {
   ] as InsightItem[],
 };
 
-// ==================== EMAIL PAGE ====================
-
-export const emailMetrics: MetricCard[] = [
-  { label: "Unread", value: "24", change: "+8 today", changeType: "neutral" },
-  { label: "Brand Deal Inquiries", value: "7", change: "+3 this week", changeType: "positive" },
-  { label: "Needs Response", value: "5", change: "2 urgent", changeType: "negative" },
-];
-
-export const emailAISummary = "You have 5 emails that need responses today. Priority: Glossier's brand deal deadline is tomorrow — their offer is $12K for 3 Reels, which is slightly below your rate card but includes product seeding and 6-month exclusivity is negotiable. Nike Digital followed up on your proposal — they want to schedule a call. Two customer support tickets about membership access need resolving. The Notion newsletter has an interesting piece on creator economy trends worth reading during lunch.";
-
-export const emails: Email[] = [
-  // Brand deals
-  { id: "e1", from: "Sarah Kim — Glossier", subject: "Partnership Proposal: Spring Campaign 2026", preview: "Hi! We'd love to collaborate on our upcoming spring campaign. We're thinking 3 Reels over 6 weeks...", timestamp: "2h ago", category: "brand-deals", priority: "high", read: false, needsResponse: true },
-  { id: "e2", from: "Jake Morrison — Nike Digital", subject: "RE: Content Creator Program — Follow Up", preview: "Thanks for sending over the proposal. The team loved your creative direction. Can we schedule a call...", timestamp: "5h ago", category: "brand-deals", priority: "high", read: false, needsResponse: true },
-  { id: "e3", from: "Lisa Chen — Adobe Creative Cloud", subject: "Annual Creator Partnership Renewal", preview: "Hope you're doing well! It's that time of year again. We'd love to renew our partnership with...", timestamp: "1d ago", category: "brand-deals", priority: "medium", read: true, needsResponse: false },
-  { id: "e4", from: "Tom Bradley — Squarespace", subject: "Sponsored Content Opportunity Q2", preview: "We've been following your content and think you'd be a great fit for our Q2 creator campaign...", timestamp: "2d ago", category: "brand-deals", priority: "medium", read: true, needsResponse: false },
-  { id: "e5", from: "Maria Garcia — Canva", subject: "Creator Spotlight Feature Request", preview: "We're launching a new creator spotlight series and would love to feature your workflow...", timestamp: "3d ago", category: "brand-deals", priority: "low", read: true, needsResponse: false },
-  // Customer
-  { id: "e6", from: "Alex Thompson", subject: "Membership Access Issue", preview: "Hi, I signed up for the Pro tier yesterday but I still can't access the premium content library...", timestamp: "3h ago", category: "customer", priority: "high", read: false, needsResponse: true },
-  { id: "e7", from: "Priya Patel", subject: "Course Download Problem", preview: "I'm trying to download the editing masterclass files but keep getting a 404 error on lesson 7...", timestamp: "6h ago", category: "customer", priority: "high", read: false, needsResponse: true },
-  { id: "e8", from: "Jordan Kim", subject: "Feature Request: Mobile App", preview: "Love the community! Any plans for a mobile app? Would be great to access content on the go...", timestamp: "1d ago", category: "customer", priority: "low", read: true, needsResponse: false },
-  { id: "e9", from: "Casey Rivera", subject: "Testimonial for Your Website", preview: "Hey! Your course completely changed my content game. I went from 2K to 15K followers in 3 months...", timestamp: "2d ago", category: "customer", priority: "low", read: true, needsResponse: false },
-  { id: "e10", from: "Morgan Lee", subject: "Billing Question", preview: "Quick question — I was charged twice this month for the Pro subscription. Could you look into...", timestamp: "3d ago", category: "customer", priority: "medium", read: true, needsResponse: true },
-  // Newsletters
-  { id: "e11", from: "Notion — The Creator Economy", subject: "Creator Economy Weekly: AI is Changing Everything", preview: "This week's top story: How AI tools are reshaping content creation workflows for independent...", timestamp: "4h ago", category: "newsletter", priority: "low", read: false, needsResponse: false },
-  { id: "e12", from: "Morning Brew", subject: "The Social Media Shakeup You Didn't See Coming", preview: "Good morning! TikTok just announced major changes to their creator fund structure...", timestamp: "8h ago", category: "newsletter", priority: "low", read: false, needsResponse: false },
-  { id: "e13", from: "The Hustle", subject: "Why Micro-Influencers Are Winning in 2026", preview: "The data is clear: brands are shifting budgets from mega-influencers to creators with...", timestamp: "1d ago", category: "newsletter", priority: "low", read: true, needsResponse: false },
-  { id: "e14", from: "Product Hunt Daily", subject: "New Tools for Content Creators", preview: "Today's top launches include a new AI video editor, a social media scheduling tool with...", timestamp: "1d ago", category: "newsletter", priority: "low", read: true, needsResponse: false },
-  { id: "e15", from: "Stratechery", subject: "Platform Economics and the Creator Middle Class", preview: "Ben Thompson analyzes the evolving economics of creator platforms and what it means for...", timestamp: "2d ago", category: "newsletter", priority: "low", read: true, needsResponse: false },
-];
-
 // ==================== DEALS PAGE ====================
 
 export const dealMetrics: MetricCard[] = [
@@ -332,7 +301,7 @@ export const connectedAccounts: ConnectedAccount[] = [
   { platform: "Instagram", handle: "@commandhq", connected: true, lastSync: "2 minutes ago", icon: "Instagram" },
   { platform: "YouTube", handle: "Command HQ", connected: true, lastSync: "5 minutes ago", icon: "Youtube" },
   { platform: "Facebook", handle: "", connected: false, icon: "Facebook" },
-  { platform: "Gmail", handle: "", connected: false, icon: "Mail" },
+
 ];
 
 export const userProfile: UserProfile = {

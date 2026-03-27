@@ -4,7 +4,7 @@ import { logSync, updateLastSynced, type SyncResult } from "./sync-helpers";
 
 const META_API = "https://graph.facebook.com/v21.0";
 const YOUTUBE_API = "https://www.googleapis.com/youtube/v3";
-const GMAIL_API = "https://gmail.googleapis.com/gmail/v1";
+
 
 // ─── Instagram ───────────────────────────────────────────────────────────────
 
@@ -412,80 +412,3 @@ export async function syncFacebook(userId: string): Promise<SyncResult> {
   }
 }
 
-// ─── Gmail ───────────────────────────────────────────────────────────────────
-
-export async function syncGmail(userId: string): Promise<SyncResult> {
-  const supabase = getSupabaseAdmin();
-
-  try {
-    const token = await getValidGoogleToken(userId, "gmail");
-    const headers = { Authorization: `Bearer ${token}` };
-
-    // 1. Fetch message list
-    const listRes = await fetch(
-      `${GMAIL_API}/users/me/messages?maxResults=30&q=is:inbox`,
-      { headers }
-    );
-    if (!listRes.ok) throw new Error(`Gmail list failed: ${listRes.status}`);
-    const listData = await listRes.json();
-    const messageIds: string[] = (listData.messages || []).map(
-      (m: Record<string, string>) => m.id
-    );
-
-    let processed = 0;
-    for (const msgId of messageIds) {
-      const msgRes = await fetch(
-        `${GMAIL_API}/users/me/messages/${msgId}?format=metadata&metadataHeaders=From,Subject,Date`,
-        { headers }
-      );
-      if (!msgRes.ok) continue;
-      const msg = await msgRes.json();
-
-      const getHeader = (name: string): string => {
-        const header = (msg.payload?.headers || []).find(
-          (h: Record<string, string>) =>
-            h.name?.toLowerCase() === name.toLowerCase()
-        );
-        return header?.value || "";
-      };
-
-      const fromRaw = getHeader("From");
-      const fromMatch = fromRaw.match(/^(.+?)\s*<(.+?)>$/);
-      const fromName = fromMatch ? fromMatch[1].replace(/"/g, "").trim() : fromRaw;
-      const fromEmail = fromMatch ? fromMatch[2] : fromRaw;
-
-      const dateStr = getHeader("Date");
-      let receivedAt: string;
-      try {
-        receivedAt = new Date(dateStr).toISOString();
-      } catch {
-        receivedAt = new Date().toISOString();
-      }
-
-      await supabase.from("emails").upsert(
-        {
-          user_id: userId,
-          email_id: msgId,
-          from_name: fromName,
-          from_email: fromEmail,
-          subject: getHeader("Subject") || "(no subject)",
-          snippet: msg.snippet || "",
-          category: "uncategorized",
-          priority: "medium",
-          received_at: receivedAt,
-          needs_response: false,
-        },
-        { onConflict: "user_id,email_id" }
-      );
-      processed++;
-    }
-
-    await updateLastSynced(userId, "gmail");
-    await logSync(userId, "gmail", "success");
-    return { success: true, recordsProcessed: processed };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "Unknown error";
-    await logSync(userId, "gmail", "error", msg);
-    return { success: false, error: msg };
-  }
-}

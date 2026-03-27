@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import { syncInstagram, syncYouTube, syncFacebook, syncGmail } from "@/lib/platform-sync";
+import { syncInstagram, syncYouTube, syncFacebook } from "@/lib/platform-sync";
 
 const SYNC_MAP: Record<string, (userId: string) => Promise<unknown>> = {
   instagram: syncInstagram,
   youtube: syncYouTube,
   facebook: syncFacebook,
-  gmail: syncGmail,
 };
 
 export async function GET(req: NextRequest) {

@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { RefreshCw, Settings, Mail, LogOut } from "lucide-react";
+import { RefreshCw, LogOut } from "lucide-react";
 import { TAB_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useEffect, useState, useRef } from "react";
@@ -73,16 +73,18 @@ export default function TopNav() {
         <div className="flex h-16 items-center justify-between">
           {/* Brand */}
           <Link href="/dashboard" className="flex items-baseline gap-1.5">
-            <span className="font-display text-2xl font-bold text-text-primary tracking-tight">
+            <span className="font-display text-xl sm:text-2xl font-bold text-text-primary tracking-tight">
               Command
             </span>
-            <span className="font-display text-2xl italic text-accent-primary tracking-tight">
+            <span className="font-display text-xl sm:text-2xl italic text-accent-primary tracking-tight">
               Center
             </span>
           </Link>
 
           {/* Center: Live indicator */}
-          <LiveIndicator />
+          <div className="hidden sm:block">
+            <LiveIndicator />
+          </div>
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2">
@@ -93,30 +95,6 @@ export default function TopNav() {
               <RefreshCw className="h-4 w-4" />
               <span className="hidden sm:inline">Refresh</span>
             </button>
-
-            <Link
-              href="/dashboard/email"
-              className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
-                pathname === "/dashboard/email"
-                  ? "bg-[#f0ede8] text-text-primary"
-                  : "text-text-secondary hover:bg-[#f0ede8] hover:text-text-primary"
-              )}
-            >
-              <Mail className="h-4 w-4" />
-            </Link>
-
-            <Link
-              href="/dashboard/settings"
-              className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
-                pathname === "/dashboard/settings"
-                  ? "bg-[#f0ede8] text-text-primary"
-                  : "text-text-secondary hover:bg-[#f0ede8] hover:text-text-primary"
-              )}
-            >
-              <Settings className="h-4 w-4" />
-            </Link>
 
             {/* User Avatar + Dropdown */}
             <div className="relative ml-1" ref={menuRef}>
@@ -167,8 +145,8 @@ export default function TopNav() {
       </div>
 
       {/* Tab Bar */}
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="flex gap-0 overflow-x-auto scrollbar-none -mb-px">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="flex gap-0 overflow-x-auto scrollbar-none -mb-px snap-x snap-mandatory sm:snap-none">
           {TAB_ITEMS.map((tab) => {
             const isActive =
               tab.href === "/dashboard"
@@ -180,7 +158,7 @@ export default function TopNav() {
                 key={tab.id}
                 href={tab.href}
                 className={cn(
-                  "relative flex items-center px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors",
+                  "relative flex items-center px-3.5 sm:px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors snap-start",
                   isActive
                     ? "text-text-primary"
                     : "text-text-muted hover:text-text-secondary"
