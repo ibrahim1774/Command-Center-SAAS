@@ -1,346 +1,349 @@
 import type {
-  PlatformStats,
-  EngagementDataPoint,
-  Post,
-  DemographicSegment,
-  TrendingHashtag,
-  ActivityItem,
-  QuickStat,
+  MetricCard, InsightItem, AIBriefing, SocialHeadline, FollowerComment,
+  FollowerGrowthPoint, CommunityMember, InstagramAccount, ProgressGoal,
+  InstagramPost, InstagramComment, DailyReachPoint, YouTubeVideo,
+  YouTubeComment, ViewsDataPoint, FacebookPost, FacebookComment,
+  PostReachPoint, Email, Deal, Payout, MonthlyEarning, ConnectedAccount,
+  UserProfile, NotificationSetting
 } from "@/types";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+// ==================== OVERVIEW PAGE ====================
 
-function seededRandom(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s = (s * 16807 + 0) % 2147483647;
-    return (s - 1) / 2147483646;
+export const overviewMetrics: MetricCard[] = [
+  { label: "Total Followers", value: "847,293", change: "+12.4%", changeType: "positive" },
+  { label: "Total Reach (30D)", value: "2.4M", change: "+8.7%", changeType: "positive" },
+  { label: "Engagement Rate", value: "4.82%", change: "+0.3%", changeType: "positive" },
+  { label: "Revenue This Month", value: "$24,850", change: "+18.2%", changeType: "positive", prefix: "$" },
+];
+
+export const aiBriefing: AIBriefing = {
+  date: "2026-03-26",
+  summary: "Your Instagram Reels are outperforming all other content formats this week, with an average engagement rate of 6.8% — nearly double your carousel posts. YouTube subscriber growth accelerated after your collaboration video with @techreviewer hit 340K views. Facebook reach dipped 12% due to algorithm changes favoring short-form video. Consider repurposing your top-performing Reels for Facebook to recover lost reach. Three brand deal inquiries came in overnight — Glossier, Nike Digital, and a recurring ask from Adobe Creative Cloud.",
+  highlights: [
+    "Instagram Reels averaging 6.8% engagement rate this week",
+    "YouTube collab video hit 340K views, driving 2,400 new subscribers",
+    "3 new brand deal inquiries: Glossier, Nike Digital, Adobe CC",
+    "Facebook reach down 12% — algorithm shift toward short-form video",
+  ],
+};
+
+export const whatsWorking: InsightItem[] = [
+  { text: "Behind-the-scenes Reels getting 3x more saves than polished content", platform: "instagram", metric: "+312% saves" },
+  { text: "YouTube Shorts crossposted from TikTok driving subscriber growth", platform: "youtube", metric: "+2.4K subs/week" },
+  { text: "Carousel posts with data visualizations earning high shares", platform: "instagram", metric: "48 avg shares" },
+  { text: "Responding to comments within 1hr boosting engagement", metric: "+22% reply rate" },
+];
+
+export const whatsFlopping: InsightItem[] = [
+  { text: "Facebook text-only posts reaching less than 2% of followers", platform: "facebook", metric: "1.8% reach" },
+  { text: "YouTube thumbnails with text overlays underperforming clean shots", platform: "youtube", metric: "-18% CTR" },
+  { text: "Instagram Stories posted after 9pm getting minimal views", platform: "instagram", metric: "-45% views" },
+  { text: "Promotional posts without storytelling seeing engagement drops", metric: "-34% engagement" },
+];
+
+export const socialHeadlines: SocialHeadline[] = [
+  { title: "Instagram Tests New 'Blend' Feature for Shared Reels Feeds", source: "TechCrunch", timestamp: "2h ago" },
+  { title: "YouTube Shorts Fund Expanding to $300M in 2026", source: "The Verge", timestamp: "4h ago" },
+  { title: "Meta Announces AI-Powered Content Scheduling Tools", source: "Social Media Today", timestamp: "6h ago" },
+  { title: "TikTok Creator Marketplace Opens to Mid-Tier Influencers", source: "Business Insider", timestamp: "8h ago" },
+  { title: "New Study: Best Posting Times Shifted Post-Algorithm Update", source: "Hootsuite Blog", timestamp: "12h ago" },
+];
+
+export const followerComments: FollowerComment[] = [
+  { username: "@sarah.designs", platform: "instagram", comment: "Your content literally changed how I approach my own brand. The carousel on color theory was *chef's kiss*", timestamp: "2h ago" },
+  { username: "Mike Chen", platform: "youtube", comment: "Been watching since you had 10K subs. So proud of how far you've come. Your editing style is genuinely unique.", timestamp: "5h ago" },
+  { username: "@creativejuice", platform: "instagram", comment: "Just landed my first brand deal because of your negotiation tips video. Thank you!!", timestamp: "8h ago" },
+  { username: "Emma Rodriguez", platform: "facebook", comment: "Shared your latest post with my entire marketing team. Everyone agrees — best content in the space.", timestamp: "12h ago" },
+];
+
+// Generate 30 days of follower growth data
+export const followerGrowthData: FollowerGrowthPoint[] = Array.from({ length: 30 }, (_, i) => {
+  const date = new Date(2026, 1, 25 + i); // Start from Feb 25
+  const base = 820000 + i * 900;
+  const noise = Math.sin(i * 0.8) * 500 + Math.random() * 300;
+  return {
+    date: date.toISOString().split("T")[0],
+    followers: Math.round(base + noise),
   };
-}
+});
 
-function generateTimelineData(days: number): EngagementDataPoint[] {
-  const rand = seededRandom(42);
-  const data: EngagementDataPoint[] = [];
-  const now = new Date();
-
-  let impressionBase = 28_000;
-  let engagementBase = 1_800;
-  let reachBase = 20_000;
-
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-
-    // Slow upward trend with weekly seasonality and noise
-    const weekday = date.getDay();
-    const weekendDip = weekday === 0 || weekday === 6 ? 0.82 : 1;
-    const midweekBoost = weekday === 2 || weekday === 3 ? 1.12 : 1;
-    const trendFactor = 1 + (days - i) * 0.0012;
-    const noise = 0.85 + rand() * 0.3;
-
-    const impressions = Math.round(
-      impressionBase * trendFactor * weekendDip * midweekBoost * noise
-    );
-    const engagements = Math.round(
-      engagementBase * trendFactor * weekendDip * midweekBoost * (0.8 + rand() * 0.4)
-    );
-    const reach = Math.round(
-      reachBase * trendFactor * weekendDip * midweekBoost * (0.85 + rand() * 0.3)
-    );
-
-    data.push({
-      date: date.toISOString().split("T")[0],
-      impressions: Math.max(15_000, Math.min(45_000, impressions)),
-      engagements: Math.max(800, Math.min(3_500, engagements)),
-      reach: Math.max(10_000, Math.min(35_000, reach)),
-    });
-
-    // Slight drift in bases
-    impressionBase += (rand() - 0.45) * 400;
-    engagementBase += (rand() - 0.45) * 60;
-    reachBase += (rand() - 0.45) * 300;
-  }
-
-  return data;
-}
-
-function hoursAgo(h: number): string {
-  const d = new Date();
-  d.setMinutes(d.getMinutes() - Math.round(h * 60));
-  return d.toISOString();
-}
-
-// ---------------------------------------------------------------------------
-// Platform stats
-// ---------------------------------------------------------------------------
-
-export const platformStats: PlatformStats[] = [
-  {
-    platform: "instagram",
-    followers: 145_200,
-    followersChange: 2_340,
-    engagementRate: 4.2,
-    postsCount: 312,
-  },
-  {
-    platform: "twitter",
-    followers: 89_300,
-    followersChange: 1_120,
-    engagementRate: 1.8,
-    postsCount: 1_847,
-  },
-  {
-    platform: "tiktok",
-    followers: 234_500,
-    followersChange: 8_920,
-    engagementRate: 7.3,
-    postsCount: 189,
-  },
-  {
-    platform: "youtube",
-    followers: 67_800,
-    followersChange: 980,
-    engagementRate: 3.1,
-    postsCount: 94,
-  },
-  {
-    platform: "linkedin",
-    followers: 42_100,
-    followersChange: 560,
-    engagementRate: 2.6,
-    postsCount: 156,
-  },
-  {
-    platform: "facebook",
-    followers: 112_400,
-    followersChange: -430,
-    engagementRate: 1.4,
-    postsCount: 278,
-  },
+export const communityMembers: CommunityMember[] = [
+  { name: "Alex Thompson", joinedAt: "2h ago", tier: "Pro" },
+  { name: "Priya Patel", joinedAt: "5h ago", tier: "Starter" },
+  { name: "Jordan Kim", joinedAt: "1d ago", tier: "Pro" },
+  { name: "Casey Rivera", joinedAt: "1d ago", tier: "Enterprise" },
+  { name: "Morgan Lee", joinedAt: "2d ago", tier: "Starter" },
 ];
 
-// ---------------------------------------------------------------------------
-// Engagement timeline (90 days)
-// ---------------------------------------------------------------------------
+// ==================== INSTAGRAM PAGE ====================
 
-export const engagementTimeline: EngagementDataPoint[] = generateTimelineData(90);
-
-// ---------------------------------------------------------------------------
-// Recent posts
-// ---------------------------------------------------------------------------
-
-export const recentPosts: Post[] = [
+export const instagramAccounts: InstagramAccount[] = [
   {
-    id: "post-001",
-    platform: "instagram",
-    content:
-      "Behind the scenes of our latest product shoot. The team crushed it today! 📸✨ #BTS #ProductLaunch",
-    thumbnail: "/thumbnails/ig-bts.jpg",
-    publishedAt: hoursAgo(2),
-    likes: 4_832,
-    comments: 247,
-    shares: 89,
-    engagementRate: 5.1,
-  },
-  {
-    id: "post-002",
-    platform: "twitter",
-    content:
-      "We just crossed 500K total community members across all platforms. Thank you for being part of this journey. 🎉",
-    publishedAt: hoursAgo(5),
-    likes: 2_109,
-    comments: 342,
-    shares: 1_204,
-    engagementRate: 3.2,
-  },
-  {
-    id: "post-003",
-    platform: "tiktok",
-    content:
-      "POV: You finally automate your social media workflow and get your weekends back 😂 #SocialMediaManager #Relatable",
-    thumbnail: "/thumbnails/tt-pov.jpg",
-    publishedAt: hoursAgo(8),
-    likes: 18_432,
-    comments: 1_023,
-    shares: 3_241,
-    engagementRate: 9.7,
-  },
-  {
-    id: "post-004",
-    platform: "youtube",
-    content:
-      "How We Grew From 0 to 100K Followers in 6 Months — Full Strategy Breakdown",
-    thumbnail: "/thumbnails/yt-growth.jpg",
-    publishedAt: hoursAgo(18),
-    likes: 3_210,
-    comments: 489,
-    shares: 672,
+    handle: "@commandhq",
+    followers: 94200,
+    following: 842,
+    posts: 1247,
     engagementRate: 4.8,
+    profileViews28d: 28400,
+    accountsEngaged28d: 12800,
+    interactions28d: 48200,
+    reach28d: 342000,
   },
   {
-    id: "post-005",
-    platform: "linkedin",
-    content:
-      "Hiring managers: your employer brand is your biggest recruiting advantage. Here are 5 content strategies that actually work in 2026.",
-    publishedAt: hoursAgo(22),
-    likes: 1_847,
-    comments: 312,
-    shares: 428,
-    engagementRate: 3.9,
-  },
-  {
-    id: "post-006",
-    platform: "instagram",
-    content:
-      "Swipe to see our brand refresh → New colors, new energy, same mission. What do you think? 🎨",
-    thumbnail: "/thumbnails/ig-rebrand.jpg",
-    publishedAt: hoursAgo(26),
-    likes: 6_102,
-    comments: 534,
-    shares: 211,
-    engagementRate: 5.8,
-  },
-  {
-    id: "post-007",
-    platform: "facebook",
-    content:
-      "We're hosting a free live workshop next Thursday on building a content calendar that converts. Save your spot — link in comments!",
-    thumbnail: "/thumbnails/fb-workshop.jpg",
-    publishedAt: hoursAgo(30),
-    likes: 982,
-    comments: 187,
-    shares: 324,
-    engagementRate: 1.9,
-  },
-  {
-    id: "post-008",
-    platform: "tiktok",
-    content:
-      "When the algorithm finally picks up your video after 3 days 🚀 #FYP #ViralMoment #ContentCreator",
-    thumbnail: "/thumbnails/tt-algo.jpg",
-    publishedAt: hoursAgo(36),
-    likes: 42_310,
-    comments: 2_847,
-    shares: 8_912,
-    engagementRate: 12.4,
-  },
-  {
-    id: "post-009",
-    platform: "twitter",
-    content:
-      "Hot take: Consistency beats virality every single time. Your audience doesn't need one viral post — they need you showing up daily.",
-    publishedAt: hoursAgo(40),
-    likes: 5_621,
-    comments: 892,
-    shares: 2_340,
-    engagementRate: 4.1,
-  },
-  {
-    id: "post-010",
-    platform: "youtube",
-    content:
-      "The Complete Guide to YouTube Shorts in 2026 — Algorithm Changes You Need to Know",
-    thumbnail: "/thumbnails/yt-shorts.jpg",
-    publishedAt: hoursAgo(48),
-    likes: 1_543,
-    comments: 218,
-    shares: 390,
-    engagementRate: 3.4,
+    handle: "@command.studio",
+    followers: 67400,
+    following: 634,
+    posts: 892,
+    engagementRate: 5.2,
+    profileViews28d: 19200,
+    accountsEngaged28d: 8900,
+    interactions28d: 35100,
+    reach28d: 218000,
   },
 ];
 
-// ---------------------------------------------------------------------------
-// Demographics
-// ---------------------------------------------------------------------------
-
-export const ageDistribution: DemographicSegment[] = [
-  { label: "18-24", value: 28, color: "#6366F1" },
-  { label: "25-34", value: 35, color: "#8B5CF6" },
-  { label: "35-44", value: 22, color: "#A78BFA" },
-  { label: "45-54", value: 10, color: "#C4B5FD" },
-  { label: "55+", value: 5, color: "#DDD6FE" },
+export const instagramProgressGoals: ProgressGoal[] = [
+  { handle: "@commandhq", current: 94200, target: 100000, ytdGrowth: 14200, monthlyPace: 2840, eta: "Jun 2026" },
+  { handle: "@command.studio", current: 67400, target: 100000, ytdGrowth: 8400, monthlyPace: 1680, eta: "Mar 2028" },
 ];
 
-export const topCountries: { country: string; percentage: number }[] = [
-  { country: "United States", percentage: 42 },
-  { country: "United Kingdom", percentage: 15 },
-  { country: "Canada", percentage: 11 },
-  { country: "Australia", percentage: 8 },
-  { country: "Germany", percentage: 6 },
+export const instagramDailyReach: DailyReachPoint[] = Array.from({ length: 30 }, (_, i) => {
+  const date = new Date(2026, 1, 25 + i);
+  const base = 10000 + Math.sin(i * 0.5) * 3000;
+  const spike = i === 12 || i === 23 ? 8000 : 0;
+  return {
+    date: date.toISOString().split("T")[0],
+    reach: Math.round(base + spike + Math.random() * 2000),
+  };
+});
+
+export const instagramPosts: InstagramPost[] = [
+  { id: "ig1", caption: "The anatomy of a viral post — breaking down what actually works in 2026 📊", likes: 4820, comments: 342, timestamp: "2h ago", account: "@commandhq", type: "Carousel", color: "#e3f2fd" },
+  { id: "ig2", caption: "Studio tour update! New setup who dis 🎬", likes: 3210, comments: 189, timestamp: "1d ago", account: "@commandhq", type: "Reel", color: "#fce4ec" },
+  { id: "ig3", caption: "5 tools I can't live without for content creation", likes: 5100, comments: 421, timestamp: "2d ago", account: "@commandhq", type: "Carousel", color: "#e8f5e9" },
+  { id: "ig4", caption: "Monday motivation — consistency beats perfection every single time", likes: 2890, comments: 156, timestamp: "3d ago", account: "@commandhq", type: "Static", color: "#f3e5f5" },
+  { id: "ig5", caption: "Brand deal negotiation tips that doubled my rates 💰", likes: 6200, comments: 534, timestamp: "4d ago", account: "@commandhq", type: "Reel", color: "#fff3e0" },
+  { id: "ig6", caption: "Color grading tutorial — warm tones edition 🎨", likes: 3400, comments: 267, timestamp: "6h ago", account: "@command.studio", type: "Reel", color: "#fce4ec" },
+  { id: "ig7", caption: "Client work showcase — before and after transformations", likes: 2100, comments: 134, timestamp: "1d ago", account: "@command.studio", type: "Carousel", color: "#e3f2fd" },
+  { id: "ig8", caption: "The editing workflow that saves me 10 hours a week", likes: 4500, comments: 389, timestamp: "2d ago", account: "@command.studio", type: "Reel", color: "#e8f5e9" },
+  { id: "ig9", caption: "Behind the scenes — product shoot for @glossier", likes: 1800, comments: 98, timestamp: "3d ago", account: "@command.studio", type: "Static", color: "#f3e5f5" },
+  { id: "ig10", caption: "Lighting techniques that make everything look expensive ✨", likes: 3900, comments: 278, timestamp: "5d ago", account: "@command.studio", type: "Carousel", color: "#fff3e0" },
 ];
 
-// ---------------------------------------------------------------------------
-// Trending hashtags
-// ---------------------------------------------------------------------------
-
-export const trendingHashtags: TrendingHashtag[] = [
-  { rank: 1, tag: "#ContentStrategy", postCount: 118_400, trend: "up", changePercent: 24.3 },
-  { rank: 2, tag: "#SocialMediaTips", postCount: 97_200, trend: "up", changePercent: 18.1 },
-  { rank: 3, tag: "#MarketingTrends", postCount: 84_600, trend: "up", changePercent: 12.7 },
-  { rank: 4, tag: "#CreatorEconomy", postCount: 72_300, trend: "up", changePercent: 31.5 },
-  { rank: 5, tag: "#DigitalMarketing", postCount: 63_100, trend: "stable", changePercent: 1.2 },
-  { rank: 6, tag: "#BrandBuilding", postCount: 45_800, trend: "up", changePercent: 8.4 },
-  { rank: 7, tag: "#Reels", postCount: 38_900, trend: "down", changePercent: 5.6 },
-  { rank: 8, tag: "#GrowthHacking", postCount: 21_400, trend: "down", changePercent: 9.2 },
-  { rank: 9, tag: "#AIMarketing", postCount: 14_200, trend: "up", changePercent: 47.8 },
-  { rank: 10, tag: "#CommunityFirst", postCount: 7_600, trend: "up", changePercent: 15.3 },
+export const instagramComments: InstagramComment[] = [
+  { id: "ic1", author: "@design.daily", text: "This is exactly what I needed to see today! Your color theory series has been incredible.", timestamp: "1h ago", account: "@commandhq" },
+  { id: "ic2", author: "@marketingmaven", text: "The data breakdowns in your carousels are always so clean. What tool do you use?", timestamp: "3h ago", account: "@commandhq" },
+  { id: "ic3", author: "@startuplife", text: "Just implemented your posting strategy and saw a 40% increase in reach!", timestamp: "5h ago", account: "@commandhq" },
+  { id: "ic4", author: "@visualarts_co", text: "The warm tone grading tutorial was perfect. My feed looks so much more cohesive now.", timestamp: "2h ago", account: "@command.studio" },
+  { id: "ic5", author: "@photog.life", text: "Your lighting setup is goals. Would love a full breakdown video!", timestamp: "4h ago", account: "@command.studio" },
+  { id: "ic6", author: "@brand.builders", text: "The Glossier BTS content was amazing. More brand shoot content please!", timestamp: "7h ago", account: "@command.studio" },
 ];
 
-// ---------------------------------------------------------------------------
-// Activity feed
-// ---------------------------------------------------------------------------
-
-export const activityFeed: ActivityItem[] = [
-  { id: "act-01", platform: "instagram", message: "@emma_designs commented: \"Love this new look! 🔥\"", timestamp: hoursAgo(0.1), type: "comment" },
-  { id: "act-02", platform: "tiktok", message: "Your video hit 10K views in the first hour", timestamp: hoursAgo(0.4), type: "milestone" },
-  { id: "act-03", platform: "twitter", message: "@techcrunch mentioned you in a thread about creator tools", timestamp: hoursAgo(0.8), type: "mention" },
-  { id: "act-04", platform: "youtube", message: "New subscriber milestone: 67,500 subscribers", timestamp: hoursAgo(1.2), type: "milestone" },
-  { id: "act-05", platform: "linkedin", message: "Your post was shared by Sarah Chen, VP Marketing at Stripe", timestamp: hoursAgo(1.9), type: "share" },
-  { id: "act-06", platform: "instagram", message: "@travel_with_jake liked your story", timestamp: hoursAgo(2.5), type: "like" },
-  { id: "act-07", platform: "facebook", message: "12 new comments on your workshop announcement", timestamp: hoursAgo(3.1), type: "comment" },
-  { id: "act-08", platform: "tiktok", message: "@socialmedia_guru shared your video with 45K followers", timestamp: hoursAgo(4.2), type: "share" },
-  { id: "act-09", platform: "twitter", message: "Your thread received 340 new likes in the past hour", timestamp: hoursAgo(5.5), type: "like" },
-  { id: "act-10", platform: "instagram", message: "@brand_collab_agency mentioned you in a partnership post", timestamp: hoursAgo(7.0), type: "mention" },
-  { id: "act-11", platform: "youtube", message: "@digital_nomad_life commented: \"Best breakdown I've seen this year\"", timestamp: hoursAgo(9.3), type: "comment" },
-  { id: "act-12", platform: "linkedin", message: "Your article was featured in the LinkedIn Marketing newsletter", timestamp: hoursAgo(12.0), type: "milestone" },
-  { id: "act-13", platform: "tiktok", message: "50K likes milestone on your latest video", timestamp: hoursAgo(15.5), type: "milestone" },
-  { id: "act-14", platform: "facebook", message: "@community_builder shared your post to 3 groups", timestamp: hoursAgo(19.0), type: "share" },
-  { id: "act-15", platform: "twitter", message: "@marketing_daily mentioned you in their top creators list", timestamp: hoursAgo(23.0), type: "mention" },
+export const instagramAnalysisWorking: InsightItem[] = [
+  { text: "Reels with face-to-camera hooks in first 2 seconds get 4x more views", metric: "+312% views" },
+  { text: "Carousels with data/stats on slide 1 earn highest saves", metric: "89 avg saves" },
+  { text: "Posting between 11am-1pm EST consistently outperforms other times", metric: "+28% reach" },
 ];
 
-// ---------------------------------------------------------------------------
-// Quick stats
-// ---------------------------------------------------------------------------
+export const instagramAnalysisFlopping: InsightItem[] = [
+  { text: "Static image posts getting minimal engagement vs Reels", metric: "-62% engagement" },
+  { text: "Stories posted after 9pm getting less than half typical views", metric: "-45% views" },
+  { text: "Hashtags over 15 per post are hurting reach", metric: "-18% reach" },
+];
 
-export const quickStats: QuickStat[] = [
-  {
-    label: "Total Followers",
-    value: 691_300,
-    previousValue: 678_100,
-    format: "compact",
-    sparklineData: [642, 648, 653, 659, 664, 668, 671, 675, 679, 683, 687, 691],
-  },
-  {
-    label: "Engagement Rate",
-    value: 3.4,
-    previousValue: 3.1,
-    format: "percentage",
-    sparklineData: [2.8, 2.9, 3.0, 2.9, 3.1, 3.2, 3.0, 3.3, 3.1, 3.4, 3.3, 3.4],
-  },
-  {
-    label: "Weekly Impressions",
-    value: 2_100_000,
-    previousValue: 1_940_000,
-    format: "compact",
-    sparklineData: [1720, 1780, 1810, 1860, 1890, 1920, 1950, 1980, 2010, 2040, 2070, 2100],
-  },
-  {
-    label: "Posts This Month",
-    value: 47,
-    previousValue: 42,
-    format: "number",
-    sparklineData: [31, 34, 36, 38, 39, 40, 41, 42, 43, 44, 46, 47],
-  },
+// ==================== YOUTUBE PAGE ====================
+
+export const youtubeMetrics: MetricCard[] = [
+  { label: "Subscribers", value: "234,800", change: "+2,400", changeType: "positive" },
+  { label: "Views (30D)", value: "1.8M", change: "+24.3%", changeType: "positive" },
+  { label: "Watch Time (hrs)", value: "42,600", change: "+15.8%", changeType: "positive" },
+  { label: "Avg View Duration", value: "8:42", change: "+0:34", changeType: "positive" },
+];
+
+export const youtubeViewsData: ViewsDataPoint[] = Array.from({ length: 30 }, (_, i) => {
+  const date = new Date(2026, 1, 25 + i);
+  const base = 45000 + Math.sin(i * 0.4) * 15000;
+  const spike = i === 8 ? 85000 : i === 22 ? 65000 : 0;
+  return {
+    date: date.toISOString().split("T")[0],
+    views: Math.round(base + spike + Math.random() * 5000),
+  };
+});
+
+export const youtubeVideos: YouTubeVideo[] = [
+  { id: "yt1", title: "I Tried Every AI Video Tool So You Don't Have To", views: 342000, likes: 18200, comments: 2100, publishedAt: "3d ago", duration: "18:42", retention: 62, thumbnailColor: "#ff6b6b" },
+  { id: "yt2", title: "The Content Strategy That Got Me to 200K Subscribers", views: 189000, likes: 12400, comments: 1800, publishedAt: "1w ago", duration: "22:15", retention: 58, thumbnailColor: "#4ecdc4" },
+  { id: "yt3", title: "Reacting to My First YouTube Video (Cringe Warning)", views: 156000, likes: 14800, comments: 3200, publishedAt: "2w ago", duration: "14:08", retention: 71, thumbnailColor: "#45b7d1" },
+  { id: "yt4", title: "How I Edit Videos in Half the Time — Full Workflow", views: 98000, likes: 8900, comments: 920, publishedAt: "2w ago", duration: "25:33", retention: 54, thumbnailColor: "#96ceb4" },
+  { id: "yt5", title: "Brand Deals 101: What Nobody Tells You", views: 224000, likes: 16100, comments: 2800, publishedAt: "3w ago", duration: "19:47", retention: 65, thumbnailColor: "#ffeaa7" },
+];
+
+export const youtubeComments: YouTubeComment[] = [
+  { id: "yc1", author: "TechCreator Mike", text: "The AI tools comparison was incredibly thorough. Saved me hours of research. Subscribed!", likes: 342, videoTitle: "I Tried Every AI Video Tool So You Don't Have To", timestamp: "2h ago" },
+  { id: "yc2", author: "Sarah Studios", text: "Your editing workflow video literally changed my life. I went from spending 8 hours to 3 hours per video.", likes: 218, videoTitle: "How I Edit Videos in Half the Time", timestamp: "5h ago" },
+  { id: "yc3", author: "Creative Nomad", text: "The brand deals video came at the perfect time. Just got my first offer and used your negotiation framework!", likes: 156, videoTitle: "Brand Deals 101: What Nobody Tells You", timestamp: "8h ago" },
+  { id: "yc4", author: "Film School Dropout", text: "Watching your old video vs now is genuinely inspiring. Shows that consistency really does pay off.", likes: 421, videoTitle: "Reacting to My First YouTube Video", timestamp: "12h ago" },
+  { id: "yc5", author: "Marketing Pro", text: "200K subscriber strategy video should be required viewing for all content creators. Pure gold.", likes: 289, videoTitle: "The Content Strategy That Got Me to 200K", timestamp: "1d ago" },
+  { id: "yc6", author: "Aspiring Creator", text: "Can you do a deep dive on thumbnail design? Your thumbnails always stand out in my feed.", likes: 134, videoTitle: "I Tried Every AI Video Tool So You Don't Have To", timestamp: "1d ago" },
+  { id: "yc7", author: "Digital Dave", text: "Just binged your entire channel. The production quality jump from 2024 to now is insane.", likes: 198, videoTitle: "The Content Strategy That Got Me to 200K", timestamp: "2d ago" },
+  { id: "yc8", author: "Indie Filmmaker", text: "Your workflow tips cut my editing time by 40%. No exaggeration. Thank you!", likes: 167, videoTitle: "How I Edit Videos in Half the Time", timestamp: "2d ago" },
+];
+
+export const youtubeAnalysis = {
+  working: [
+    { text: "Long-form tutorials (15-25 min) getting highest watch time", metric: "8:42 avg duration" },
+    { text: "Collaboration videos driving 3x subscriber growth", metric: "+2,400 subs" },
+    { text: "Videos with clear numbered lists in titles outperforming", metric: "+34% CTR" },
+  ] as InsightItem[],
+  flopping: [
+    { text: "Thumbnails with text overlays underperforming clean portraits", metric: "-18% CTR" },
+    { text: "Videos over 30 minutes seeing significant drop-off", metric: "42% retention" },
+    { text: "Shorts reposts getting less traction than native content", metric: "-55% views" },
+  ] as InsightItem[],
+  contentIdeas: [
+    "Deep dive on thumbnail design psychology — high demand in comments",
+    "Creator economy predictions for 2026 Q3 — trending topic",
+    "Collab with @filmmakerSarah — complementary audiences, 180K overlap",
+  ],
+};
+
+// ==================== FACEBOOK PAGE ====================
+
+export const facebookMetrics: MetricCard[] = [
+  { label: "Page Followers", value: "128,400", change: "+1.2%", changeType: "positive" },
+  { label: "Page Likes", value: "124,800", change: "+0.8%", changeType: "positive" },
+  { label: "Post Reach (30D)", value: "892K", change: "-12.4%", changeType: "negative" },
+  { label: "Engagement Rate", value: "2.1%", change: "-0.4%", changeType: "negative" },
+];
+
+export const facebookPostReach: PostReachPoint[] = Array.from({ length: 30 }, (_, i) => {
+  const date = new Date(2026, 1, 25 + i);
+  const base = 25000 - i * 200;
+  return {
+    date: date.toISOString().split("T")[0],
+    reach: Math.round(Math.max(15000, base + Math.random() * 5000)),
+  };
+});
+
+export const facebookPosts: FacebookPost[] = [
+  { id: "fb1", content: "Just wrapped up an incredible Q1. Here's what we learned about content creation in 2026 — the landscape has shifted more than ever before...", type: "text", reactions: { like: 234, love: 89, wow: 12, haha: 5 }, comments: 67, shares: 34, reach: 28400, publishedAt: "1d ago" },
+  { id: "fb2", content: "New blog post: '10 Content Creation Myths That Are Holding You Back' — Link in comments 👇", type: "link", reactions: { like: 456, love: 123, wow: 34, haha: 8 }, comments: 89, shares: 156, reach: 45200, publishedAt: "3d ago" },
+  { id: "fb3", content: "Behind the scenes of our latest studio shoot. The team crushed it! 📸", type: "image", reactions: { like: 312, love: 178, wow: 45, haha: 2 }, comments: 56, shares: 23, reach: 32100, publishedAt: "5d ago" },
+  { id: "fb4", content: "Quick tip: The best time to post on Facebook in 2026 isn't what you think. We analyzed 10,000 posts and here's what we found...", type: "video", reactions: { like: 567, love: 145, wow: 67, haha: 12 }, comments: 134, shares: 89, reach: 52300, publishedAt: "1w ago" },
+  { id: "fb5", content: "Excited to announce our new community membership program! Early bird pricing available now 🚀", type: "text", reactions: { like: 789, love: 234, wow: 56, haha: 3 }, comments: 198, shares: 67, reach: 41800, publishedAt: "1w ago" },
+];
+
+export const facebookComments: FacebookComment[] = [
+  { id: "fc1", author: "Jennifer Walsh", text: "This is exactly the kind of content that keeps me coming back to this page. So valuable!", timestamp: "2h ago" },
+  { id: "fc2", author: "David Chen", text: "Signed up for the membership immediately. Been following since day one!", timestamp: "5h ago" },
+  { id: "fc3", author: "Rachel Kim", text: "The posting time analysis was eye-opening. Changed my strategy and already seeing results.", timestamp: "1d ago" },
+  { id: "fc4", author: "Mark Thompson", text: "Would love to see more behind-the-scenes content. The studio tour was incredible!", timestamp: "2d ago" },
+  { id: "fc5", author: "Lisa Patel", text: "Shared the myths article with my entire team. We debunked 3 of our own assumptions!", timestamp: "3d ago" },
+];
+
+export const facebookInsights = {
+  working: [
+    { text: "Video posts getting 3x more reach than text posts", metric: "+312% reach" },
+    { text: "Link posts with strong hooks driving website traffic", metric: "+1,200 clicks" },
+    { text: "Community posts generating highest comment rates", metric: "34 avg comments" },
+  ] as InsightItem[],
+  flopping: [
+    { text: "Text-only posts reaching less than 2% of followers", metric: "1.8% reach" },
+    { text: "Posting more than once per day cannibalizing reach", metric: "-24% per post" },
+    { text: "Shared content from other platforms underperforming native", metric: "-40% engagement" },
+  ] as InsightItem[],
+};
+
+// ==================== EMAIL PAGE ====================
+
+export const emailMetrics: MetricCard[] = [
+  { label: "Unread", value: "24", change: "+8 today", changeType: "neutral" },
+  { label: "Brand Deal Inquiries", value: "7", change: "+3 this week", changeType: "positive" },
+  { label: "Needs Response", value: "5", change: "2 urgent", changeType: "negative" },
+];
+
+export const emailAISummary = "You have 5 emails that need responses today. Priority: Glossier's brand deal deadline is tomorrow — their offer is $12K for 3 Reels, which is slightly below your rate card but includes product seeding and 6-month exclusivity is negotiable. Nike Digital followed up on your proposal — they want to schedule a call. Two customer support tickets about membership access need resolving. The Notion newsletter has an interesting piece on creator economy trends worth reading during lunch.";
+
+export const emails: Email[] = [
+  // Brand deals
+  { id: "e1", from: "Sarah Kim — Glossier", subject: "Partnership Proposal: Spring Campaign 2026", preview: "Hi! We'd love to collaborate on our upcoming spring campaign. We're thinking 3 Reels over 6 weeks...", timestamp: "2h ago", category: "brand-deals", priority: "high", read: false, needsResponse: true },
+  { id: "e2", from: "Jake Morrison — Nike Digital", subject: "RE: Content Creator Program — Follow Up", preview: "Thanks for sending over the proposal. The team loved your creative direction. Can we schedule a call...", timestamp: "5h ago", category: "brand-deals", priority: "high", read: false, needsResponse: true },
+  { id: "e3", from: "Lisa Chen — Adobe Creative Cloud", subject: "Annual Creator Partnership Renewal", preview: "Hope you're doing well! It's that time of year again. We'd love to renew our partnership with...", timestamp: "1d ago", category: "brand-deals", priority: "medium", read: true, needsResponse: false },
+  { id: "e4", from: "Tom Bradley — Squarespace", subject: "Sponsored Content Opportunity Q2", preview: "We've been following your content and think you'd be a great fit for our Q2 creator campaign...", timestamp: "2d ago", category: "brand-deals", priority: "medium", read: true, needsResponse: false },
+  { id: "e5", from: "Maria Garcia — Canva", subject: "Creator Spotlight Feature Request", preview: "We're launching a new creator spotlight series and would love to feature your workflow...", timestamp: "3d ago", category: "brand-deals", priority: "low", read: true, needsResponse: false },
+  // Customer
+  { id: "e6", from: "Alex Thompson", subject: "Membership Access Issue", preview: "Hi, I signed up for the Pro tier yesterday but I still can't access the premium content library...", timestamp: "3h ago", category: "customer", priority: "high", read: false, needsResponse: true },
+  { id: "e7", from: "Priya Patel", subject: "Course Download Problem", preview: "I'm trying to download the editing masterclass files but keep getting a 404 error on lesson 7...", timestamp: "6h ago", category: "customer", priority: "high", read: false, needsResponse: true },
+  { id: "e8", from: "Jordan Kim", subject: "Feature Request: Mobile App", preview: "Love the community! Any plans for a mobile app? Would be great to access content on the go...", timestamp: "1d ago", category: "customer", priority: "low", read: true, needsResponse: false },
+  { id: "e9", from: "Casey Rivera", subject: "Testimonial for Your Website", preview: "Hey! Your course completely changed my content game. I went from 2K to 15K followers in 3 months...", timestamp: "2d ago", category: "customer", priority: "low", read: true, needsResponse: false },
+  { id: "e10", from: "Morgan Lee", subject: "Billing Question", preview: "Quick question — I was charged twice this month for the Pro subscription. Could you look into...", timestamp: "3d ago", category: "customer", priority: "medium", read: true, needsResponse: true },
+  // Newsletters
+  { id: "e11", from: "Notion — The Creator Economy", subject: "Creator Economy Weekly: AI is Changing Everything", preview: "This week's top story: How AI tools are reshaping content creation workflows for independent...", timestamp: "4h ago", category: "newsletter", priority: "low", read: false, needsResponse: false },
+  { id: "e12", from: "Morning Brew", subject: "The Social Media Shakeup You Didn't See Coming", preview: "Good morning! TikTok just announced major changes to their creator fund structure...", timestamp: "8h ago", category: "newsletter", priority: "low", read: false, needsResponse: false },
+  { id: "e13", from: "The Hustle", subject: "Why Micro-Influencers Are Winning in 2026", preview: "The data is clear: brands are shifting budgets from mega-influencers to creators with...", timestamp: "1d ago", category: "newsletter", priority: "low", read: true, needsResponse: false },
+  { id: "e14", from: "Product Hunt Daily", subject: "New Tools for Content Creators", preview: "Today's top launches include a new AI video editor, a social media scheduling tool with...", timestamp: "1d ago", category: "newsletter", priority: "low", read: true, needsResponse: false },
+  { id: "e15", from: "Stratechery", subject: "Platform Economics and the Creator Middle Class", preview: "Ben Thompson analyzes the evolving economics of creator platforms and what it means for...", timestamp: "2d ago", category: "newsletter", priority: "low", read: true, needsResponse: false },
+];
+
+// ==================== DEALS PAGE ====================
+
+export const dealMetrics: MetricCard[] = [
+  { label: "Active Deals", value: "8", change: "+2 this month", changeType: "positive" },
+  { label: "Pipeline Value", value: "$142,500", change: "+$34K", changeType: "positive", prefix: "$" },
+  { label: "Pending Payouts", value: "$28,400", change: "3 invoices", changeType: "neutral" },
+  { label: "Completed This Month", value: "4", change: "+$48,200", changeType: "positive" },
+];
+
+export const deals: Deal[] = [
+  { id: "d1", brand: "Glossier", value: 12000, stage: "inquiry", deadline: "2026-04-15", platform: "instagram", description: "Spring campaign — 3 Reels over 6 weeks" },
+  { id: "d2", brand: "Nike Digital", value: 35000, stage: "negotiating", deadline: "2026-05-01", platform: "youtube", description: "Creator program — 2 long-form videos + social" },
+  { id: "d3", brand: "Squarespace", value: 8500, stage: "inquiry", deadline: "2026-04-30", platform: "youtube", description: "Sponsored segment in 1 video" },
+  { id: "d4", brand: "Adobe Creative Cloud", value: 24000, stage: "in-progress", deadline: "2026-06-30", platform: "instagram", description: "Annual partnership — monthly content" },
+  { id: "d5", brand: "Canva", value: 6000, stage: "inquiry", deadline: "2026-04-20", platform: "instagram", description: "Creator spotlight feature" },
+  { id: "d6", brand: "Notion", value: 15000, stage: "negotiating", deadline: "2026-05-15", platform: "youtube", description: "Workflow series — 3 videos" },
+  { id: "d7", brand: "Samsung", value: 42000, stage: "in-progress", deadline: "2026-07-31", platform: "youtube", description: "Galaxy Creator Program — Q2/Q3" },
+  { id: "d8", brand: "Skillshare", value: 18000, stage: "completed", deadline: "2026-03-15", platform: "youtube", description: "Original class + promotional content" },
+  { id: "d9", brand: "Monday.com", value: 10000, stage: "completed", deadline: "2026-03-01", platform: "instagram", description: "Productivity series — 5 Reels" },
+  { id: "d10", brand: "Epidemic Sound", value: 7500, stage: "completed", deadline: "2026-02-28", platform: "youtube", description: "Music licensing integration" },
+  { id: "d11", brand: "Riverside.fm", value: 12700, stage: "completed", deadline: "2026-02-15", platform: "youtube", description: "Podcast tool review + tutorial" },
+];
+
+export const payouts: Payout[] = [
+  { id: "p1", brand: "Adobe Creative Cloud", dealValue: 24000, status: "pending", paymentDate: "2026-04-01", invoiceNumber: "INV-2026-041" },
+  { id: "p2", brand: "Samsung", dealValue: 42000, status: "pending", paymentDate: "2026-04-15", invoiceNumber: "INV-2026-042" },
+  { id: "p3", brand: "Skillshare", dealValue: 18000, status: "paid", paymentDate: "2026-03-20", invoiceNumber: "INV-2026-038" },
+  { id: "p4", brand: "Monday.com", dealValue: 10000, status: "paid", paymentDate: "2026-03-10", invoiceNumber: "INV-2026-035" },
+  { id: "p5", brand: "Epidemic Sound", dealValue: 7500, status: "overdue", paymentDate: "2026-03-15", invoiceNumber: "INV-2026-036" },
+  { id: "p6", brand: "Riverside.fm", dealValue: 12700, status: "paid", paymentDate: "2026-03-01", invoiceNumber: "INV-2026-032" },
+];
+
+export const monthlyEarnings: MonthlyEarning[] = [
+  { month: "Oct", amount: 18500 },
+  { month: "Nov", amount: 24200 },
+  { month: "Dec", amount: 31400 },
+  { month: "Jan", amount: 22800 },
+  { month: "Feb", amount: 28900 },
+  { month: "Mar", amount: 48200 },
+];
+
+// ==================== SETTINGS PAGE ====================
+
+export const connectedAccounts: ConnectedAccount[] = [
+  { platform: "Instagram", handle: "@commandhq", connected: true, lastSync: "2 minutes ago", icon: "Instagram" },
+  { platform: "YouTube", handle: "Command HQ", connected: true, lastSync: "5 minutes ago", icon: "Youtube" },
+  { platform: "Facebook", handle: "", connected: false, icon: "Facebook" },
+  { platform: "Gmail", handle: "", connected: false, icon: "Mail" },
+];
+
+export const userProfile: UserProfile = {
+  name: "Ibrahim",
+  email: "ibrahim@commandhq.co",
+  businessName: "Command HQ Media",
+};
+
+export const notificationSettings: NotificationSetting[] = [
+  { id: "daily-briefing", label: "Daily Briefing", description: "AI-generated summary every morning at 9am", enabled: true },
+  { id: "brand-deals", label: "Brand Deal Alerts", description: "Notify when new brand deal inquiries arrive", enabled: true },
+  { id: "weekly-report", label: "Weekly Report", description: "Comprehensive analytics report every Monday", enabled: true },
+  { id: "comment-alerts", label: "Comment Alerts", description: "Notify on high-engagement comments", enabled: false },
 ];

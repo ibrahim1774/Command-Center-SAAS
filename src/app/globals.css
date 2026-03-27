@@ -1,123 +1,105 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: "Clash Display";
-  src: url("../fonts/ClashDisplay-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-display: swap;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Clash Display";
-  src: url("../fonts/ClashDisplay-Medium.woff2") format("woff2");
-  font-weight: 500;
-  font-display: swap;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Clash Display";
-  src: url("../fonts/ClashDisplay-Semibold.woff2") format("woff2");
-  font-weight: 600;
-  font-display: swap;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Clash Display";
-  src: url("../fonts/ClashDisplay-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-display: swap;
-  font-style: normal;
-}
-
 @theme {
-  --font-display: "Clash Display", sans-serif;
-  --font-body: "Plus Jakarta Sans", sans-serif;
+  --font-display: "Playfair Display", serif;
+  --font-body: "DM Sans", sans-serif;
 
-  --color-surface-primary: #09090b;
-  --color-surface-secondary: #18181b;
-  --color-surface-tertiary: #27272a;
-  --color-surface-elevated: #303033;
+  --color-page-bg: #f8f7f4;
+  --color-card-bg: #ffffff;
+  --color-card-border: #e8e6e1;
+  --color-card-border-hover: #d4d2cd;
 
-  --color-border-default: #3f3f46;
-  --color-border-subtle: #27272a;
+  --color-accent-primary: #c4947a;
+  --color-accent-secondary: #8b7355;
 
-  --color-text-primary: #fafafa;
-  --color-text-secondary: #a1a1aa;
-  --color-text-tertiary: #71717a;
+  --color-success: #6b8f71;
+  --color-danger: #c4626a;
 
-  --color-accent-blue: #3b82f6;
-  --color-accent-green: #22c55e;
-  --color-accent-coral: #f43f5e;
-  --color-accent-amber: #f59e0b;
-  --color-accent-violet: #8b5cf6;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #6b6b6b;
+  --color-text-muted: #a3a3a3;
 
   --color-instagram: #E4405F;
+  --color-youtube: #FF0000;
+  --color-facebook: #1877F2;
   --color-twitter: #1DA1F2;
   --color-tiktok: #00F2EA;
-  --color-youtube: #FF0000;
   --color-linkedin: #0A66C2;
-  --color-facebook: #1877F2;
 
-  --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
-  --animate-slide-in-left: slide-in-left 0.4s ease-out forwards;
+  --animate-fade-in-up: fade-in-up 0.5s ease-out both;
+  --animate-slide-in-left: slide-in-left 0.4s ease-out both;
   --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
 
   @keyframes fade-in-up {
-    0% { opacity: 0; transform: translateY(12px); }
-    100% { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  @keyframes slide-in-left {
-    0% { opacity: 0; transform: translateX(-16px); }
-    100% { opacity: 1; transform: translateX(0); }
-  }
-  @keyframes pulse-soft {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-}
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: var(--font-body);
-  background-color: var(--color-surface-primary);
+  background-color: var(--color-page-bg);
   color: var(--color-text-primary);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
+::selection {
+  background-color: var(--color-accent-primary);
+  color: #ffffff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d2cd #f0ede8;
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #f0ede8;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border-default);
-  border-radius: 3px;
+  background: #d4d2cd;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-tertiary);
-}
-
-/* Selection color */
-::selection {
-  background-color: color-mix(in srgb, var(--color-accent-blue) 30%, transparent);
-  color: var(--color-text-primary);
+  background: #c4947a;
 }

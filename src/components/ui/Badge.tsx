@@ -4,14 +4,15 @@ import { cn } from "@/lib/utils";
 const badgeVariants = cva("inline-flex items-center rounded-full font-medium", {
   variants: {
     variant: {
-      positive: "bg-accent-green/15 text-accent-green",
-      negative: "bg-accent-coral/15 text-accent-coral",
-      neutral: "bg-surface-tertiary text-text-secondary",
-      info: "bg-accent-blue/15 text-accent-blue",
+      positive: "bg-success/10 text-success",
+      negative: "bg-danger/10 text-danger",
+      neutral: "bg-[#f0ede8] text-text-secondary",
+      info: "bg-accent-primary/10 text-accent-primary",
+      platform: "bg-[#f0ede8] text-text-primary",
     },
     size: {
-      sm: "text-xs px-1.5 py-0.5",
-      md: "text-xs px-2 py-1",
+      sm: "text-[10px] px-1.5 py-0.5",
+      md: "text-xs px-2.5 py-1",
     },
   },
   defaultVariants: {
