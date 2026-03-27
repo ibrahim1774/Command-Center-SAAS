@@ -17,21 +17,21 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Command Center — Social Media Analytics for Creators",
-    template: "%s | Command Center",
+    default: "Nurplix — Social Media Command Center for Creators",
+    template: "%s | Nurplix",
   },
   description:
-    "AI-powered analytics across Instagram, YouTube, and Facebook with brand deal CRM and personal productivity tools. Built for creators who take their craft seriously.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://commandcenter.app"),
+    "Nurplix is your social media command center — AI-powered analytics across Instagram, YouTube, and Facebook with brand deal CRM and productivity tools for creators.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://www.nurplix.com"),
   openGraph: {
-    title: "Command Center — Social Media Analytics for Creators",
+    title: "Nurplix — Social Media Command Center for Creators",
     description: "AI-powered analytics, brand deal CRM, goal tracking, and journaling for serious creators.",
     type: "website",
-    siteName: "Command Center",
+    siteName: "Nurplix",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Command Center — Social Media Analytics for Creators",
+    title: "Nurplix — Social Media Command Center for Creators",
     description: "AI-powered analytics, brand deal CRM, and productivity tools for creators.",
   },
   icons: {

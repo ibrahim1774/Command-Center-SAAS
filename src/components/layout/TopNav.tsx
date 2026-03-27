@@ -72,12 +72,12 @@ export default function TopNav() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex h-16 items-center justify-between">
           {/* Brand */}
-          <Link href="/dashboard" className="flex items-baseline gap-1.5">
+          <Link href="/dashboard" className="flex items-baseline gap-2">
             <span className="font-display text-xl sm:text-2xl font-bold text-text-primary tracking-tight">
-              Command
+              Nurplix
             </span>
-            <span className="font-display text-xl sm:text-2xl italic text-accent-primary tracking-tight">
-              Center
+            <span className="hidden sm:inline text-xs font-medium uppercase tracking-widest text-text-muted">
+              Command Center
             </span>
           </Link>
 

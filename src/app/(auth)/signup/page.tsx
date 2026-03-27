@@ -93,8 +93,8 @@ export default function SignupPage() {
             className="text-3xl tracking-tight mb-2"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            <span className="font-bold">Command</span>
-            <span className="italic font-normal"> Center</span>
+            <span className="font-bold">Nurplix</span>
+            <span className="font-normal text-lg block text-[#8a8580] tracking-widest uppercase" style={{ fontSize: "0.7rem" }}>Command Center</span>
           </h1>
           <p
             className="text-sm tracking-wide"

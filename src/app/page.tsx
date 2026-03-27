@@ -86,12 +86,12 @@ export default function LandingPage() {
         }`}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-baseline gap-0.5">
+          <Link href="/" className="flex items-baseline gap-2">
             <span className="font-display text-xl font-bold tracking-tight">
-              Command
+              Nurplix
             </span>
-            <span className="font-display text-xl italic text-accent-primary">
-              Center
+            <span className="text-xs font-medium uppercase tracking-widest text-text-muted">
+              Command Center
             </span>
           </Link>
 
@@ -291,7 +291,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── FEATURES ── */}
-      <section className="py-16 md:py-24">
+      <section id="features" className="py-16 md:py-24">
         <div className="mx-auto max-w-6xl px-6">
           <FadeUp>
             <p className="text-center text-sm font-medium uppercase tracking-widest text-accent-primary">
@@ -321,7 +321,7 @@ export default function LandingPage() {
               },
               {
                 icon: Target,
-                title: "Your command center",
+                title: "Your personal HQ",
                 body: "Goal tracking, daily journaling, task management, and calendar \u2014 all in one space designed for focus.",
               },
             ].map((f, i) => (
@@ -395,7 +395,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── PRICING ── */}
-      <section className="py-16 md:py-24">
+      <section id="pricing" className="py-16 md:py-24">
         <div className="mx-auto max-w-6xl px-6">
           <FadeUp>
             <p className="text-center text-sm font-medium uppercase tracking-widest text-accent-primary">
@@ -520,7 +520,7 @@ export default function LandingPage() {
               Testimonials
             </p>
             <h2 className="mt-3 text-center font-display text-3xl font-bold tracking-tight md:text-4xl">
-              Creators love Command Center
+              Creators love Nurplix
             </h2>
           </FadeUp>
 
@@ -531,7 +531,7 @@ export default function LandingPage() {
                 name: "Sarah K.",
                 handle: "@sarahcreates",
                 quote:
-                  "Command Center replaced 4 different tools for me. The AI insights alone have doubled my engagement rate.",
+                  "Nurplix replaced 4 different tools for me. The AI insights alone have doubled my engagement rate.",
               },
               {
                 initials: "MT",
@@ -596,12 +596,12 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-6">
           <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
             <div>
-              <Link href="/" className="flex items-baseline gap-0.5">
+              <Link href="/" className="flex items-baseline gap-2">
                 <span className="font-display text-lg font-bold tracking-tight">
-                  Command
+                  Nurplix
                 </span>
-                <span className="font-display text-lg italic text-accent-primary">
-                  Center
+                <span className="text-xs font-medium uppercase tracking-widest text-text-muted">
+                  Command Center
                 </span>
               </Link>
               <p className="mt-1 text-sm text-text-muted">
@@ -611,11 +611,12 @@ export default function LandingPage() {
 
             <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-secondary">
               {[
-                { label: "Features", href: "#" },
-                { label: "Pricing", href: "#" },
+                { label: "Features", href: "#features" },
+                { label: "Pricing", href: "#pricing" },
                 { label: "Login", href: "/login" },
-                { label: "Terms", href: "#" },
-                { label: "Privacy", href: "#" },
+                { label: "Contact", href: "/contact" },
+                { label: "Terms", href: "/terms" },
+                { label: "Privacy", href: "/privacy" },
               ].map((link) => (
                 <Link
                   key={link.label}
@@ -629,7 +630,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-8 border-t border-card-border pt-6 text-center text-xs text-text-muted">
-            &copy; 2026 Command Center. All rights reserved.
+            &copy; 2026 Nurplix. All rights reserved.
           </div>
         </div>
       </footer>
