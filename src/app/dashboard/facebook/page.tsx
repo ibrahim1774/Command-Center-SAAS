@@ -1,17 +1,22 @@
 "use client";
 
-import { facebookInsights } from "@/lib/mock-data";
+import { facebookInsights as mockInsights } from "@/lib/mock-data";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
+import { useAIInsights } from "@/lib/hooks/useAIInsights";
 import { ConnectAccountCard } from "@/components/ui/ConnectAccountCard";
 import { SyncStatusBar } from "@/components/ui/SyncStatusBar";
 import { DashboardSkeleton } from "@/components/ui/LoadingSkeleton";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import {
   TrendingUp,
   TrendingDown,
   MessageCircle,
   Share2,
+  Sparkles,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
 
 interface FacebookData {
@@ -63,6 +68,7 @@ function timeAgo(dateStr: string): string {
 export default function FacebookPage() {
   const { data, loading, connected, lastSynced, refetch } =
     useDashboardData<FacebookData>("/api/dashboard/facebook");
+  const { insights, generating, regenerate } = useAIInsights();
 
   if (loading) return <DashboardSkeleton />;
   if (!connected) return <ConnectAccountCard platform="facebook" />;
@@ -70,6 +76,9 @@ export default function FacebookPage() {
   const page = data?.page;
   const posts = data?.posts || [];
   const comments = data?.comments || [];
+
+  const fbWorking = insights?.facebook?.whats_working ?? mockInsights.working;
+  const fbFlopping = insights?.facebook?.whats_flopping ?? mockInsights.flopping;
 
   return (
     <div className="space-y-8">
@@ -182,7 +191,17 @@ export default function FacebookPage() {
         </Card>
       )}
 
-      {/* Row 4: AI Insights (mock data) */}
+      {/* Row 4: AI Insights */}
+      <div className="flex items-center gap-3 mb-1">
+        <Sparkles className="h-4 w-4 text-accent-primary" />
+        <h3 className="font-display text-sm font-semibold text-text-secondary uppercase tracking-wider">
+          AI Insights
+        </h3>
+        <Badge variant="info" size="sm">AI generated</Badge>
+        <Button variant="ghost" size="sm" onClick={regenerate} disabled={generating} className="ml-auto">
+          {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card variant="success" padding="lg">
           <div className="flex items-center gap-2 mb-4">
@@ -191,21 +210,29 @@ export default function FacebookPage() {
               What&apos;s Working
             </h3>
           </div>
-          <ul className="space-y-3">
-            {facebookInsights.working.map((item, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
-                <span className="text-success mt-0.5 shrink-0">&#8226;</span>
-                <span>
-                  {item.text}
-                  {item.metric && (
-                    <Badge variant="positive" size="sm" className="ml-2">
-                      {item.metric}
-                    </Badge>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {generating ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-3 bg-[#e8e6e1] rounded w-full" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-5/6" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-4/6" />
+            </div>
+          ) : (
+            <ul className="space-y-3">
+              {fbWorking.map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                  <span className="text-success mt-0.5 shrink-0">&#8226;</span>
+                  <span>
+                    {item.text}
+                    {item.metric && (
+                      <Badge variant="positive" size="sm" className="ml-2">
+                        {item.metric}
+                      </Badge>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         <Card variant="danger" padding="lg">
@@ -215,21 +242,29 @@ export default function FacebookPage() {
               What&apos;s Flopping
             </h3>
           </div>
-          <ul className="space-y-3">
-            {facebookInsights.flopping.map((item, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
-                <span className="text-danger mt-0.5 shrink-0">&#8226;</span>
-                <span>
-                  {item.text}
-                  {item.metric && (
-                    <Badge variant="negative" size="sm" className="ml-2">
-                      {item.metric}
-                    </Badge>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {generating ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-3 bg-[#e8e6e1] rounded w-full" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-5/6" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-4/6" />
+            </div>
+          ) : (
+            <ul className="space-y-3">
+              {fbFlopping.map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                  <span className="text-danger mt-0.5 shrink-0">&#8226;</span>
+                  <span>
+                    {item.text}
+                    {item.metric && (
+                      <Badge variant="negative" size="sm" className="ml-2">
+                        {item.metric}
+                      </Badge>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
       </div>
     </div>

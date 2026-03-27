@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  aiBriefing,
-  whatsWorking,
-  whatsFlopping,
+  aiBriefing as mockBriefing,
+  whatsWorking as mockWorking,
+  whatsFlopping as mockFlopping,
   socialHeadlines,
   followerComments as mockComments,
   followerGrowthData as mockGrowthData,
@@ -11,6 +11,7 @@ import {
   overviewMetrics as mockMetrics,
 } from "@/lib/mock-data";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
+import { useAIInsights } from "@/lib/hooks/useAIInsights";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -29,6 +30,7 @@ import {
   TrendingDown,
   RefreshCw,
   Users,
+  Loader2,
 } from "lucide-react";
 
 interface OverviewData {
@@ -71,6 +73,13 @@ function ChartTooltip({ active, payload, label }: any) {
 
 export default function DashboardPage() {
   const { data } = useDashboardData<OverviewData>("/api/dashboard/overview");
+  const { insights, generating, regenerate } = useAIInsights();
+
+  // AI data with mock fallbacks
+  const briefingSummary = insights?.daily_briefing?.summary ?? mockBriefing.summary;
+  const briefingHighlights = insights?.daily_briefing?.highlights ?? mockBriefing.highlights;
+  const whatsWorking = insights?.whats_working ?? mockWorking;
+  const whatsFlopping = insights?.whats_flopping ?? mockFlopping;
 
   // Use real data if available, otherwise fall back to mock
   const hasRealData = data?.connected && data.totalFollowers > 0;
@@ -134,7 +143,7 @@ export default function DashboardPage() {
         ))}
       </section>
 
-      {/* ROW 2 — AI Daily Briefing (mock) */}
+      {/* ROW 2 — AI Daily Briefing */}
       <Card className="bg-[#faf8f5]" padding="lg">
         <div className="flex items-center gap-3 mb-4">
           <Sparkles className="h-5 w-5 text-accent-primary" />
@@ -145,26 +154,45 @@ export default function DashboardPage() {
             AI generated
           </Badge>
         </div>
-        <p className="text-text-secondary leading-relaxed font-body mb-5">
-          {aiBriefing.summary}
-        </p>
-        <ul className="space-y-2 mb-6">
-          {aiBriefing.highlights.map((h, i) => (
-            <li key={i} className="flex items-start gap-2.5">
-              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" />
-              <span className="text-sm text-text-secondary font-body">
-                {h}
-              </span>
-            </li>
-          ))}
-        </ul>
-        <Button variant="secondary" size="sm">
-          <RefreshCw className="h-3.5 w-3.5 mr-2" />
-          Regenerate
+        {generating ? (
+          <div className="space-y-3 mb-6 animate-pulse">
+            <div className="h-4 bg-[#e8e6e1] rounded w-full" />
+            <div className="h-4 bg-[#e8e6e1] rounded w-5/6" />
+            <div className="h-4 bg-[#e8e6e1] rounded w-4/6" />
+            <div className="mt-4 space-y-2">
+              <div className="h-3 bg-[#e8e6e1] rounded w-3/4" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-2/3" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-4/5" />
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="text-text-secondary leading-relaxed font-body mb-5">
+              {briefingSummary}
+            </p>
+            <ul className="space-y-2 mb-6">
+              {briefingHighlights.map((h, i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" />
+                  <span className="text-sm text-text-secondary font-body">
+                    {h}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        <Button variant="secondary" size="sm" onClick={regenerate} disabled={generating}>
+          {generating ? (
+            <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+          ) : (
+            <RefreshCw className="h-3.5 w-3.5 mr-2" />
+          )}
+          {generating ? "Generating..." : "Regenerate"}
         </Button>
       </Card>
 
-      {/* ROW 3 — What's Working / What's Flopping (mock) */}
+      {/* ROW 3 — What's Working / What's Flopping */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card variant="success" padding="md">
           <div className="flex items-center gap-2 mb-4">

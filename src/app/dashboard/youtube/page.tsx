@@ -1,12 +1,14 @@
 "use client";
 
-import { youtubeAnalysis } from "@/lib/mock-data";
+import { youtubeAnalysis as mockAnalysis } from "@/lib/mock-data";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
+import { useAIInsights } from "@/lib/hooks/useAIInsights";
 import { ConnectAccountCard } from "@/components/ui/ConnectAccountCard";
 import { SyncStatusBar } from "@/components/ui/SyncStatusBar";
 import { DashboardSkeleton } from "@/components/ui/LoadingSkeleton";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import {
   AreaChart,
   Area,
@@ -23,6 +25,9 @@ import {
   ThumbsUp,
   MessageCircle,
   Lightbulb,
+  Sparkles,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
 
 interface YouTubeData {
@@ -75,6 +80,7 @@ function timeAgo(dateStr: string): string {
 export default function YouTubePage() {
   const { data, loading, connected, lastSynced, refetch } =
     useDashboardData<YouTubeData>("/api/dashboard/youtube");
+  const { insights, generating, regenerate } = useAIInsights();
 
   if (loading) return <DashboardSkeleton />;
   if (!connected) return <ConnectAccountCard platform="youtube" />;
@@ -82,6 +88,10 @@ export default function YouTubePage() {
   const channel = data?.channel;
   const videos = data?.videos || [];
   const comments = data?.comments || [];
+
+  const ytWorking = insights?.youtube?.whats_working ?? mockAnalysis.working;
+  const ytFlopping = insights?.youtube?.whats_flopping ?? mockAnalysis.flopping;
+  const ytIdeas = insights?.youtube?.content_ideas ?? mockAnalysis.contentIdeas;
 
   return (
     <div className="space-y-8">
@@ -269,7 +279,17 @@ export default function YouTubePage() {
         </Card>
       )}
 
-      {/* Row 5: AI Analysis (mock data) */}
+      {/* Row 5: AI Analysis */}
+      <div className="flex items-center gap-3 mb-1">
+        <Sparkles className="h-4 w-4 text-accent-primary" />
+        <h3 className="font-display text-sm font-semibold text-text-secondary uppercase tracking-wider">
+          AI Analysis
+        </h3>
+        <Badge variant="info" size="sm">AI generated</Badge>
+        <Button variant="ghost" size="sm" onClick={regenerate} disabled={generating} className="ml-auto">
+          {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card variant="success" padding="lg">
           <div className="flex items-center gap-2 mb-4">
@@ -278,21 +298,29 @@ export default function YouTubePage() {
               What&apos;s Working
             </h3>
           </div>
-          <ul className="space-y-3">
-            {youtubeAnalysis.working.map((item, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
-                <span className="text-success mt-0.5 shrink-0">&#8226;</span>
-                <span>
-                  {item.text}
-                  {item.metric && (
-                    <Badge variant="positive" size="sm" className="ml-2">
-                      {item.metric}
-                    </Badge>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {generating ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-3 bg-[#e8e6e1] rounded w-full" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-5/6" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-4/6" />
+            </div>
+          ) : (
+            <ul className="space-y-3">
+              {ytWorking.map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                  <span className="text-success mt-0.5 shrink-0">&#8226;</span>
+                  <span>
+                    {item.text}
+                    {item.metric && (
+                      <Badge variant="positive" size="sm" className="ml-2">
+                        {item.metric}
+                      </Badge>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         <Card variant="danger" padding="lg">
@@ -302,21 +330,29 @@ export default function YouTubePage() {
               What&apos;s Flopping
             </h3>
           </div>
-          <ul className="space-y-3">
-            {youtubeAnalysis.flopping.map((item, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
-                <span className="text-danger mt-0.5 shrink-0">&#8226;</span>
-                <span>
-                  {item.text}
-                  {item.metric && (
-                    <Badge variant="negative" size="sm" className="ml-2">
-                      {item.metric}
-                    </Badge>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {generating ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-3 bg-[#e8e6e1] rounded w-full" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-5/6" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-4/6" />
+            </div>
+          ) : (
+            <ul className="space-y-3">
+              {ytFlopping.map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                  <span className="text-danger mt-0.5 shrink-0">&#8226;</span>
+                  <span>
+                    {item.text}
+                    {item.metric && (
+                      <Badge variant="negative" size="sm" className="ml-2">
+                        {item.metric}
+                      </Badge>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         <Card padding="lg">
@@ -326,14 +362,22 @@ export default function YouTubePage() {
               Content Ideas
             </h3>
           </div>
-          <ol className="space-y-3">
-            {youtubeAnalysis.contentIdeas.map((idea, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
-                <span className="text-accent-primary font-semibold shrink-0">{i + 1}.</span>
-                <span>{idea}</span>
-              </li>
-            ))}
-          </ol>
+          {generating ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-3 bg-[#e8e6e1] rounded w-full" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-5/6" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-4/6" />
+            </div>
+          ) : (
+            <ol className="space-y-3">
+              {ytIdeas.map((idea, i) => (
+                <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
+                  <span className="text-accent-primary font-semibold shrink-0">{i + 1}.</span>
+                  <span>{idea}</span>
+                </li>
+              ))}
+            </ol>
+          )}
         </Card>
       </div>
     </div>

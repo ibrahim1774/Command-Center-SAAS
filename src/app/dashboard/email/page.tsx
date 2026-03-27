@@ -1,13 +1,16 @@
 "use client";
 
-import { emailAISummary } from "@/lib/mock-data";
+import { useState } from "react";
+import { emailAISummary as mockSummary } from "@/lib/mock-data";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
+import { useAIInsights } from "@/lib/hooks/useAIInsights";
 import { ConnectAccountCard } from "@/components/ui/ConnectAccountCard";
 import { SyncStatusBar } from "@/components/ui/SyncStatusBar";
 import { DashboardSkeleton } from "@/components/ui/LoadingSkeleton";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Sparkles, Mail } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Sparkles, Mail, RefreshCw, Loader2, Tags } from "lucide-react";
 
 interface EmailData {
   connected: boolean;
@@ -47,12 +50,27 @@ const priorityDot: Record<string, string> = {
 export default function EmailPage() {
   const { data, loading, connected, lastSynced, refetch } =
     useDashboardData<EmailData>("/api/dashboard/email");
+  const { insights, generating, regenerate } = useAIInsights();
+  const [categorizing, setCategorizing] = useState(false);
 
   if (loading) return <DashboardSkeleton />;
   if (!connected) return <ConnectAccountCard platform="gmail" />;
 
   const emails = data?.emails || [];
   const unreadCount = data?.unreadCount || 0;
+  const emailSummary = insights?.email_summary ?? mockSummary;
+
+  async function handleCategorize() {
+    setCategorizing(true);
+    try {
+      await fetch("/api/email/categorize", { method: "POST" });
+      refetch();
+    } catch {
+      // silently fail
+    } finally {
+      setCategorizing(false);
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -99,7 +117,7 @@ export default function EmailPage() {
         </Card>
       </div>
 
-      {/* Row 2: AI Email Summary (mock) */}
+      {/* Row 2: AI Email Summary */}
       <Card className="bg-[#faf8f5]" padding="md">
         <div className="mb-3 flex items-center gap-3">
           <Sparkles className="h-5 w-5 text-accent-primary" />
@@ -110,9 +128,35 @@ export default function EmailPage() {
             AI generated
           </Badge>
         </div>
-        <p className="font-body text-sm leading-relaxed text-text-secondary">
-          {emailAISummary}
-        </p>
+        {generating ? (
+          <div className="space-y-2 animate-pulse">
+            <div className="h-3 bg-[#e8e6e1] rounded w-full" />
+            <div className="h-3 bg-[#e8e6e1] rounded w-5/6" />
+            <div className="h-3 bg-[#e8e6e1] rounded w-3/4" />
+          </div>
+        ) : (
+          <p className="font-body text-sm leading-relaxed text-text-secondary">
+            {emailSummary}
+          </p>
+        )}
+        <div className="flex items-center gap-2 mt-4">
+          <Button variant="secondary" size="sm" onClick={regenerate} disabled={generating}>
+            {generating ? (
+              <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5 mr-2" />
+            )}
+            {generating ? "Generating..." : "Regenerate"}
+          </Button>
+          <Button variant="secondary" size="sm" onClick={handleCategorize} disabled={categorizing}>
+            {categorizing ? (
+              <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+            ) : (
+              <Tags className="h-3.5 w-3.5 mr-2" />
+            )}
+            {categorizing ? "Categorizing..." : "Categorize Emails"}
+          </Button>
+        </div>
       </Card>
 
       {/* Row 3: Email List */}

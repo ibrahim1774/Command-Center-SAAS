@@ -1,15 +1,17 @@
 "use client";
 
 import {
-  instagramAnalysisWorking,
-  instagramAnalysisFlopping,
+  instagramAnalysisWorking as mockWorking,
+  instagramAnalysisFlopping as mockFlopping,
 } from "@/lib/mock-data";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
+import { useAIInsights } from "@/lib/hooks/useAIInsights";
 import { ConnectAccountCard } from "@/components/ui/ConnectAccountCard";
 import { SyncStatusBar } from "@/components/ui/SyncStatusBar";
 import { DashboardSkeleton } from "@/components/ui/LoadingSkeleton";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { POST_TYPE_COLORS } from "@/lib/constants";
 import {
   AreaChart,
@@ -26,6 +28,9 @@ import {
   Eye,
   Users,
   MessageCircle,
+  Sparkles,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
 
 interface InstagramData {
@@ -94,9 +99,13 @@ function getMediaTypeLabel(type: string | null): string {
 export default function InstagramPage() {
   const { data, loading, connected, lastSynced, refetch } =
     useDashboardData<InstagramData>("/api/dashboard/instagram");
+  const { insights, generating, regenerate } = useAIInsights();
 
   if (loading) return <DashboardSkeleton />;
   if (!connected) return <ConnectAccountCard platform="instagram" />;
+
+  const igWorking = insights?.instagram?.whats_working ?? mockWorking;
+  const igFlopping = insights?.instagram?.whats_flopping ?? mockFlopping;
 
   const profile = data?.profile;
   const posts = data?.posts || [];
@@ -278,7 +287,17 @@ export default function InstagramPage() {
         </Card>
       )}
 
-      {/* Row 5: Analysis (mock data) */}
+      {/* Row 5: AI Analysis */}
+      <div className="flex items-center gap-3 mb-1">
+        <Sparkles className="h-4 w-4 text-accent-primary" />
+        <h3 className="font-display text-sm font-semibold text-text-secondary uppercase tracking-wider">
+          AI Analysis
+        </h3>
+        <Badge variant="info" size="sm">AI generated</Badge>
+        <Button variant="ghost" size="sm" onClick={regenerate} disabled={generating} className="ml-auto">
+          {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card variant="success">
           <div className="flex items-center gap-2 mb-4">
@@ -287,21 +306,29 @@ export default function InstagramPage() {
               What&apos;s Working
             </h3>
           </div>
-          <ul className="space-y-3">
-            {instagramAnalysisWorking.map((item, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#6b8f71] flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm text-text-primary font-body">{item.text}</p>
-                  {item.metric && (
-                    <Badge variant="positive" size="sm" className="mt-1">
-                      {item.metric}
-                    </Badge>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
+          {generating ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-3 bg-[#e8e6e1] rounded w-full" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-5/6" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-4/6" />
+            </div>
+          ) : (
+            <ul className="space-y-3">
+              {igWorking.map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#6b8f71] flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm text-text-primary font-body">{item.text}</p>
+                    {item.metric && (
+                      <Badge variant="positive" size="sm" className="mt-1">
+                        {item.metric}
+                      </Badge>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         <Card variant="danger">
@@ -311,21 +338,29 @@ export default function InstagramPage() {
               What&apos;s Flopping
             </h3>
           </div>
-          <ul className="space-y-3">
-            {instagramAnalysisFlopping.map((item, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#c4626a] flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm text-text-primary font-body">{item.text}</p>
-                  {item.metric && (
-                    <Badge variant="negative" size="sm" className="mt-1">
-                      {item.metric}
-                    </Badge>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
+          {generating ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-3 bg-[#e8e6e1] rounded w-full" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-5/6" />
+              <div className="h-3 bg-[#e8e6e1] rounded w-4/6" />
+            </div>
+          ) : (
+            <ul className="space-y-3">
+              {igFlopping.map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#c4626a] flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm text-text-primary font-body">{item.text}</p>
+                    {item.metric && (
+                      <Badge variant="negative" size="sm" className="mt-1">
+                        {item.metric}
+                      </Badge>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
       </div>
     </div>
