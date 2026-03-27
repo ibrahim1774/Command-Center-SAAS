@@ -96,6 +96,11 @@ function SettingsContent() {
   const [loadingAccounts, setLoadingAccounts] = useState(true);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
+  const [igPickerAccounts, setIgPickerAccounts] = useState<
+    { id: string; username: string; profilePicture: string | null }[]
+  >([]);
+  const [igPickerOpen, setIgPickerOpen] = useState(false);
+  const [igPickerLoading, setIgPickerLoading] = useState(false);
 
   const [toggles, setToggles] = useState<Record<string, boolean>>(
     Object.fromEntries(notificationSettings.map((s) => [s.id, s.enabled]))
@@ -129,6 +134,45 @@ function SettingsContent() {
       return () => clearTimeout(timer);
     }
   }, [searchParams, fetchAccounts]);
+
+  // Instagram multi-account picker
+  useEffect(() => {
+    if (searchParams.get("ig_pick") === "true") {
+      setIgPickerOpen(true);
+      fetch("/api/connect/instagram/select")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.accounts?.length > 0) {
+            setIgPickerAccounts(data.accounts);
+          } else {
+            setIgPickerOpen(false);
+            setSuccessMessage(data.expired ? "Session expired. Please try connecting Instagram again." : "No Instagram accounts found.");
+          }
+        })
+        .catch(() => setIgPickerOpen(false));
+    }
+  }, [searchParams]);
+
+  const handleIgSelect = async (igUserId: string) => {
+    setIgPickerLoading(true);
+    try {
+      const res = await fetch("/api/connect/instagram/select", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ igUserId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIgPickerOpen(false);
+        setSuccessMessage(`Instagram (@${data.username}) connected successfully!`);
+        fetchAccounts();
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setIgPickerLoading(false);
+    }
+  };
 
   const handleToggle = (id: string) => {
     setToggles((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -170,6 +214,48 @@ function SettingsContent() {
         >
           <Check className="h-4 w-4" />
           {successMessage}
+        </div>
+      )}
+
+      {/* Instagram Account Picker Modal */}
+      {igPickerOpen && igPickerAccounts.length > 0 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-md mx-4 rounded-2xl border border-card-border bg-card-bg p-6 shadow-xl">
+            <h3 className="font-display text-lg font-bold text-text-primary mb-1">
+              Choose Instagram Account
+            </h3>
+            <p className="text-sm text-text-secondary mb-5">
+              Multiple Instagram accounts found. Select the one you want to connect.
+            </p>
+            <div className="space-y-3">
+              {igPickerAccounts.map((acc) => (
+                <button
+                  key={acc.id}
+                  disabled={igPickerLoading}
+                  onClick={() => handleIgSelect(acc.id)}
+                  className="w-full flex items-center gap-4 rounded-xl border border-card-border p-4 text-left transition-all hover:border-accent-primary hover:shadow-md disabled:opacity-50"
+                >
+                  <div className="h-12 w-12 rounded-full bg-[#f0ede8] overflow-hidden flex items-center justify-center flex-shrink-0">
+                    {acc.profilePicture ? (
+                      <img src={acc.profilePicture} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <Camera className="h-5 w-5 text-text-secondary" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-text-primary">@{acc.username}</p>
+                    <p className="text-xs text-text-secondary">Instagram Business Account</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setIgPickerOpen(false)}
+              className="mt-4 w-full text-center text-sm text-text-muted hover:text-text-secondary transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 

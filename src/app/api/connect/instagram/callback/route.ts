@@ -59,10 +59,9 @@ export async function GET(req: NextRequest) {
   );
   const pagesData = await pagesRes.json();
 
-  let igUserId: string | null = null;
-  let igUsername: string | null = null;
+  // Collect ALL Instagram business accounts across all pages
+  const igAccounts: { id: string; username: string; profilePicture: string | null }[] = [];
 
-  // For each page, check for Instagram business account
   if (pagesData.data) {
     for (const page of pagesData.data) {
       const igRes = await fetch(
@@ -71,41 +70,62 @@ export async function GET(req: NextRequest) {
       const igData = await igRes.json();
 
       if (igData.instagram_business_account?.id) {
-        igUserId = igData.instagram_business_account.id;
+        const igId = igData.instagram_business_account.id;
 
         // Fetch IG profile
         const profileRes = await fetch(
-          `https://graph.facebook.com/v21.0/${igUserId}?fields=username,profile_picture_url&access_token=${accessToken}`
+          `https://graph.facebook.com/v21.0/${igId}?fields=username,profile_picture_url&access_token=${accessToken}`
         );
         const profile = await profileRes.json();
-        igUsername = profile.username || null;
-        break;
+
+        igAccounts.push({
+          id: igId,
+          username: profile.username || `Account ${igAccounts.length + 1}`,
+          profilePicture: profile.profile_picture_url || null,
+        });
       }
     }
   }
 
-  if (!igUserId) {
+  if (igAccounts.length === 0) {
     return NextResponse.redirect(
       new URL("/dashboard/settings?error=instagram_no_business_account", req.url)
     );
   }
 
-  // Upsert connected account (long-lived token expires in ~60 days)
-  await getSupabaseAdmin().from("connected_accounts").upsert(
+  const supabase = getSupabaseAdmin();
+
+  // If only one account, auto-connect
+  if (igAccounts.length === 1) {
+    const account = igAccounts[0];
+    await supabase.from("connected_accounts").upsert(
+      {
+        user_id: userId,
+        platform: "instagram",
+        access_token: accessToken,
+        refresh_token: null,
+        token_expires_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+        platform_username: account.username,
+        platform_user_id: account.id,
+        scopes: "instagram_basic,instagram_manage_insights,pages_show_list,pages_read_engagement",
+        connected_at: new Date().toISOString(),
+        status: "active",
+      },
+      { onConflict: "user_id,platform" }
+    );
+
+    return NextResponse.redirect(new URL("/dashboard/settings?connected=instagram", req.url));
+  }
+
+  // Multiple accounts found — store temporarily for picker
+  await supabase.from("cached_data").upsert(
     {
-      user_id: userId,
-      platform: "instagram",
-      access_token: accessToken,
-      refresh_token: null,
-      token_expires_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
-      platform_username: igUsername,
-      platform_user_id: igUserId,
-      scopes: "instagram_basic,instagram_manage_insights,pages_show_list,pages_read_engagement",
-      connected_at: new Date().toISOString(),
-      status: "active",
+      key: `ig_picker_${userId}`,
+      value: { accounts: igAccounts, accessToken },
+      updated_at: new Date().toISOString(),
     },
-    { onConflict: "user_id,platform" }
+    { onConflict: "key" }
   );
 
-  return NextResponse.redirect(new URL("/dashboard/settings?connected=instagram", req.url));
+  return NextResponse.redirect(new URL("/dashboard/settings?ig_pick=true", req.url));
 }
