@@ -1,0 +1,44 @@
+"use client";
+
+import { Camera, Play, Globe, Mail } from "lucide-react";
+import { Card } from "./Card";
+import { Button } from "./Button";
+
+const PLATFORM_CONFIG = {
+  instagram: { label: "Instagram", icon: Camera, color: "#E4405F" },
+  youtube: { label: "YouTube", icon: Play, color: "#FF0000" },
+  facebook: { label: "Facebook", icon: Globe, color: "#1877F2" },
+  gmail: { label: "Gmail", icon: Mail, color: "#EA4335" },
+} as const;
+
+interface ConnectAccountCardProps {
+  platform: "instagram" | "youtube" | "facebook" | "gmail";
+}
+
+export function ConnectAccountCard({ platform }: ConnectAccountCardProps) {
+  const config = PLATFORM_CONFIG[platform];
+  const Icon = config.icon;
+
+  return (
+    <Card padding="lg" className="max-w-lg mx-auto text-center">
+      <div
+        className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+        style={{ backgroundColor: `${config.color}15` }}
+      >
+        <Icon className="w-8 h-8" style={{ color: config.color }} />
+      </div>
+      <h3 className="font-display text-xl text-text-primary mb-2">
+        Connect your {config.label}
+      </h3>
+      <p className="text-sm text-text-secondary mb-6 max-w-sm mx-auto">
+        Link your {config.label} account to see real analytics, posts, and
+        engagement data on this dashboard.
+      </p>
+      <a href={`/api/connect/${platform}`}>
+        <Button variant="primary" size="md">
+          Connect {config.label}
+        </Button>
+      </a>
+    </Card>
+  );
+}

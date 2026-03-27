@@ -1,192 +1,188 @@
 "use client";
 
-import {
-  facebookMetrics,
-  facebookPostReach,
-  facebookPosts,
-  facebookComments,
-  facebookInsights,
-} from "@/lib/mock-data";
+import { facebookInsights } from "@/lib/mock-data";
+import { useDashboardData } from "@/lib/hooks/useDashboardData";
+import { ConnectAccountCard } from "@/components/ui/ConnectAccountCard";
+import { SyncStatusBar } from "@/components/ui/SyncStatusBar";
+import { DashboardSkeleton } from "@/components/ui/LoadingSkeleton";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import {
   TrendingUp,
   TrendingDown,
-  ThumbsUp,
-  Heart,
   MessageCircle,
   Share2,
 } from "lucide-react";
 
+interface FacebookData {
+  connected: boolean;
+  lastSynced: string | null;
+  page: {
+    name: string;
+    followers: number;
+    likes: number;
+  } | null;
+  posts: Array<{
+    id: string;
+    post_id: string;
+    message: string | null;
+    post_type: string;
+    reactions: Record<string, number>;
+    comments_count: number;
+    shares: number;
+    reach: number;
+    created_time: string;
+  }>;
+  comments: Array<{
+    id: string;
+    author: string;
+    text: string;
+    timestamp: string;
+  }>;
+}
+
+function fmt(n: number): string {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000) return (n / 1_000).toFixed(n >= 10_000 ? 0 : 1).replace(/\.0$/, "") + "K";
+  return n.toLocaleString();
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  return `${weeks}w ago`;
+}
+
 export default function FacebookPage() {
+  const { data, loading, connected, lastSynced, refetch } =
+    useDashboardData<FacebookData>("/api/dashboard/facebook");
+
+  if (loading) return <DashboardSkeleton />;
+  if (!connected) return <ConnectAccountCard platform="facebook" />;
+
+  const page = data?.page;
+  const posts = data?.posts || [];
+  const comments = data?.comments || [];
+
   return (
     <div className="space-y-8">
+      <SyncStatusBar
+        lastSynced={lastSynced}
+        platform="facebook"
+        onRefreshComplete={refetch}
+      />
+
       {/* Row 1: Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {facebookMetrics.map((metric) => (
-          <Card key={metric.label} padding="md">
-            <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">
-              {metric.label}
-            </p>
-            <p className="text-2xl font-bold font-[family-name:var(--font-display)] text-text-primary">
-              {metric.value}
-            </p>
-            <Badge
-              variant={metric.changeType === "positive" ? "positive" : "negative"}
-              size="sm"
-              className="mt-2"
-            >
-              {metric.changeType === "positive" ? (
-                <TrendingUp className="w-3 h-3 mr-1" />
-              ) : (
-                <TrendingDown className="w-3 h-3 mr-1" />
-              )}
-              {metric.change}
-            </Badge>
-          </Card>
-        ))}
+        <Card padding="md">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">
+            Page Name
+          </p>
+          <p className="text-lg font-bold font-[family-name:var(--font-display)] text-text-primary">
+            {page?.name || "—"}
+          </p>
+        </Card>
+        <Card padding="md">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">
+            Page Followers
+          </p>
+          <p className="text-2xl font-bold font-[family-name:var(--font-display)] text-text-primary">
+            {fmt(page?.followers || 0)}
+          </p>
+        </Card>
+        <Card padding="md">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">
+            Page Likes
+          </p>
+          <p className="text-2xl font-bold font-[family-name:var(--font-display)] text-text-primary">
+            {fmt(page?.likes || 0)}
+          </p>
+        </Card>
+        <Card padding="md">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">
+            Total Posts
+          </p>
+          <p className="text-2xl font-bold font-[family-name:var(--font-display)] text-text-primary">
+            {posts.length}
+          </p>
+        </Card>
       </div>
 
-      {/* Row 2: Post Reach Chart */}
-      <Card padding="lg">
-        <div className="flex items-baseline justify-between mb-6">
-          <h2 className="text-xl font-semibold font-[family-name:var(--font-display)] text-text-primary">
-            Post Reach
+      {/* Row 2: Recent Posts */}
+      {posts.length > 0 && (
+        <Card padding="lg">
+          <h2 className="text-xl font-semibold font-[family-name:var(--font-display)] text-text-primary mb-6">
+            Recent Posts
           </h2>
-          <span className="text-xs text-text-muted">Last 30 days</span>
-        </div>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={facebookPostReach}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e8e6e1" vertical={false} />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 11, fill: "#a09a90" }}
-                tickLine={false}
-                axisLine={{ stroke: "#e8e6e1" }}
-                tickFormatter={(value: string) => {
-                  const d = new Date(value);
-                  return `${d.getMonth() + 1}/${d.getDate()}`;
-                }}
-                interval={4}
-              />
-              <YAxis
-                tick={{ fontSize: 11, fill: "#a09a90" }}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value: number) =>
-                  value >= 1000 ? `${(value / 1000).toFixed(0)}K` : String(value)
-                }
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #e8e6e1",
-                  borderRadius: "8px",
-                  fontSize: "12px",
-                  fontFamily: "var(--font-body)",
-                }}
-                formatter={(value) => [Number(value).toLocaleString(), "Reach"]}
-                labelFormatter={(label) => {
-                  const d = new Date(label);
-                  return d.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  });
-                }}
-              />
-              <Bar
-                dataKey="reach"
-                fill="#7ca5c4"
-                radius={[4, 4, 0, 0]}
-                maxBarSize={24}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
+          <div className="divide-y divide-card-border">
+            {posts.map((post) => (
+              <div key={post.id} className="py-5 first:pt-0 last:pb-0">
+                <div className="flex items-start gap-3 mb-3">
+                  <Badge variant="platform" size="sm" className="shrink-0 capitalize">
+                    {post.post_type}
+                  </Badge>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-text-primary line-clamp-2 text-sm">
+                      {post.message || "(no text)"}
+                    </p>
+                    <p className="text-xs text-text-muted mt-1">
+                      {timeAgo(post.created_time)}
+                    </p>
+                  </div>
+                </div>
 
-      {/* Row 3: Recent Posts */}
-      <Card padding="lg">
-        <h2 className="text-xl font-semibold font-[family-name:var(--font-display)] text-text-primary mb-6">
-          Recent Posts
-        </h2>
-        <div className="divide-y divide-card-border">
-          {facebookPosts.map((post) => (
-            <div key={post.id} className="py-5 first:pt-0 last:pb-0">
-              <div className="flex items-start gap-3 mb-3">
-                <Badge variant="platform" size="sm" className="shrink-0 capitalize">
-                  {post.type}
-                </Badge>
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-text-primary line-clamp-2 text-sm">
-                    {post.content}
-                  </p>
-                  <p className="text-xs text-text-muted mt-1">{post.publishedAt}</p>
+                <div className="flex flex-wrap items-center gap-4 text-xs text-text-secondary">
+                  {post.reactions?.total > 0 && (
+                    <span>👍 {post.reactions.total.toLocaleString()}</span>
+                  )}
+                  <span className="inline-flex items-center gap-1">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    {post.comments_count.toLocaleString()}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Share2 className="w-3.5 h-3.5" />
+                    {post.shares.toLocaleString()}
+                  </span>
+                  {post.reach > 0 && (
+                    <Badge variant="neutral" size="sm">
+                      Reach: {post.reach.toLocaleString()}
+                    </Badge>
+                  )}
                 </div>
               </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
-              {/* Reactions */}
-              <div className="flex flex-wrap items-center gap-3 text-xs text-text-secondary ml-0 mb-2">
-                <span className="inline-flex items-center gap-1">
-                  <span>👍</span> {post.reactions.like.toLocaleString()}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <span>❤️</span> {post.reactions.love.toLocaleString()}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <span>😮</span> {post.reactions.wow.toLocaleString()}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <span>😂</span> {post.reactions.haha.toLocaleString()}
-                </span>
+      {/* Row 3: Recent Comments */}
+      {comments.length > 0 && (
+        <Card padding="lg">
+          <h2 className="text-xl font-semibold font-[family-name:var(--font-display)] text-text-primary mb-6">
+            Comments
+          </h2>
+          <div className="divide-y divide-card-border">
+            {comments.map((comment) => (
+              <div key={comment.id} className="py-4 first:pt-0 last:pb-0">
+                <p className="text-sm font-bold text-text-primary">{comment.author}</p>
+                <p className="text-sm text-text-secondary mt-1">{comment.text}</p>
+                <p className="text-xs text-text-muted mt-1.5">
+                  {timeAgo(comment.timestamp)}
+                </p>
               </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
-              {/* Engagement metrics */}
-              <div className="flex flex-wrap items-center gap-4 text-xs text-text-secondary">
-                <span className="inline-flex items-center gap-1">
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  {post.comments.toLocaleString()}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Share2 className="w-3.5 h-3.5" />
-                  {post.shares.toLocaleString()}
-                </span>
-                <Badge variant="neutral" size="sm">
-                  Reach: {post.reach.toLocaleString()}
-                </Badge>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* Row 4: Recent Comments */}
-      <Card padding="lg">
-        <h2 className="text-xl font-semibold font-[family-name:var(--font-display)] text-text-primary mb-6">
-          Comments
-        </h2>
-        <div className="divide-y divide-card-border">
-          {facebookComments.map((comment) => (
-            <div key={comment.id} className="py-4 first:pt-0 last:pb-0">
-              <p className="text-sm font-bold text-text-primary">{comment.author}</p>
-              <p className="text-sm text-text-secondary mt-1">{comment.text}</p>
-              <p className="text-xs text-text-muted mt-1.5">{comment.timestamp}</p>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* Row 5: AI Insights */}
+      {/* Row 4: AI Insights (mock data) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card variant="success" padding="lg">
           <div className="flex items-center gap-2 mb-4">

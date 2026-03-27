@@ -1,12 +1,10 @@
 "use client";
 
-import {
-  youtubeMetrics,
-  youtubeViewsData,
-  youtubeVideos,
-  youtubeComments,
-  youtubeAnalysis,
-} from "@/lib/mock-data";
+import { youtubeAnalysis } from "@/lib/mock-data";
+import { useDashboardData } from "@/lib/hooks/useDashboardData";
+import { ConnectAccountCard } from "@/components/ui/ConnectAccountCard";
+import { SyncStatusBar } from "@/components/ui/SyncStatusBar";
+import { DashboardSkeleton } from "@/components/ui/LoadingSkeleton";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import {
@@ -24,193 +22,254 @@ import {
   Play,
   ThumbsUp,
   MessageCircle,
-  Clock,
   Lightbulb,
 } from "lucide-react";
 
+interface YouTubeData {
+  connected: boolean;
+  lastSynced: string | null;
+  channel: {
+    title: string;
+    subscriber_count: number;
+    total_views: number;
+    video_count: number;
+  } | null;
+  videos: Array<{
+    id: string;
+    video_id: string;
+    title: string;
+    thumbnail_url: string;
+    published_at: string;
+    views: number;
+    likes: number;
+    comments_count: number;
+  }>;
+  comments: Array<{
+    id: string;
+    author: string;
+    text: string;
+    like_count: number;
+    published_at: string;
+  }>;
+}
+
+function fmt(n: number): string {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000) return (n / 1_000).toFixed(n >= 10_000 ? 0 : 1).replace(/\.0$/, "") + "K";
+  return n.toLocaleString();
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  return `${weeks}w ago`;
+}
+
 export default function YouTubePage() {
+  const { data, loading, connected, lastSynced, refetch } =
+    useDashboardData<YouTubeData>("/api/dashboard/youtube");
+
+  if (loading) return <DashboardSkeleton />;
+  if (!connected) return <ConnectAccountCard platform="youtube" />;
+
+  const channel = data?.channel;
+  const videos = data?.videos || [];
+  const comments = data?.comments || [];
+
   return (
     <div className="space-y-8">
+      <SyncStatusBar
+        lastSynced={lastSynced}
+        platform="youtube"
+        onRefreshComplete={refetch}
+      />
+
       {/* Row 1: Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {youtubeMetrics.map((metric) => (
-          <Card key={metric.label} padding="md">
-            <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">
-              {metric.label}
-            </p>
-            <p className="text-2xl font-bold font-[family-name:var(--font-display)] text-text-primary">
-              {metric.value}
-            </p>
-            <Badge
-              variant={metric.changeType === "positive" ? "positive" : "negative"}
-              size="sm"
-              className="mt-2"
-            >
-              {metric.changeType === "positive" ? (
-                <TrendingUp className="w-3 h-3 mr-1" />
-              ) : (
-                <TrendingDown className="w-3 h-3 mr-1" />
-              )}
-              {metric.change}
-            </Badge>
-          </Card>
-        ))}
+        <Card padding="md">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">
+            Subscribers
+          </p>
+          <p className="text-2xl font-bold font-[family-name:var(--font-display)] text-text-primary">
+            {fmt(channel?.subscriber_count || 0)}
+          </p>
+        </Card>
+        <Card padding="md">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">
+            Total Views
+          </p>
+          <p className="text-2xl font-bold font-[family-name:var(--font-display)] text-text-primary">
+            {fmt(channel?.total_views || 0)}
+          </p>
+        </Card>
+        <Card padding="md">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">
+            Videos
+          </p>
+          <p className="text-2xl font-bold font-[family-name:var(--font-display)] text-text-primary">
+            {channel?.video_count || 0}
+          </p>
+        </Card>
+        <Card padding="md">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">
+            Avg Views/Video
+          </p>
+          <p className="text-2xl font-bold font-[family-name:var(--font-display)] text-text-primary">
+            {channel && channel.video_count > 0
+              ? fmt(Math.round(channel.total_views / channel.video_count))
+              : "0"}
+          </p>
+        </Card>
       </div>
 
-      {/* Row 2: Views Chart */}
-      <Card padding="lg">
-        <div className="flex items-baseline justify-between mb-6">
-          <h2 className="text-xl font-semibold font-[family-name:var(--font-display)] text-text-primary">
-            Views
-          </h2>
-          <span className="text-xs text-text-muted">Last 30 days</span>
-        </div>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={youtubeViewsData}>
-              <defs>
-                <linearGradient id="viewsFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#d4897a" stopOpacity={0.15} />
-                  <stop offset="100%" stopColor="#d4897a" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e8e6e1" vertical={false} />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 11, fill: "#a09a90" }}
-                tickLine={false}
-                axisLine={{ stroke: "#e8e6e1" }}
-                tickFormatter={(value: string) => {
-                  const d = new Date(value);
-                  return `${d.getMonth() + 1}/${d.getDate()}`;
-                }}
-                interval={4}
-              />
-              <YAxis
-                tick={{ fontSize: 11, fill: "#a09a90" }}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value: number) =>
-                  value >= 1000 ? `${(value / 1000).toFixed(0)}K` : String(value)
-                }
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #e8e6e1",
-                  borderRadius: "8px",
-                  fontSize: "12px",
-                  fontFamily: "var(--font-body)",
-                }}
-                formatter={(value) => [Number(value).toLocaleString(), "Views"]}
-                labelFormatter={(label) => {
-                  const d = new Date(label);
-                  return d.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  });
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="views"
-                stroke="#d4897a"
-                strokeWidth={2}
-                fill="url(#viewsFill)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
+      {/* Row 2: Views Chart (from video data) */}
+      {videos.length > 0 && (
+        <Card padding="lg">
+          <div className="flex items-baseline justify-between mb-6">
+            <h2 className="text-xl font-semibold font-[family-name:var(--font-display)] text-text-primary">
+              Recent Video Views
+            </h2>
+          </div>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={[...videos].reverse()}>
+                <defs>
+                  <linearGradient id="viewsFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#d4897a" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#d4897a" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e8e6e1" vertical={false} />
+                <XAxis
+                  dataKey="published_at"
+                  tick={{ fontSize: 11, fill: "#a09a90" }}
+                  tickLine={false}
+                  axisLine={{ stroke: "#e8e6e1" }}
+                  tickFormatter={(value: string) => {
+                    const d = new Date(value);
+                    return `${d.getMonth() + 1}/${d.getDate()}`;
+                  }}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "#a09a90" }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value: number) => fmt(value)}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#fff",
+                    border: "1px solid #e8e6e1",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                    fontFamily: "var(--font-body)",
+                  }}
+                  formatter={(value) => [Number(value).toLocaleString(), "Views"]}
+                  labelFormatter={(label) => {
+                    const d = new Date(label);
+                    return d.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    });
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="views"
+                  stroke="#d4897a"
+                  strokeWidth={2}
+                  fill="url(#viewsFill)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      )}
 
       {/* Row 3: Recent Uploads */}
-      <Card padding="lg">
-        <h2 className="text-xl font-semibold font-[family-name:var(--font-display)] text-text-primary mb-6">
-          Recent Uploads
-        </h2>
-        <div className="divide-y divide-card-border">
-          {youtubeVideos.map((video) => (
-            <div key={video.id} className="py-5 first:pt-0 last:pb-0">
-              <div className="flex items-start gap-4">
-                {/* Thumbnail placeholder */}
-                <div
-                  className="w-[120px] h-[68px] rounded-lg shrink-0"
-                  style={{ backgroundColor: video.thumbnailColor }}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="font-medium text-text-primary text-sm line-clamp-2">
-                      {video.title}
-                    </p>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Badge variant="neutral" size="sm">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {video.duration}
-                      </Badge>
-                      <span className="text-xs text-text-muted">{video.publishedAt}</span>
+      {videos.length > 0 && (
+        <Card padding="lg">
+          <h2 className="text-xl font-semibold font-[family-name:var(--font-display)] text-text-primary mb-6">
+            Recent Uploads
+          </h2>
+          <div className="divide-y divide-card-border">
+            {videos.map((video) => (
+              <div key={video.id} className="py-5 first:pt-0 last:pb-0">
+                <div className="flex items-start gap-4">
+                  {video.thumbnail_url ? (
+                    <img
+                      src={video.thumbnail_url}
+                      alt=""
+                      className="w-[120px] h-[68px] rounded-lg shrink-0 object-cover"
+                    />
+                  ) : (
+                    <div className="w-[120px] h-[68px] rounded-lg shrink-0 bg-[#f0ede8]" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="font-medium text-text-primary text-sm line-clamp-2">
+                        {video.title}
+                      </p>
+                      <span className="text-xs text-text-muted shrink-0">
+                        {timeAgo(video.published_at)}
+                      </span>
                     </div>
-                  </div>
-
-                  {/* Stats row */}
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-text-secondary mt-2">
-                    <span className="inline-flex items-center gap-1">
-                      <Play className="w-3.5 h-3.5" />
-                      {video.views.toLocaleString()}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <ThumbsUp className="w-3.5 h-3.5" />
-                      {video.likes.toLocaleString()}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <MessageCircle className="w-3.5 h-3.5" />
-                      {video.comments.toLocaleString()}
-                    </span>
-                  </div>
-
-                  {/* Audience retention bar */}
-                  <div className="flex items-center gap-3 mt-3">
-                    <div className="flex-1 h-2 rounded-full bg-[#f0ede8]">
-                      <div
-                        className="h-full rounded-full bg-accent-primary"
-                        style={{ width: `${video.retention}%` }}
-                      />
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-text-secondary mt-2">
+                      <span className="inline-flex items-center gap-1">
+                        <Play className="w-3.5 h-3.5" />
+                        {video.views.toLocaleString()}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <ThumbsUp className="w-3.5 h-3.5" />
+                        {video.likes.toLocaleString()}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        {video.comments_count.toLocaleString()}
+                      </span>
                     </div>
-                    <span className="text-xs font-medium text-text-secondary shrink-0">
-                      {video.retention}% retention
-                    </span>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Row 4: Top Comments */}
-      <Card padding="lg">
-        <h2 className="text-xl font-semibold font-[family-name:var(--font-display)] text-text-primary mb-6">
-          Top Comments
-        </h2>
-        <div className="divide-y divide-card-border">
-          {youtubeComments.map((comment) => (
-            <div key={comment.id} className="py-4 first:pt-0 last:pb-0">
-              <p className="text-sm font-semibold text-text-primary">{comment.author}</p>
-              <p className="text-sm text-text-secondary mt-1">{comment.text}</p>
-              <div className="flex items-center gap-3 mt-2">
-                <span className="inline-flex items-center gap-1 text-xs text-text-secondary">
-                  <ThumbsUp className="w-3 h-3" />
-                  {comment.likes.toLocaleString()}
-                </span>
-                <span className="text-xs italic text-text-muted">
-                  {comment.videoTitle}
-                </span>
+      {comments.length > 0 && (
+        <Card padding="lg">
+          <h2 className="text-xl font-semibold font-[family-name:var(--font-display)] text-text-primary mb-6">
+            Top Comments
+          </h2>
+          <div className="divide-y divide-card-border">
+            {comments.map((comment) => (
+              <div key={comment.id} className="py-4 first:pt-0 last:pb-0">
+                <p className="text-sm font-semibold text-text-primary">{comment.author}</p>
+                <p className="text-sm text-text-secondary mt-1">{comment.text}</p>
+                <div className="flex items-center gap-3 mt-2">
+                  <span className="inline-flex items-center gap-1 text-xs text-text-secondary">
+                    <ThumbsUp className="w-3 h-3" />
+                    {comment.like_count.toLocaleString()}
+                  </span>
+                  <span className="text-xs text-text-muted">
+                    {timeAgo(comment.published_at)}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+            ))}
+          </div>
+        </Card>
+      )}
 
-      {/* Row 5: AI Analysis */}
+      {/* Row 5: AI Analysis (mock data) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card variant="success" padding="lg">
           <div className="flex items-center gap-2 mb-4">

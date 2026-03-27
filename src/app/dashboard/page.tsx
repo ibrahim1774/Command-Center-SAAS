@@ -1,15 +1,16 @@
 "use client";
 
 import {
-  overviewMetrics,
   aiBriefing,
   whatsWorking,
   whatsFlopping,
   socialHeadlines,
-  followerComments,
-  followerGrowthData,
+  followerComments as mockComments,
+  followerGrowthData as mockGrowthData,
   communityMembers,
+  overviewMetrics as mockMetrics,
 } from "@/lib/mock-data";
+import { useDashboardData } from "@/lib/hooks/useDashboardData";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -30,9 +31,29 @@ import {
   Users,
 } from "lucide-react";
 
-/* ------------------------------------------------------------------ */
-/*  Custom Tooltip for the Follower Growth chart                      */
-/* ------------------------------------------------------------------ */
+interface OverviewData {
+  connected: boolean;
+  connectedPlatforms: string[];
+  totalFollowers: number;
+  followerGrowth: Array<{ date: string; follower_count: number }>;
+  recentComments: Array<{
+    username: string;
+    platform: string;
+    comment: string;
+    timestamp: string;
+  }>;
+  igProfile: { follower_count: number } | null;
+  ytChannel: { subscriber_count: number } | null;
+  fbPage: { followers: number } | null;
+}
+
+function fmt(n: number): string {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000) return (n / 1_000).toFixed(n >= 10_000 ? 0 : 1).replace(/\.0$/, "") + "K";
+  return n.toLocaleString();
+}
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
@@ -48,17 +69,48 @@ function ChartTooltip({ active, payload, label }: any) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Page                                                               */
-/* ------------------------------------------------------------------ */
 export default function DashboardPage() {
+  const { data } = useDashboardData<OverviewData>("/api/dashboard/overview");
+
+  // Use real data if available, otherwise fall back to mock
+  const hasRealData = data?.connected && data.totalFollowers > 0;
+  const totalFollowers = hasRealData
+    ? fmt(data.totalFollowers)
+    : mockMetrics[0].value;
+
+  // Build metrics cards — mix real + mock
+  const metrics = [
+    {
+      label: "Total Followers",
+      value: totalFollowers,
+      change: mockMetrics[0].change,
+      changeType: mockMetrics[0].changeType,
+    },
+    mockMetrics[1], // Total Reach
+    mockMetrics[2], // Engagement Rate
+    mockMetrics[3], // Revenue
+  ];
+
+  // Use real follower growth if available
+  const growthData =
+    data?.followerGrowth && data.followerGrowth.length > 0
+      ? data.followerGrowth.map((d) => ({
+          date: d.date,
+          followers: d.follower_count,
+        }))
+      : mockGrowthData;
+
+  // Use real comments if available
+  const displayComments =
+    data?.recentComments && data.recentComments.length > 0
+      ? data.recentComments
+      : mockComments;
+
   return (
     <div className="space-y-8">
-      {/* ============================================================ */}
-      {/*  ROW 1 — Metric Cards                                        */}
-      {/* ============================================================ */}
+      {/* ROW 1 — Metric Cards */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {overviewMetrics.map((m) => (
+        {metrics.map((m) => (
           <Card key={m.label} padding="md">
             <p className="uppercase text-[10px] tracking-widest text-text-muted font-body mb-2">
               {m.label}
@@ -82,11 +134,8 @@ export default function DashboardPage() {
         ))}
       </section>
 
-      {/* ============================================================ */}
-      {/*  ROW 2 — AI Daily Briefing                                   */}
-      {/* ============================================================ */}
+      {/* ROW 2 — AI Daily Briefing (mock) */}
       <Card className="bg-[#faf8f5]" padding="lg">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-4">
           <Sparkles className="h-5 w-5 text-accent-primary" />
           <h2 className="font-display text-xl text-text-primary">
@@ -96,13 +145,9 @@ export default function DashboardPage() {
             AI generated
           </Badge>
         </div>
-
-        {/* Summary */}
         <p className="text-text-secondary leading-relaxed font-body mb-5">
           {aiBriefing.summary}
         </p>
-
-        {/* Highlights */}
         <ul className="space-y-2 mb-6">
           {aiBriefing.highlights.map((h, i) => (
             <li key={i} className="flex items-start gap-2.5">
@@ -113,18 +158,14 @@ export default function DashboardPage() {
             </li>
           ))}
         </ul>
-
         <Button variant="secondary" size="sm">
           <RefreshCw className="h-3.5 w-3.5 mr-2" />
           Regenerate
         </Button>
       </Card>
 
-      {/* ============================================================ */}
-      {/*  ROW 3 — What's Working / What's Flopping                    */}
-      {/* ============================================================ */}
+      {/* ROW 3 — What's Working / What's Flopping (mock) */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* What's Working */}
         <Card variant="success" padding="md">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="h-5 w-5 text-success" />
@@ -150,8 +191,6 @@ export default function DashboardPage() {
             ))}
           </ul>
         </Card>
-
-        {/* What's Flopping */}
         <Card variant="danger" padding="md">
           <div className="flex items-center gap-2 mb-4">
             <TrendingDown className="h-5 w-5 text-danger" />
@@ -179,11 +218,8 @@ export default function DashboardPage() {
         </Card>
       </section>
 
-      {/* ============================================================ */}
-      {/*  ROW 4 — Social Headlines / Why We Do This                   */}
-      {/* ============================================================ */}
+      {/* ROW 4 — Social Headlines / Why We Do This */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Social Media Headlines */}
         <Card padding="md">
           <h3 className="font-display text-lg text-text-primary mb-4">
             Social Media Headlines
@@ -201,14 +237,12 @@ export default function DashboardPage() {
             ))}
           </ul>
         </Card>
-
-        {/* Why We Do This */}
         <Card padding="md">
           <h3 className="font-display text-lg text-text-primary mb-4">
             Why We Do This
           </h3>
           <ul className="space-y-4">
-            {followerComments.map((c, i) => (
+            {displayComments.map((c, i) => (
               <li key={i}>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm font-bold text-text-primary font-body">
@@ -227,9 +261,7 @@ export default function DashboardPage() {
         </Card>
       </section>
 
-      {/* ============================================================ */}
-      {/*  ROW 5 — Follower Growth Chart                               */}
-      {/* ============================================================ */}
+      {/* ROW 5 — Follower Growth Chart */}
       <Card padding="lg">
         <div className="flex items-baseline gap-3 mb-6">
           <h3 className="font-display text-xl text-text-primary">
@@ -239,10 +271,9 @@ export default function DashboardPage() {
             Last 30 days
           </span>
         </div>
-
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart
-            data={followerGrowthData}
+            data={growthData}
             margin={{ top: 4, right: 4, bottom: 0, left: 8 }}
           >
             <defs>
@@ -296,9 +327,7 @@ export default function DashboardPage() {
         </ResponsiveContainer>
       </Card>
 
-      {/* ============================================================ */}
-      {/*  ROW 6 — Community Members                                   */}
-      {/* ============================================================ */}
+      {/* ROW 6 — Community Members (mock) */}
       <Card padding="md">
         <div className="flex items-center gap-2 mb-4">
           <Users className="h-5 w-5 text-accent-primary" />
@@ -309,7 +338,6 @@ export default function DashboardPage() {
             {communityMembers.length} recent
           </Badge>
         </div>
-
         <ul className="divide-y divide-[#f0ede8]">
           {communityMembers.map((member, i) => (
             <li
@@ -317,7 +345,6 @@ export default function DashboardPage() {
               className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
             >
               <div className="flex items-center gap-3">
-                {/* Avatar placeholder */}
                 <div className="h-8 w-8 rounded-full bg-[#f0ede8] flex items-center justify-center text-xs font-bold text-text-secondary font-body">
                   {member.name
                     .split(" ")
