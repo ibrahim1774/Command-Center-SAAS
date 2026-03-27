@@ -1,11 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
+  // Check for NextAuth error from redirect
+  const authError = searchParams.get("error");
+  const errorMessage =
+    authError === "CredentialsSignin"
+      ? "Invalid email or password"
+      : authError
+      ? "Something went wrong. Please try again."
+      : "";
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+      callbackUrl,
+    });
+
+    if (result?.error) {
+      setError("Invalid email or password");
+      setLoading(false);
+    } else if (result?.url) {
+      window.location.href = result.url;
+    }
+  }
 
   return (
     <div className="w-full max-w-md">
@@ -34,9 +77,24 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {/* Error */}
+        {(error || errorMessage) && (
+          <div
+            className="mb-4 rounded-lg px-4 py-3 text-sm"
+            style={{
+              backgroundColor: "#c4626a10",
+              color: "#c4626a",
+              border: "1px solid #c4626a20",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            {error || errorMessage}
+          </div>
+        )}
+
         {/* Form */}
         <form
-          onSubmit={(e) => e.preventDefault()}
+          onSubmit={handleSubmit}
           className="space-y-4"
           style={{ fontFamily: "var(--font-body)" }}
         >
@@ -54,6 +112,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
+              required
               className="w-full rounded-lg px-4 h-11 text-sm outline-none transition-all duration-200"
               style={{
                 border: "1px solid #e8e6e1",
@@ -79,6 +138,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
+              required
               className="w-full rounded-lg px-4 h-11 text-sm outline-none transition-all duration-200"
               style={{
                 border: "1px solid #e8e6e1",
@@ -92,16 +152,19 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full rounded-lg h-11 text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer"
+            disabled={loading}
+            className="w-full rounded-lg h-11 text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             style={{
               backgroundColor: "#c4947a",
               color: "#ffffff",
               fontFamily: "var(--font-body)",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#b5856b")}
+            onMouseEnter={(e) => {
+              if (!loading) e.currentTarget.style.backgroundColor = "#b5856b";
+            }}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#c4947a")}
           >
-            Sign In
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
@@ -121,6 +184,7 @@ export default function LoginPage() {
         <div className="space-y-3" style={{ fontFamily: "var(--font-body)" }}>
           <button
             type="button"
+            onClick={() => signIn("google", { callbackUrl })}
             className="w-full rounded-lg h-11 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 cursor-pointer"
             style={{
               border: "1px solid #e8e6e1",
@@ -153,6 +217,7 @@ export default function LoginPage() {
 
           <button
             type="button"
+            onClick={() => signIn("facebook", { callbackUrl })}
             className="w-full rounded-lg h-11 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 cursor-pointer"
             style={{
               border: "1px solid #e8e6e1",

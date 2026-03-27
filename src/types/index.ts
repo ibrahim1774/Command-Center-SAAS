@@ -208,3 +208,30 @@ export interface NotificationSetting {
   description: string;
   enabled: boolean;
 }
+
+// Database types
+export interface DbUser {
+  id: string;
+  email: string;
+  name: string | null;
+  password_hash: string | null;
+  avatar_url: string | null;
+  plan: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbConnectedAccount {
+  id: string;
+  user_id: string;
+  platform: "instagram" | "youtube" | "facebook" | "gmail";
+  access_token: string;
+  refresh_token: string | null;
+  token_expires_at: string | null;
+  platform_username: string | null;
+  platform_user_id: string | null;
+  scopes: string | null;
+  connected_at: string;
+  last_synced: string | null;
+  status: "active" | "expired" | "revoked";
+}

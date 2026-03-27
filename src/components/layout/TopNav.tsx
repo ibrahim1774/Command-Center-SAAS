@@ -2,10 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { RefreshCw, Settings, Mail } from "lucide-react";
+import { RefreshCw, Settings, Mail, LogOut } from "lucide-react";
 import { TAB_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useSession, signOut } from "next-auth/react";
 
 function LiveIndicator() {
   const [time, setTime] = useState("");
@@ -38,8 +39,32 @@ function LiveIndicator() {
   );
 }
 
+function getInitials(name: string | null | undefined): string {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 export default function TopNav() {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [menuOpen]);
 
   return (
     <nav className="sticky top-0 z-50 bg-card-bg border-b border-card-border">
@@ -93,8 +118,49 @@ export default function TopNav() {
               <Settings className="h-4 w-4" />
             </Link>
 
-            <div className="ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-accent-primary text-xs font-bold text-white select-none">
-              IB
+            {/* User Avatar + Dropdown */}
+            <div className="relative ml-1" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen((p) => !p)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-primary text-xs font-bold text-white select-none cursor-pointer overflow-hidden"
+              >
+                {status === "loading" ? (
+                  <span className="h-4 w-4 rounded-full bg-white/30 animate-pulse" />
+                ) : session?.user?.image ? (
+                  <img
+                    src={session.user.image}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  getInitials(session?.user?.name)
+                )}
+              </button>
+
+              {menuOpen && (
+                <div
+                  className="absolute right-0 mt-2 w-56 rounded-xl border border-card-border bg-card-bg shadow-lg py-2"
+                  style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}
+                >
+                  {session?.user && (
+                    <div className="px-4 py-2 border-b border-card-border mb-1">
+                      <p className="text-sm font-semibold text-text-primary truncate">
+                        {session.user.name}
+                      </p>
+                      <p className="text-xs text-text-secondary truncate">
+                        {session.user.email}
+                      </p>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/login" })}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-text-secondary hover:bg-[#f0ede8] hover:text-text-primary transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import {
   Mail,
   User,
@@ -12,18 +14,27 @@ import {
   Camera,
   Play,
   Globe,
+  Loader2,
 } from "lucide-react";
-import { connectedAccounts, userProfile, notificationSettings } from "@/lib/mock-data";
+import { notificationSettings } from "@/lib/mock-data";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
-const platformIcons: Record<string, React.ElementType> = {
-  Instagram: Camera,
-  Youtube: Play,
-  Facebook: Globe,
-  Mail,
-};
+interface ConnectedAccountData {
+  platform: string;
+  platform_username: string | null;
+  status: string;
+  last_synced: string | null;
+  connected_at: string;
+}
+
+const PLATFORMS = [
+  { key: "instagram", label: "Instagram", icon: Camera },
+  { key: "youtube", label: "YouTube", icon: Play },
+  { key: "facebook", label: "Facebook", icon: Globe },
+  { key: "gmail", label: "Gmail", icon: Mail },
+] as const;
 
 const planFeatures = [
   "Unlimited connected accounts",
@@ -33,28 +44,122 @@ const planFeatures = [
   "Custom reporting & exports",
 ];
 
+function formatTimeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
 export default function SettingsPage() {
+  return (
+    <Suspense>
+      <SettingsContent />
+    </Suspense>
+  );
+}
+
+function SettingsContent() {
+  const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const [accounts, setAccounts] = useState<ConnectedAccountData[]>([]);
+  const [loadingAccounts, setLoadingAccounts] = useState(true);
+  const [disconnecting, setDisconnecting] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState("");
+
   const [toggles, setToggles] = useState<Record<string, boolean>>(
     Object.fromEntries(notificationSettings.map((s) => [s.id, s.enabled]))
   );
+
+  const fetchAccounts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/user/connected-accounts");
+      if (res.ok) {
+        const data = await res.json();
+        setAccounts(data.accounts || []);
+      }
+    } catch {
+      // Silently fail — will show "not connected" state
+    } finally {
+      setLoadingAccounts(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAccounts();
+  }, [fetchAccounts]);
+
+  // Show success message when redirected back from OAuth
+  useEffect(() => {
+    const connected = searchParams.get("connected");
+    if (connected) {
+      setSuccessMessage(`${connected.charAt(0).toUpperCase() + connected.slice(1)} connected successfully!`);
+      fetchAccounts();
+      const timer = setTimeout(() => setSuccessMessage(""), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, fetchAccounts]);
 
   const handleToggle = (id: string) => {
     setToggles((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const handleDisconnect = async (platform: string) => {
+    setDisconnecting(platform);
+    try {
+      const res = await fetch("/api/user/connected-accounts", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ platform }),
+      });
+      if (res.ok) {
+        setAccounts((prev) => prev.filter((a) => a.platform !== platform));
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setDisconnecting(null);
+    }
+  };
+
+  const getAccount = (platform: string) =>
+    accounts.find((a) => a.platform === platform);
+
   return (
     <div className="space-y-10">
+      {/* Success Message */}
+      {successMessage && (
+        <div
+          className="rounded-lg px-4 py-3 text-sm flex items-center gap-2"
+          style={{
+            backgroundColor: "#6b8f7110",
+            color: "#6b8f71",
+            border: "1px solid #6b8f7120",
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          <Check className="h-4 w-4" />
+          {successMessage}
+        </div>
+      )}
+
       {/* Section 1: Connected Accounts */}
       <Card padding="lg">
         <h2 className="font-display text-xl text-text-primary mb-6">
           Connected Accounts
         </h2>
         <div className="space-y-4">
-          {connectedAccounts.map((account) => {
-            const Icon = platformIcons[account.icon] ?? Mail;
+          {PLATFORMS.map(({ key, label, icon: Icon }) => {
+            const account = getAccount(key);
+            const isConnected = !!account && account.status === "active";
+
             return (
               <div
-                key={account.platform}
+                key={key}
                 className="flex items-center justify-between py-3 border-b border-card-border last:border-b-0"
               >
                 <div className="flex items-center gap-4">
@@ -62,34 +167,44 @@ export default function SettingsPage() {
                     <Icon className="w-5 h-5 text-text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-text-primary">
-                      {account.platform}
-                    </p>
-                    {account.connected && account.handle && (
+                    <p className="font-semibold text-text-primary">{label}</p>
+                    {isConnected && account.platform_username && (
                       <p className="text-sm text-text-secondary">
-                        {account.handle}
+                        {account.platform_username}
                       </p>
                     )}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-4">
-                  {account.connected ? (
+                  {loadingAccounts ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-text-muted" />
+                  ) : isConnected ? (
                     <>
-                      <span className="text-sm text-text-secondary hidden sm:inline">
-                        Last synced: {account.lastSync}
-                      </span>
+                      {account.last_synced && (
+                        <span className="text-sm text-text-secondary hidden sm:inline">
+                          Last synced: {formatTimeAgo(account.last_synced)}
+                        </span>
+                      )}
                       <Badge variant="positive">Connected</Badge>
-                      <Button variant="ghost" size="sm" className="text-danger">
-                        Disconnect
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-danger"
+                        disabled={disconnecting === key}
+                        onClick={() => handleDisconnect(key)}
+                      >
+                        {disconnecting === key ? "Disconnecting..." : "Disconnect"}
                       </Button>
                     </>
                   ) : (
                     <>
                       <Badge variant="neutral">Not connected</Badge>
-                      <Button variant="primary" size="sm">
-                        Connect
-                      </Button>
+                      <a href={`/api/connect/${key}`}>
+                        <Button variant="primary" size="sm">
+                          Connect
+                        </Button>
+                      </a>
                     </>
                   )}
                 </div>
@@ -109,12 +224,31 @@ export default function SettingsPage() {
         <div className="space-y-6">
           {/* Avatar */}
           <div className="flex items-center gap-5">
-            <div className="w-20 h-20 rounded-full bg-accent-primary flex items-center justify-center">
-              <span className="font-display text-2xl text-white">IB</span>
+            <div className="w-20 h-20 rounded-full bg-accent-primary flex items-center justify-center overflow-hidden">
+              {session?.user?.image ? (
+                <img
+                  src={session.user.image}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="font-display text-2xl text-white">
+                  {session?.user?.name
+                    ?.split(" ")
+                    .map((w) => w[0])
+                    .join("")
+                    .toUpperCase()
+                    .slice(0, 2) || "?"}
+                </span>
+              )}
             </div>
             <div>
-              <p className="font-semibold text-text-primary">{userProfile.name}</p>
-              <p className="text-sm text-text-secondary">{userProfile.email}</p>
+              <p className="font-semibold text-text-primary">
+                {session?.user?.name || "—"}
+              </p>
+              <p className="text-sm text-text-secondary">
+                {session?.user?.email || "—"}
+              </p>
             </div>
           </div>
 
@@ -126,7 +260,7 @@ export default function SettingsPage() {
               </label>
               <input
                 type="text"
-                defaultValue={userProfile.name}
+                defaultValue={session?.user?.name || ""}
                 className="w-full border border-card-border rounded-lg px-4 py-2.5 bg-white text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/40"
               />
             </div>
@@ -136,17 +270,7 @@ export default function SettingsPage() {
               </label>
               <input
                 type="email"
-                defaultValue={userProfile.email}
-                className="w-full border border-card-border rounded-lg px-4 py-2.5 bg-white text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/40"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">
-                Business Name
-              </label>
-              <input
-                type="text"
-                defaultValue={userProfile.businessName}
+                defaultValue={session?.user?.email || ""}
                 className="w-full border border-card-border rounded-lg px-4 py-2.5 bg-white text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/40"
               />
             </div>
@@ -168,10 +292,11 @@ export default function SettingsPage() {
         <div className="rounded-lg border border-card-border p-5 mb-6 max-w-lg">
           <div className="flex items-center justify-between mb-4">
             <Badge variant="info" size="md">
-              Pro Plan
+              {session?.user?.plan === "pro" ? "Pro Plan" : "Free Plan"}
             </Badge>
             <span className="font-display text-xl text-text-primary">
-              $29<span className="text-sm font-body text-text-secondary">/month</span>
+              {session?.user?.plan === "pro" ? "$29" : "$0"}
+              <span className="text-sm font-body text-text-secondary">/month</span>
             </span>
           </div>
 

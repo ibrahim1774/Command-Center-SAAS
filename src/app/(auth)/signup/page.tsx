@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 export default function SignupPage() {
@@ -8,6 +9,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const inputStyle = {
     border: "1px solid #e8e6e1",
@@ -22,6 +25,57 @@ export default function SignupPage() {
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     e.currentTarget.style.borderColor = "#e8e6e1";
   };
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: fullName, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Failed to create account");
+        setLoading(false);
+        return;
+      }
+
+      // Auto-login after successful signup
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+        callbackUrl: "/dashboard",
+      });
+
+      if (result?.url) {
+        window.location.href = result.url;
+      } else {
+        setError("Account created but sign-in failed. Please try logging in.");
+        setLoading(false);
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="w-full max-w-md">
@@ -50,9 +104,24 @@ export default function SignupPage() {
           </p>
         </div>
 
+        {/* Error */}
+        {error && (
+          <div
+            className="mb-4 rounded-lg px-4 py-3 text-sm"
+            style={{
+              backgroundColor: "#c4626a10",
+              color: "#c4626a",
+              border: "1px solid #c4626a20",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
         {/* Form */}
         <form
-          onSubmit={(e) => e.preventDefault()}
+          onSubmit={handleSubmit}
           className="space-y-4"
           style={{ fontFamily: "var(--font-body)" }}
         >
@@ -70,6 +139,7 @@ export default function SignupPage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Your full name"
+              required
               className="w-full rounded-lg px-4 h-11 text-sm outline-none transition-all duration-200"
               style={inputStyle}
               onFocus={handleFocus}
@@ -91,6 +161,7 @@ export default function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
+              required
               className="w-full rounded-lg px-4 h-11 text-sm outline-none transition-all duration-200"
               style={inputStyle}
               onFocus={handleFocus}
@@ -112,6 +183,8 @@ export default function SignupPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Create a password"
+              required
+              minLength={8}
               className="w-full rounded-lg px-4 h-11 text-sm outline-none transition-all duration-200"
               style={inputStyle}
               onFocus={handleFocus}
@@ -133,6 +206,7 @@ export default function SignupPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
+              required
               className="w-full rounded-lg px-4 h-11 text-sm outline-none transition-all duration-200"
               style={inputStyle}
               onFocus={handleFocus}
@@ -142,16 +216,19 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            className="w-full rounded-lg h-11 text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer"
+            disabled={loading}
+            className="w-full rounded-lg h-11 text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             style={{
               backgroundColor: "#c4947a",
               color: "#ffffff",
               fontFamily: "var(--font-body)",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#b5856b")}
+            onMouseEnter={(e) => {
+              if (!loading) e.currentTarget.style.backgroundColor = "#b5856b";
+            }}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#c4947a")}
           >
-            Create Account
+            {loading ? "Creating account..." : "Create Account"}
           </button>
         </form>
 
@@ -171,6 +248,7 @@ export default function SignupPage() {
         <div className="space-y-3" style={{ fontFamily: "var(--font-body)" }}>
           <button
             type="button"
+            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
             className="w-full rounded-lg h-11 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 cursor-pointer"
             style={{
               border: "1px solid #e8e6e1",
@@ -203,6 +281,7 @@ export default function SignupPage() {
 
           <button
             type="button"
+            onClick={() => signIn("facebook", { callbackUrl: "/dashboard" })}
             className="w-full rounded-lg h-11 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 cursor-pointer"
             style={{
               border: "1px solid #e8e6e1",
