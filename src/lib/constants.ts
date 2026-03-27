@@ -3,6 +3,7 @@ export const TAB_ITEMS = [
   { id: "instagram", label: "Instagram", href: "/dashboard/instagram" },
   { id: "youtube", label: "YouTube", href: "/dashboard/youtube" },
   { id: "facebook", label: "Facebook", href: "/dashboard/facebook" },
+  { id: "tiktok", label: "TikTok", href: "/dashboard/tiktok" },
   { id: "trending", label: "Trending", href: "/dashboard/trending" },
   { id: "deals", label: "Deals", href: "/dashboard/deals" },
   { id: "goals", label: "Goals", href: "/dashboard/goals" },

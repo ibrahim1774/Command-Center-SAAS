@@ -13,6 +13,7 @@ import {
   Camera,
   Play,
   Globe,
+  Music,
   Loader2,
 } from "lucide-react";
 import { notificationSettings } from "@/lib/mock-data";
@@ -32,6 +33,7 @@ const PLATFORMS = [
   { key: "instagram", label: "Instagram", icon: Camera },
   { key: "youtube", label: "YouTube", icon: Play },
   { key: "facebook", label: "Facebook", icon: Globe },
+  { key: "tiktok", label: "TikTok", icon: Music },
 ] as const;
 
 const PLAN_INFO: Record<string, { name: string; price: number; features: string[] }> = {

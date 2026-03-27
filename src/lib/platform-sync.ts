@@ -4,6 +4,228 @@ import { logSync, updateLastSynced, type SyncResult } from "./sync-helpers";
 
 const META_API = "https://graph.facebook.com/v21.0";
 const YOUTUBE_API = "https://www.googleapis.com/youtube/v3";
+const UNIFIED_API = "https://api.unified.to";
+
+function getUnifiedHeaders() {
+  return {
+    Authorization: `Bearer ${process.env.UNIFIED_API_KEY}`,
+    "Content-Type": "application/json",
+  };
+}
+
+/**
+ * Check if a connected account has a Unified.to connection ID.
+ * Returns the connection ID if present, otherwise null.
+ */
+async function getUnifiedConnectionId(
+  userId: string,
+  platform: string
+): Promise<string | null> {
+  const supabase = getSupabaseAdmin();
+  const { data: account } = await supabase
+    .from("connected_accounts")
+    .select("unified_connection_id")
+    .eq("user_id", userId)
+    .eq("platform", platform)
+    .eq("status", "active")
+    .single();
+
+  return account?.unified_connection_id || null;
+}
+
+// ─── Unified.to helpers ─────────────────────────────────────────────────────
+
+async function syncInstagramViaUnified(
+  userId: string,
+  connectionId: string
+): Promise<SyncResult> {
+  const supabase = getSupabaseAdmin();
+  const headers = getUnifiedHeaders();
+
+  // Fetch profile / channel info
+  const channelRes = await fetch(
+    `${UNIFIED_API}/social/${connectionId}/channel`,
+    { headers }
+  );
+  if (channelRes.ok) {
+    const channels = await channelRes.json();
+    const profile = Array.isArray(channels) ? channels[0] : channels;
+    if (profile) {
+      await supabase.from("instagram_profiles").upsert(
+        {
+          user_id: userId,
+          username: profile.name || profile.username || "",
+          follower_count: profile.followers ?? 0,
+          following_count: profile.following ?? 0,
+          media_count: profile.posts_count ?? 0,
+          profile_picture_url: profile.image_url || null,
+          last_synced: new Date().toISOString(),
+        },
+        { onConflict: "user_id" }
+      );
+    }
+  }
+
+  // Fetch posts
+  const postsRes = await fetch(
+    `${UNIFIED_API}/social/${connectionId}/post?limit=12`,
+    { headers }
+  );
+  let postCount = 0;
+  if (postsRes.ok) {
+    const posts = await postsRes.json();
+    const items = Array.isArray(posts) ? posts : [];
+    postCount = items.length;
+
+    for (const post of items) {
+      await supabase.from("instagram_posts").upsert(
+        {
+          user_id: userId,
+          post_id: post.id || post.remote_id || "",
+          caption: post.text || post.title || null,
+          media_type: post.media_type || post.type || null,
+          media_url: post.media_url || post.url || null,
+          thumbnail_url: post.thumbnail_url || null,
+          likes: post.likes ?? post.reactions ?? 0,
+          comments_count: post.comments_count ?? post.comments ?? 0,
+          timestamp: post.created_at || post.published_at || new Date().toISOString(),
+        },
+        { onConflict: "user_id,post_id" }
+      );
+    }
+  }
+
+  await updateLastSynced(userId, "instagram");
+  await logSync(userId, "instagram", "success");
+  return { success: true, recordsProcessed: postCount };
+}
+
+async function syncYouTubeViaUnified(
+  userId: string,
+  connectionId: string
+): Promise<SyncResult> {
+  const supabase = getSupabaseAdmin();
+  const headers = getUnifiedHeaders();
+
+  // Fetch channel info
+  const channelRes = await fetch(
+    `${UNIFIED_API}/social/${connectionId}/channel`,
+    { headers }
+  );
+  if (channelRes.ok) {
+    const channels = await channelRes.json();
+    const channel = Array.isArray(channels) ? channels[0] : channels;
+    if (channel) {
+      await supabase.from("youtube_channels").upsert(
+        {
+          user_id: userId,
+          channel_id: channel.id || channel.remote_id || "",
+          title: channel.name || channel.title || "",
+          subscriber_count: channel.followers ?? 0,
+          total_views: channel.views ?? 0,
+          video_count: channel.posts_count ?? 0,
+          last_synced: new Date().toISOString(),
+        },
+        { onConflict: "user_id,channel_id" }
+      );
+    }
+  }
+
+  // Fetch videos/posts
+  const postsRes = await fetch(
+    `${UNIFIED_API}/social/${connectionId}/post?limit=12`,
+    { headers }
+  );
+  let videoCount = 0;
+  if (postsRes.ok) {
+    const posts = await postsRes.json();
+    const items = Array.isArray(posts) ? posts : [];
+    videoCount = items.length;
+
+    for (const video of items) {
+      await supabase.from("youtube_videos").upsert(
+        {
+          user_id: userId,
+          video_id: video.id || video.remote_id || "",
+          title: video.title || video.text || "",
+          thumbnail_url: video.thumbnail_url || video.image_url || "",
+          published_at: video.created_at || video.published_at || new Date().toISOString(),
+          views: video.views ?? 0,
+          likes: video.likes ?? video.reactions ?? 0,
+          comments_count: video.comments_count ?? video.comments ?? 0,
+        },
+        { onConflict: "user_id,video_id" }
+      );
+    }
+  }
+
+  await updateLastSynced(userId, "youtube");
+  await logSync(userId, "youtube", "success");
+  return { success: true, recordsProcessed: videoCount };
+}
+
+async function syncFacebookViaUnified(
+  userId: string,
+  connectionId: string
+): Promise<SyncResult> {
+  const supabase = getSupabaseAdmin();
+  const headers = getUnifiedHeaders();
+
+  // Fetch page / channel info
+  const channelRes = await fetch(
+    `${UNIFIED_API}/social/${connectionId}/channel`,
+    { headers }
+  );
+  if (channelRes.ok) {
+    const channels = await channelRes.json();
+    const page = Array.isArray(channels) ? channels[0] : channels;
+    if (page) {
+      await supabase.from("facebook_pages").upsert(
+        {
+          user_id: userId,
+          page_id: page.id || page.remote_id || "",
+          name: page.name || "",
+          followers: page.followers ?? 0,
+          likes: page.likes ?? page.reactions ?? 0,
+          last_synced: new Date().toISOString(),
+        },
+        { onConflict: "user_id,page_id" }
+      );
+    }
+  }
+
+  // Fetch posts
+  const postsRes = await fetch(
+    `${UNIFIED_API}/social/${connectionId}/post?limit=12`,
+    { headers }
+  );
+  let postCount = 0;
+  if (postsRes.ok) {
+    const posts = await postsRes.json();
+    const items = Array.isArray(posts) ? posts : [];
+    postCount = items.length;
+
+    for (const post of items) {
+      await supabase.from("facebook_posts").upsert(
+        {
+          user_id: userId,
+          post_id: post.id || post.remote_id || "",
+          message: post.text || post.title || null,
+          post_type: post.type || "status",
+          reactions: { total: post.reactions ?? post.likes ?? 0 },
+          comments_count: post.comments_count ?? post.comments ?? 0,
+          shares: post.shares ?? 0,
+          created_time: post.created_at || post.published_at || new Date().toISOString(),
+        },
+        { onConflict: "user_id,post_id" }
+      );
+    }
+  }
+
+  await updateLastSynced(userId, "facebook");
+  await logSync(userId, "facebook", "success");
+  return { success: true, recordsProcessed: postCount };
+}
 
 
 // ─── Instagram ───────────────────────────────────────────────────────────────
@@ -12,6 +234,13 @@ export async function syncInstagram(userId: string): Promise<SyncResult> {
   const supabase = getSupabaseAdmin();
 
   try {
+    // Check for Unified.to connection first
+    const unifiedId = await getUnifiedConnectionId(userId, "instagram");
+    if (unifiedId) {
+      return await syncInstagramViaUnified(userId, unifiedId);
+    }
+
+    // Fallback: direct Meta API
     const token = await getValidMetaToken(userId, "instagram");
 
     // Get IG business account ID from connected_accounts
@@ -158,6 +387,13 @@ export async function syncYouTube(userId: string): Promise<SyncResult> {
   const supabase = getSupabaseAdmin();
 
   try {
+    // Check for Unified.to connection first
+    const unifiedId = await getUnifiedConnectionId(userId, "youtube");
+    if (unifiedId) {
+      return await syncYouTubeViaUnified(userId, unifiedId);
+    }
+
+    // Fallback: direct YouTube API
     const token = await getValidGoogleToken(userId, "youtube");
     const headers = { Authorization: `Bearer ${token}` };
 
@@ -284,6 +520,13 @@ export async function syncFacebook(userId: string): Promise<SyncResult> {
   const supabase = getSupabaseAdmin();
 
   try {
+    // Check for Unified.to connection first
+    const unifiedId = await getUnifiedConnectionId(userId, "facebook");
+    if (unifiedId) {
+      return await syncFacebookViaUnified(userId, unifiedId);
+    }
+
+    // Fallback: direct Meta API
     const userToken = await getValidMetaToken(userId, "facebook");
 
     // Get stored page ID
@@ -408,6 +651,64 @@ export async function syncFacebook(userId: string): Promise<SyncResult> {
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
     await logSync(userId, "facebook", "error", msg);
+    return { success: false, error: msg };
+  }
+}
+
+// ─── TikTok (Unified.to only) ────────────────────────────────────────────────
+
+export interface TikTokSyncData {
+  profile: Record<string, unknown> | null;
+  posts: Array<Record<string, unknown>>;
+}
+
+export async function syncTikTok(
+  userId: string
+): Promise<SyncResult & { data?: TikTokSyncData }> {
+  try {
+    const connectionId = await getUnifiedConnectionId(userId, "tiktok");
+    if (!connectionId) {
+      throw new Error(
+        "TikTok requires a Unified.to connection. No unified_connection_id found."
+      );
+    }
+
+    const headers = getUnifiedHeaders();
+
+    // Fetch profile / channel info
+    let profile: Record<string, unknown> | null = null;
+    const channelRes = await fetch(
+      `${UNIFIED_API}/social/${connectionId}/channel`,
+      { headers }
+    );
+    if (channelRes.ok) {
+      const channels = await channelRes.json();
+      profile = Array.isArray(channels) ? channels[0] : channels;
+    }
+
+    // Fetch recent posts
+    const postsRes = await fetch(
+      `${UNIFIED_API}/social/${connectionId}/post?limit=12`,
+      { headers }
+    );
+    let posts: Array<Record<string, unknown>> = [];
+    if (postsRes.ok) {
+      const postsData = await postsRes.json();
+      posts = Array.isArray(postsData) ? postsData : [];
+    }
+
+    // Update last_synced on the connected account
+    await updateLastSynced(userId, "tiktok");
+    await logSync(userId, "tiktok", "success");
+
+    return {
+      success: true,
+      recordsProcessed: posts.length,
+      data: { profile, posts },
+    };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    await logSync(userId, "tiktok", "error", msg);
     return { success: false, error: msg };
   }
 }

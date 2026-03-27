@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Play, Globe } from "lucide-react";
+import { Camera, Play, Globe, Music } from "lucide-react";
 import { Card } from "./Card";
 import { Button } from "./Button";
 
@@ -8,10 +8,11 @@ const PLATFORM_CONFIG = {
   instagram: { label: "Instagram", icon: Camera, color: "#E4405F" },
   youtube: { label: "YouTube", icon: Play, color: "#FF0000" },
   facebook: { label: "Facebook", icon: Globe, color: "#1877F2" },
+  tiktok: { label: "TikTok", icon: Music, color: "#000000" },
 } as const;
 
 interface ConnectAccountCardProps {
-  platform: "instagram" | "youtube" | "facebook";
+  platform: "instagram" | "youtube" | "facebook" | "tiktok";
 }
 
 export function ConnectAccountCard({ platform }: ConnectAccountCardProps) {

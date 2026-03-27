@@ -11,14 +11,14 @@ export async function GET(req: NextRequest) {
   const baseUrl = process.env.NEXTAUTH_URL!;
 
   const successRedirect = encodeURIComponent(
-    `${baseUrl}/api/connect/callback?platform=youtube`
+    `${baseUrl}/api/connect/callback?platform=tiktok`
   );
   const failureRedirect = encodeURIComponent(
-    `${baseUrl}/dashboard/settings?error=youtube_denied`
+    `${baseUrl}/dashboard/settings?error=tiktok_denied`
   );
 
   const authUrl =
-    `https://api.unified.to/unified/integration/auth/${workspaceId}/youtube` +
+    `https://api.unified.to/unified/integration/auth/${workspaceId}/tiktok` +
     `?success_redirect=${successRedirect}` +
     `&failure_redirect=${failureRedirect}` +
     `&state=${userId}`;

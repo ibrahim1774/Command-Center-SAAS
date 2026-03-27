@@ -12,13 +12,18 @@ export async function getValidGoogleToken(
 
   const { data: account } = await supabase
     .from("connected_accounts")
-    .select("access_token, refresh_token, token_expires_at")
+    .select("access_token, refresh_token, token_expires_at, unified_connection_id")
     .eq("user_id", userId)
     .eq("platform", platform)
     .eq("status", "active")
     .single();
 
   if (!account) throw new Error(`No active ${platform} account found`);
+
+  // Unified.to handles token refresh automatically
+  if (account.unified_connection_id) {
+    return account.access_token;
+  }
 
   const expiresAt = account.token_expires_at
     ? new Date(account.token_expires_at).getTime()
@@ -89,13 +94,18 @@ export async function getValidMetaToken(
 
   const { data: account } = await supabase
     .from("connected_accounts")
-    .select("access_token, token_expires_at")
+    .select("access_token, token_expires_at, unified_connection_id")
     .eq("user_id", userId)
     .eq("platform", platform)
     .eq("status", "active")
     .single();
 
   if (!account) throw new Error(`No active ${platform} account found`);
+
+  // Unified.to handles token refresh automatically
+  if (account.unified_connection_id) {
+    return account.access_token;
+  }
 
   const expiresAt = account.token_expires_at
     ? new Date(account.token_expires_at).getTime()

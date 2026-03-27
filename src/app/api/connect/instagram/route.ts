@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateState, setStateCookie, getAuthenticatedUserId } from "@/lib/oauth-helpers";
+import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 
 export async function GET(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
@@ -7,16 +7,21 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  const state = generateState();
-  await setStateCookie("instagram", state);
+  const workspaceId = process.env.UNIFIED_WORKSPACE_ID!;
+  const baseUrl = process.env.NEXTAUTH_URL!;
 
-  const params = new URLSearchParams({
-    client_id: process.env.META_CLIENT_ID!,
-    redirect_uri: process.env.INSTAGRAM_REDIRECT_URI || `${process.env.NEXTAUTH_URL}/api/connect/instagram/callback`,
-    response_type: "code",
-    scope: "instagram_basic,instagram_manage_insights,pages_show_list,pages_read_engagement",
-    state,
-  });
+  const successRedirect = encodeURIComponent(
+    `${baseUrl}/api/connect/callback?platform=instagram`
+  );
+  const failureRedirect = encodeURIComponent(
+    `${baseUrl}/dashboard/settings?error=instagram_denied`
+  );
 
-  return NextResponse.redirect(`https://www.facebook.com/v21.0/dialog/oauth?${params}`);
+  const authUrl =
+    `https://api.unified.to/unified/integration/auth/${workspaceId}/instagram` +
+    `?success_redirect=${successRedirect}` +
+    `&failure_redirect=${failureRedirect}` +
+    `&state=${userId}`;
+
+  return NextResponse.redirect(authUrl);
 }

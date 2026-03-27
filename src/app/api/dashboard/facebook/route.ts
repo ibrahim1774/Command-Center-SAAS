@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   const { data: account } = await supabase
     .from("connected_accounts")
-    .select("last_synced")
+    .select("last_synced, unified_connection_id")
     .eq("user_id", userId)
     .eq("platform", "facebook")
     .eq("status", "active")
