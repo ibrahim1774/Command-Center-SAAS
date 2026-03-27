@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import {
   motion,
   useScroll,
@@ -45,31 +46,23 @@ function FadeUp({
   );
 }
 
-/* ─────────────────────────────────────────────
-   Avatar circle helper
-   ───────────────────────────────────────────── */
-function Avatar({
-  initials,
-  className = "",
-}: {
-  initials: string;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`flex h-10 w-10 items-center justify-center rounded-full bg-accent-primary text-sm font-medium text-white ring-2 ring-page-bg ${className}`}
-    >
-      {initials}
-    </div>
-  );
-}
-
 /* ═════════════════════════════════════════════
    PAGE
    ═════════════════════════════════════════════ */
+function getInitials(name: string | null | undefined): string {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
+  const { data: session } = useSession();
 
   useMotionValueEvent(scrollY, "change", (v) => {
     setScrolled(v > 40);
@@ -96,18 +89,45 @@ export default function LandingPage() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="hidden sm:inline-flex items-center text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-full bg-accent-primary px-5 py-2 text-sm font-medium text-white transition-all hover:opacity-90 hover:shadow-md"
-            >
-              Start Free
-            </Link>
+            {session?.user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-primary text-xs font-bold text-white overflow-hidden"
+                >
+                  {session.user.image ? (
+                    <img
+                      src={session.user.image}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    getInitials(session.user.name)
+                  )}
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="hidden sm:inline-flex items-center text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/signup"
+                  className="rounded-full bg-accent-primary px-5 py-2 text-sm font-medium text-white transition-all hover:opacity-90 hover:shadow-md"
+                >
+                  Start Free
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -246,45 +266,6 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-            </div>
-          </FadeUp>
-        </div>
-      </section>
-
-      {/* ── SOCIAL PROOF ── */}
-      <section className="py-16 md:py-20">
-        <div className="mx-auto max-w-6xl px-6">
-          <FadeUp>
-            <div className="flex flex-col items-center gap-6 md:flex-row md:justify-center md:gap-12">
-              {/* Avatars */}
-              <div className="flex items-center">
-                <div className="flex -space-x-3">
-                  {["SK", "MT", "AL", "JR", "KP"].map((init, i) => (
-                    <Avatar key={i} initials={init} />
-                  ))}
-                </div>
-                <p className="ml-4 text-sm font-medium text-text-secondary">
-                  Trusted by{" "}
-                  <span className="text-text-primary">2,000+ creators</span>
-                </p>
-              </div>
-            </div>
-          </FadeUp>
-
-          <FadeUp delay={0.1}>
-            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
-              {[
-                { value: "1.2M+", label: "Data points analyzed" },
-                { value: "340%", label: "Avg reach increase" },
-                { value: "12 min", label: "Saved daily" },
-              ].map((s) => (
-                <div key={s.label} className="text-center">
-                  <p className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-                    {s.value}
-                  </p>
-                  <p className="mt-1 text-sm text-text-muted">{s.label}</p>
-                </div>
-              ))}
             </div>
           </FadeUp>
         </div>
@@ -504,61 +485,6 @@ export default function LandingPage() {
                     >
                       {plan.cta}
                     </Link>
-                  </div>
-                </div>
-              </FadeUp>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ── */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="mx-auto max-w-6xl px-6">
-          <FadeUp>
-            <p className="text-center text-sm font-medium uppercase tracking-widest text-accent-primary">
-              Testimonials
-            </p>
-            <h2 className="mt-3 text-center font-display text-3xl font-bold tracking-tight md:text-4xl">
-              Creators love Nurplix
-            </h2>
-          </FadeUp>
-
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {[
-              {
-                initials: "SK",
-                name: "Sarah K.",
-                handle: "@sarahcreates",
-                quote:
-                  "Nurplix replaced 4 different tools for me. The AI insights alone have doubled my engagement rate.",
-              },
-              {
-                initials: "MT",
-                name: "Marcus T.",
-                handle: "@marcusfilms",
-                quote:
-                  "The brand deal CRM is a game-changer. I used to track everything in spreadsheets. Never going back.",
-              },
-              {
-                initials: "AL",
-                name: "Ava L.",
-                handle: "@avalifestyle",
-                quote:
-                  "Finally, a dashboard that actually looks good. I open it every morning like my favorite magazine.",
-              },
-            ].map((t, i) => (
-              <FadeUp key={t.name} delay={i * 0.08}>
-                <div className="rounded-2xl border border-card-border bg-page-bg p-7">
-                  <p className="leading-relaxed text-text-secondary italic">
-                    &ldquo;{t.quote}&rdquo;
-                  </p>
-                  <div className="mt-6 flex items-center gap-3">
-                    <Avatar initials={t.initials} />
-                    <div>
-                      <p className="text-sm font-semibold">{t.name}</p>
-                      <p className="text-xs text-text-muted">{t.handle}</p>
-                    </div>
                   </div>
                 </div>
               </FadeUp>
