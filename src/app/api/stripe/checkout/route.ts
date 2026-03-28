@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
       customer: stripeCustomerId,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl}/dashboard?checkout=success`,
+      success_url: `${appUrl}/api/stripe/verify-checkout?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/#pricing`,
       metadata: { userId, planId },
     });
