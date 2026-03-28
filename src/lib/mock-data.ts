@@ -295,6 +295,30 @@ export const monthlyEarnings: MonthlyEarning[] = [
   { month: "Mar", amount: 48200 },
 ];
 
+// ==================== TIKTOK PAGE ====================
+
+export const tiktokMetrics: MetricCard[] = [
+  { label: "Followers", value: "312,400", change: "+8,200", changeType: "positive" },
+  { label: "Views (30D)", value: "4.8M", change: "+32.1%", changeType: "positive" },
+  { label: "Likes (30D)", value: "892K", change: "+18.4%", changeType: "positive" },
+  { label: "Avg View Duration", value: "12.4s", change: "+1.2s", changeType: "positive" },
+];
+
+export const tiktokVideos = [
+  { id: "tt1", caption: "Day in the life of a full-time content creator 🎬 #contentcreator #dayinthelife", views: 1420000, likes: 189000, comments: 4200, shares: 12400, timestamp: "2d ago" },
+  { id: "tt2", caption: "This editing trick saved me 5 hours a week ⚡ #editingtips #productivity", views: 890000, likes: 124000, comments: 2800, shares: 8900, timestamp: "4d ago" },
+  { id: "tt3", caption: "POV: You land your first $10K brand deal 💰 #branddeal #creatortips", views: 2100000, likes: 312000, comments: 8900, shares: 24500, timestamp: "1w ago" },
+  { id: "tt4", caption: "How I grew from 0 to 300K in 8 months 📈 #growthtips #tiktoktips", views: 3400000, likes: 456000, comments: 12400, shares: 34200, timestamp: "1w ago" },
+  { id: "tt5", caption: "The camera gear I actually use every day 📸 #cameragear #techreview", views: 670000, likes: 89000, comments: 1900, shares: 5600, timestamp: "2w ago" },
+];
+
+export const tiktokComments = [
+  { id: "tc1", author: "@creator.life", text: "The editing trick actually works! Just tried it and my workflow is so much faster", likes: 234, timestamp: "3h ago" },
+  { id: "tc2", author: "@socialmediapro", text: "Your growth story is so inspiring. Following since 10K!", likes: 189, timestamp: "6h ago" },
+  { id: "tc3", author: "@filmmaker.joe", text: "What camera are you using for these? The quality is insane", likes: 156, timestamp: "12h ago" },
+  { id: "tc4", author: "@startup.hustle", text: "The brand deal video came at the perfect time. Negotiating my first one now!", likes: 312, timestamp: "1d ago" },
+];
+
 // ==================== SETTINGS PAGE ====================
 
 export const connectedAccounts: ConnectedAccount[] = [

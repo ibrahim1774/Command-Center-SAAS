@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { isDemoUser } from "@/lib/demo-mode";
+import { tiktokVideos, tiktokComments } from "@/lib/mock-data";
 
 const UNIFIED_API_KEY = process.env.UNIFIED_API_KEY || "";
 
@@ -8,6 +10,43 @@ export async function GET(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Demo mode
+  if (await isDemoUser(req)) {
+    return NextResponse.json({
+      connected: true,
+      lastSynced: new Date().toISOString(),
+      profile: {
+        username: "@ibrahimttshop",
+        followers: 312400,
+        following: 892,
+        videoCount: tiktokVideos.length,
+      },
+      metrics: {
+        totalViews: tiktokVideos.reduce((s, v) => s + v.views, 0),
+        totalLikes: tiktokVideos.reduce((s, v) => s + v.likes, 0),
+        totalComments: tiktokVideos.reduce((s, v) => s + v.comments, 0),
+        totalShares: tiktokVideos.reduce((s, v) => s + v.shares, 0),
+      },
+      videos: tiktokVideos.map((v) => ({
+        id: v.id,
+        title: v.caption,
+        views: v.views,
+        likes: v.likes,
+        comments: v.comments,
+        shares: v.shares,
+        thumbnail: "",
+        createdAt: v.timestamp,
+      })),
+      comments: tiktokComments.map((c) => ({
+        id: c.id,
+        author: c.author,
+        text: c.text,
+        likes: c.likes,
+        timestamp: c.timestamp,
+      })),
+    });
   }
 
   const supabase = getSupabaseAdmin();

@@ -1,11 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { isDemoUser } from "@/lib/demo-mode";
+import {
+  instagramAccounts,
+  instagramPosts,
+  instagramComments,
+  instagramDailyReach,
+} from "@/lib/mock-data";
 
 export async function GET(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Demo mode: return mock data
+  if (await isDemoUser(req)) {
+    const acct = instagramAccounts[0];
+    return NextResponse.json({
+      connected: true,
+      lastSynced: new Date().toISOString(),
+      profile: {
+        username: acct.handle,
+        follower_count: acct.followers,
+        following_count: acct.following,
+        media_count: acct.posts,
+        profile_picture_url: null,
+      },
+      posts: instagramPosts.slice(0, 6).map((p) => ({
+        id: p.id,
+        caption: p.caption,
+        like_count: p.likes,
+        comments_count: p.comments,
+        timestamp: p.timestamp,
+        media_type: p.type,
+        permalink: "#",
+      })),
+      comments: instagramComments.map((c) => ({
+        id: c.id,
+        username: c.author,
+        text: c.text,
+        timestamp: c.timestamp,
+      })),
+      dailyMetrics: instagramDailyReach.map((d) => ({
+        date: d.date,
+        reach: d.reach,
+        impressions: Math.round(d.reach * 1.4),
+      })),
+    });
   }
 
   const supabase = getSupabaseAdmin();

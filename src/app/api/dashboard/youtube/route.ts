@@ -1,11 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { isDemoUser } from "@/lib/demo-mode";
+import { youtubeVideos, youtubeComments, youtubeViewsData } from "@/lib/mock-data";
 
 export async function GET(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Demo mode
+  if (await isDemoUser(req)) {
+    return NextResponse.json({
+      connected: true,
+      lastSynced: new Date().toISOString(),
+      channel: {
+        title: "Command HQ",
+        subscriber_count: 234800,
+        video_count: 187,
+        view_count: 28400000,
+        thumbnail_url: null,
+      },
+      videos: youtubeVideos.map((v) => ({
+        id: v.id,
+        title: v.title,
+        view_count: v.views,
+        like_count: v.likes,
+        comment_count: v.comments,
+        published_at: v.publishedAt,
+        duration: v.duration,
+        thumbnail_url: null,
+      })),
+      comments: youtubeComments.map((c) => ({
+        id: c.id,
+        author_name: c.author,
+        text: c.text,
+        like_count: c.likes,
+        published_at: c.timestamp,
+        video_title: c.videoTitle,
+      })),
+      viewsData: youtubeViewsData,
+    });
   }
 
   const supabase = getSupabaseAdmin();

@@ -4,6 +4,7 @@ import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { getSupabaseAdmin } from "./supabase-admin";
+import { DEMO_EMAIL } from "./demo-mode";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -116,6 +117,11 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.plan = user.plan ?? "free";
+      }
+      // Demo user always gets pro
+      if (token.email === DEMO_EMAIL) {
+        token.plan = "pro";
+        return token;
       }
       // Refresh plan from DB on subsequent requests to reflect Stripe webhook updates
       if (!user && token.id) {
