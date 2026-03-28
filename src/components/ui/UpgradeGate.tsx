@@ -1,67 +1,41 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
+import { Lock } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { canAccess, type PlanFeature } from "@/lib/plan-gating";
 
 interface UpgradeGateProps {
-  feature: PlanFeature;
+  feature: string;
   children: React.ReactNode;
-  planRequired?: string;
 }
 
-const FEATURE_LABELS: Record<PlanFeature, string> = {
-  platforms: "connecting more platforms",
-  ai: "AI-powered insights",
-  deals: "brand deal CRM",
-  goals: "goals and journal",
-  deepAnalysis: "deep analysis reports",
-  teamSeats: "team collaboration",
-};
-
-export function UpgradeGate({
-  feature,
-  children,
-  planRequired,
-}: UpgradeGateProps) {
+export function UpgradeGate({ feature, children }: UpgradeGateProps) {
   const { data: session } = useSession();
-  const userPlan =
-    (session?.user as Record<string, unknown>)?.plan as string | undefined;
-  const plan = userPlan || "free";
+  const plan = (session?.user?.plan as string) || "free";
+  const isPro = plan === "pro";
 
-  if (canAccess(plan, feature)) {
+  if (isPro) {
     return <>{children}</>;
   }
 
-  const suggestedPlan = planRequired || "Pro";
-
   return (
-    <div className="relative">
-      {/* Preview content behind blur */}
-      <div className="pointer-events-none select-none blur-sm">{children}</div>
-
-      {/* Upgrade overlay */}
-      <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-[10px]">
-        <div className="bg-white border border-card-border rounded-[10px] p-8 max-w-sm w-full mx-4 text-center shadow-lg">
-          <h3
-            className="font-display text-xl font-semibold mb-2"
-            style={{ color: "#1a1a1a" }}
-          >
-            Upgrade to unlock
-          </h3>
-          <p className="font-body text-sm text-gray-500 mb-6">
-            Upgrade your plan to access {FEATURE_LABELS[feature]}.
-          </p>
-          <Link
-            href="/dashboard/settings#subscription"
-            className="inline-block px-6 py-2.5 rounded-lg text-white text-sm font-medium transition-opacity hover:opacity-90"
-            style={{ backgroundColor: "#c4947a" }}
-          >
-            Upgrade to {suggestedPlan}
-          </Link>
-        </div>
+    <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-primary/10 mb-6">
+        <Lock className="h-7 w-7 text-accent-primary" />
       </div>
+      <h2 className="font-display text-2xl font-bold text-text-primary mb-2">
+        Pro Feature
+      </h2>
+      <p className="text-text-secondary max-w-md mb-8">
+        {feature} is available on the Pro plan. Upgrade to unlock access to all
+        channels, brand deal CRM, goals, and more.
+      </p>
+      <Link
+        href="/#pricing"
+        className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3 text-sm font-medium text-white transition-all hover:opacity-90 hover:shadow-lg"
+      >
+        Upgrade to Pro
+      </Link>
     </div>
   );
 }

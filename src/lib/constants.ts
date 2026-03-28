@@ -1,13 +1,13 @@
 export const TAB_ITEMS = [
-  { id: "overview", label: "Overview", href: "/dashboard" },
-  { id: "instagram", label: "Instagram", href: "/dashboard/instagram" },
-  { id: "youtube", label: "YouTube", href: "/dashboard/youtube" },
-  { id: "facebook", label: "Facebook", href: "/dashboard/facebook" },
-  { id: "tiktok", label: "TikTok", href: "/dashboard/tiktok" },
-  { id: "trending", label: "Trending", href: "/dashboard/trending" },
-  { id: "deals", label: "Deals", href: "/dashboard/deals" },
-  { id: "goals", label: "Goals", href: "/dashboard/goals" },
-  { id: "settings", label: "Settings", href: "/dashboard/settings" },
+  { id: "overview", label: "Overview", href: "/dashboard", requiresPro: false },
+  { id: "instagram", label: "Instagram", href: "/dashboard/instagram", requiresPro: false },
+  { id: "youtube", label: "YouTube", href: "/dashboard/youtube", requiresPro: true },
+  { id: "facebook", label: "Facebook", href: "/dashboard/facebook", requiresPro: true },
+  { id: "tiktok", label: "TikTok", href: "/dashboard/tiktok", requiresPro: true },
+  { id: "trending", label: "Trending", href: "/dashboard/trending", requiresPro: false },
+  { id: "deals", label: "Deals", href: "/dashboard/deals", requiresPro: true },
+  { id: "goals", label: "Goals", href: "/dashboard/goals", requiresPro: true },
+  { id: "settings", label: "Settings", href: "/dashboard/settings", requiresPro: false },
 ] as const;
 
 export const PLATFORM_CONFIG = {

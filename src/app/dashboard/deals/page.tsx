@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useDeals } from "@/lib/hooks/useDeals";
+import { UpgradeGate } from "@/components/ui/UpgradeGate";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -21,6 +22,14 @@ function formatCurrency(n: number) { return `$${n.toLocaleString()}`; }
 function formatYAxis(v: number) { return v >= 1000 ? `$${v / 1000}K` : `$${v}`; }
 
 export default function DealsPage() {
+  return (
+    <UpgradeGate feature="Brand deal CRM">
+      <DealsPageContent />
+    </UpgradeGate>
+  );
+}
+
+function DealsPageContent() {
   const { deals, metrics, loading, createDeal, updateDealStatus, deleteDeal } = useDeals();
   const [viewMode, setViewMode] = useState<"kanban" | "table">("kanban");
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);

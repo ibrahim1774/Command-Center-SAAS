@@ -2,6 +2,7 @@
 
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
 import { ConnectAccountCard } from "@/components/ui/ConnectAccountCard";
+import { UpgradeGate } from "@/components/ui/UpgradeGate";
 import { DashboardSkeleton } from "@/components/ui/LoadingSkeleton";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -64,6 +65,14 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function TikTokPage() {
+  return (
+    <UpgradeGate feature="TikTok analytics">
+      <TikTokPageContent />
+    </UpgradeGate>
+  );
+}
+
+function TikTokPageContent() {
   const { data, loading, connected } =
     useDashboardData<TikTokData>("/api/dashboard/tiktok");
 

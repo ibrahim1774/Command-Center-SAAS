@@ -4,6 +4,7 @@ import { youtubeAnalysis as mockAnalysis } from "@/lib/mock-data";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
 import { useAIInsights } from "@/lib/hooks/useAIInsights";
 import { ConnectAccountCard } from "@/components/ui/ConnectAccountCard";
+import { UpgradeGate } from "@/components/ui/UpgradeGate";
 import { SyncStatusBar } from "@/components/ui/SyncStatusBar";
 import { DashboardSkeleton } from "@/components/ui/LoadingSkeleton";
 import { Card } from "@/components/ui/Card";
@@ -78,6 +79,14 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function YouTubePage() {
+  return (
+    <UpgradeGate feature="YouTube analytics">
+      <YouTubePageContent />
+    </UpgradeGate>
+  );
+}
+
+function YouTubePageContent() {
   const { data, loading, connected, lastSynced, refetch } =
     useDashboardData<YouTubeData>("/api/dashboard/youtube");
   const { insights, generating, regenerate } = useAIInsights();

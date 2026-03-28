@@ -4,6 +4,7 @@ import { facebookInsights as mockInsights } from "@/lib/mock-data";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
 import { useAIInsights } from "@/lib/hooks/useAIInsights";
 import { ConnectAccountCard } from "@/components/ui/ConnectAccountCard";
+import { UpgradeGate } from "@/components/ui/UpgradeGate";
 import { SyncStatusBar } from "@/components/ui/SyncStatusBar";
 import { DashboardSkeleton } from "@/components/ui/LoadingSkeleton";
 import { Card } from "@/components/ui/Card";
@@ -66,6 +67,14 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function FacebookPage() {
+  return (
+    <UpgradeGate feature="Facebook analytics">
+      <FacebookPageContent />
+    </UpgradeGate>
+  );
+}
+
+function FacebookPageContent() {
   const { data, loading, connected, lastSynced, refetch } =
     useDashboardData<FacebookData>("/api/dashboard/facebook");
   const { insights, generating, regenerate } = useAIInsights();

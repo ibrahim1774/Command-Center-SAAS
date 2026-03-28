@@ -243,22 +243,22 @@ export default function LandingPage() {
 
           <div className="flex items-center gap-3">
             {session?.user ? (
-              <>
+              <div className="flex items-center gap-3">
                 <Link
                   href="/dashboard"
-                  className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+                  className="hidden sm:inline text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
                 >
                   Dashboard
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
-                  className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+                  className="hidden sm:inline text-sm font-medium text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
                 >
                   Sign Out
                 </button>
                 <Link
                   href="/dashboard"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-primary text-xs font-bold text-white overflow-hidden"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-primary text-xs font-bold text-white overflow-hidden"
                 >
                   {session.user.image ? (
                     <img
@@ -270,7 +270,7 @@ export default function LandingPage() {
                     getInitials(session.user.name)
                   )}
                 </Link>
-              </>
+              </div>
             ) : (
               <>
                 <Link

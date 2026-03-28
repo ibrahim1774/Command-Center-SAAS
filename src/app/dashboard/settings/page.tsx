@@ -304,11 +304,19 @@ function SettingsContent() {
                   ) : (
                     <>
                       <Badge variant="neutral">Not connected</Badge>
-                      <a href={`/api/connect/${key}`}>
-                        <Button variant="primary" size="sm">
-                          Connect
-                        </Button>
-                      </a>
+                      {key !== "instagram" && ((session?.user?.plan as string) || "free") !== "pro" ? (
+                        <a href="/#pricing">
+                          <Button variant="secondary" size="sm">
+                            Upgrade to Pro
+                          </Button>
+                        </a>
+                      ) : (
+                        <a href={`/api/connect/${key}`}>
+                          <Button variant="primary" size="sm">
+                            Connect
+                          </Button>
+                        </a>
+                      )}
                     </>
                   )}
                 </div>

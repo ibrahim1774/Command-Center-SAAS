@@ -15,21 +15,21 @@ export const PLAN_LIMITS = {
     deepAnalysis: false,
     teamSeats: 0,
   },
+  hobby: {
+    platforms: 1,
+    ai: false,
+    deals: false,
+    goals: false,
+    deepAnalysis: false,
+    teamSeats: 0,
+  },
   pro: {
     platforms: Infinity,
     ai: true,
     deals: true,
     goals: true,
-    deepAnalysis: false,
-    teamSeats: 1,
-  },
-  business: {
-    platforms: Infinity,
-    ai: true,
-    deals: true,
-    goals: true,
     deepAnalysis: true,
-    teamSeats: 5,
+    teamSeats: 1,
   },
 } as const;
 

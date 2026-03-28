@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useGoals } from "@/lib/hooks/useGoals";
+import { UpgradeGate } from "@/components/ui/UpgradeGate";
 import { GoalGrid } from "./_components/GoalGrid";
 import { AddGoalModal } from "./_components/AddGoalModal";
 import { JournalSection } from "./_components/JournalSection";
@@ -11,6 +12,14 @@ import { Target, BookOpen, CheckSquare, Calendar } from "lucide-react";
 import type { Goal } from "@/types";
 
 export default function GoalsPage() {
+  return (
+    <UpgradeGate feature="Goals & task management">
+      <GoalsPageContent />
+    </UpgradeGate>
+  );
+}
+
+function GoalsPageContent() {
   const { goals, loading, createGoal, updateGoal, deleteGoal } = useGoals();
   const [showGoalModal, setShowGoalModal] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);

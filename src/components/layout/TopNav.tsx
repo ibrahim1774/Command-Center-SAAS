@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { RefreshCw, LogOut } from "lucide-react";
+import { RefreshCw, LogOut, Lock } from "lucide-react";
 import { TAB_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useEffect, useState, useRef } from "react";
@@ -152,19 +152,24 @@ export default function TopNav() {
               tab.href === "/dashboard"
                 ? pathname === "/dashboard"
                 : pathname.startsWith(tab.href);
+            const userPlan = (session?.user?.plan as string) || "free";
+            const isLocked = tab.requiresPro && userPlan !== "pro";
 
             return (
               <Link
                 key={tab.id}
                 href={tab.href}
                 className={cn(
-                  "relative flex items-center px-3.5 sm:px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors snap-start",
+                  "relative flex items-center gap-1.5 px-3.5 sm:px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors snap-start",
                   isActive
                     ? "text-text-primary"
-                    : "text-text-muted hover:text-text-secondary"
+                    : isLocked
+                      ? "text-text-muted/60"
+                      : "text-text-muted hover:text-text-secondary"
                 )}
               >
                 {tab.label}
+                {isLocked && <Lock className="h-3 w-3" />}
                 {isActive && (
                   <span className="absolute bottom-0 left-5 right-5 h-0.5 bg-accent-primary rounded-full" />
                 )}
