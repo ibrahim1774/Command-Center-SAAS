@@ -27,10 +27,8 @@ function SignupContent() {
   const planId = searchParams.get("plan");
   const interval = searchParams.get("interval") || "monthly";
 
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -67,11 +65,6 @@ function SignupContent() {
     e.preventDefault();
     setError("");
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
     if (password.length < 8) {
       setError("Password must be at least 8 characters");
       return;
@@ -84,7 +77,7 @@ function SignupContent() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: fullName, email, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
@@ -217,28 +210,6 @@ function SignupContent() {
         >
           <div>
             <label
-              htmlFor="fullName"
-              className="block text-xs font-medium mb-1.5 tracking-wide uppercase"
-              style={{ color: "#6b6560" }}
-            >
-              Full Name
-            </label>
-            <input
-              id="fullName"
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Your full name"
-              required
-              className="w-full rounded-lg px-4 h-11 text-sm outline-none transition-all duration-200"
-              style={inputStyle}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-            />
-          </div>
-
-          <div>
-            <label
               htmlFor="email"
               className="block text-xs font-medium mb-1.5 tracking-wide uppercase"
               style={{ color: "#6b6560" }}
@@ -275,28 +246,6 @@ function SignupContent() {
               placeholder="Create a password"
               required
               minLength={8}
-              className="w-full rounded-lg px-4 h-11 text-sm outline-none transition-all duration-200"
-              style={inputStyle}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-xs font-medium mb-1.5 tracking-wide uppercase"
-              style={{ color: "#6b6560" }}
-            >
-              Confirm Password
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm your password"
-              required
               className="w-full rounded-lg px-4 h-11 text-sm outline-none transition-all duration-200"
               style={inputStyle}
               onFocus={handleFocus}
