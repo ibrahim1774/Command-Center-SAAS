@@ -47,6 +47,25 @@ function FadeUp({
 }
 
 /* ─────────────────────────────────────────────
+   Browser mockup frame wrapper
+   ───────────────────────────────────────────── */
+function MockupFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-card-border bg-white shadow-xl shadow-black/5">
+      <div className="flex items-center gap-1.5 border-b border-card-border bg-[#fafaf8] px-3 py-2">
+        <span className="h-2.5 w-2.5 rounded-full bg-[#ee6a5f]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#f5bf4f]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#62c554]" />
+        <div className="ml-3 flex-1">
+          <div className="mx-auto h-4 w-32 rounded-md bg-card-border/60" />
+        </div>
+      </div>
+      <div className="p-4">{children}</div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
    Pricing section with monthly/yearly toggle
    ───────────────────────────────────────────── */
 function PricingSection() {
@@ -427,55 +446,222 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── FEATURES ── */}
+      {/* ── FEATURES SHOWCASE ── */}
       <section id="features" className="py-16 md:py-24">
         <div className="mx-auto max-w-6xl px-6">
           <FadeUp>
             <p className="text-center text-sm font-medium uppercase tracking-widest text-accent-primary">
-              Everything you need
+              See it in action
             </p>
             <h2 className="mt-3 text-center font-display text-3xl font-bold tracking-tight md:text-4xl">
               Built for creators who mean business
             </h2>
           </FadeUp>
 
-          <div className="mt-14 grid gap-6 sm:grid-cols-2">
-            {[
-              {
-                icon: BarChart3,
-                title: "Every platform, one view",
-                body: "Connect Instagram, YouTube, and Facebook to see all your analytics unified in a single, beautiful dashboard.",
-              },
-              {
-                icon: Sparkles,
-                title: "AI that actually helps",
-                body: "Daily briefings on what\u2019s working, what\u2019s flopping, and what to post next \u2014 powered by real data, not guesswork.",
-              },
-              {
-                icon: Handshake,
-                title: "Brand deal CRM",
-                body: "Manage your entire brand partnership pipeline from inquiry to payment with drag-and-drop kanban boards.",
-              },
-              {
-                icon: Target,
-                title: "Your personal HQ",
-                body: "Goal tracking, daily journaling, task management, and calendar \u2014 all in one space designed for focus.",
-              },
-            ].map((f, i) => (
-              <FadeUp key={f.title} delay={i * 0.08}>
-                <div className="group rounded-2xl border border-card-border bg-card-bg p-7 transition-all hover:border-accent-primary/40 hover:shadow-lg hover:shadow-accent-primary/5 md:p-9">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary transition-colors group-hover:bg-accent-primary group-hover:text-white">
-                    <f.icon className="h-5 w-5" strokeWidth={1.8} />
-                  </div>
-                  <h3 className="mt-5 font-display text-xl font-bold">
-                    {f.title}
-                  </h3>
-                  <p className="mt-2 leading-relaxed text-text-secondary">
-                    {f.body}
-                  </p>
+          {/* Feature 1: Analytics Overview */}
+          <div className="mt-20 grid items-center gap-10 md:grid-cols-2">
+            <FadeUp>
+              <div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary mb-4">
+                  <BarChart3 className="h-5 w-5" />
                 </div>
-              </FadeUp>
-            ))}
+                <h3 className="font-display text-2xl font-bold">
+                  Every platform, one view
+                </h3>
+                <p className="mt-3 leading-relaxed text-text-secondary">
+                  See all your analytics unified in a single, beautiful dashboard. Track followers, engagement, impressions, and revenue across every connected platform.
+                </p>
+              </div>
+            </FadeUp>
+            <FadeUp delay={0.1}>
+              <MockupFrame>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { label: "Followers", value: "24.8K", change: "+12.3%" },
+                    { label: "Engagement", value: "4.7%", change: "+0.8%" },
+                    { label: "Impressions", value: "1.2M", change: "+23%" },
+                    { label: "Revenue", value: "$3,420", change: "+18.5%" },
+                  ].map((m) => (
+                    <div key={m.label} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2.5">
+                      <p className="text-[10px] text-[#8a8580]">{m.label}</p>
+                      <p className="font-display text-sm font-bold text-[#2c2825]">{m.value}</p>
+                      <p className="text-[10px] font-medium text-[#6b8f71]">{m.change}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-3">
+                  <div className="flex justify-between mb-2">
+                    <p className="text-[10px] font-medium text-[#6b6560]">Audience Growth</p>
+                    <p className="text-[10px] text-[#8a8580]">Last 30 days</p>
+                  </div>
+                  <svg viewBox="0 0 300 60" className="w-full h-12" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="showGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#c4947a" stopOpacity="0.25" />
+                        <stop offset="100%" stopColor="#c4947a" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M0 50 Q40 45 80 38 T160 28 T240 18 T300 8" fill="none" stroke="#c4947a" strokeWidth="2" />
+                    <path d="M0 50 Q40 45 80 38 T160 28 T240 18 T300 8 L300 60 L0 60Z" fill="url(#showGrad)" />
+                  </svg>
+                </div>
+              </MockupFrame>
+            </FadeUp>
+          </div>
+
+          {/* Feature 2: Instagram Dashboard */}
+          <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
+            <FadeUp className="order-2 md:order-1">
+              <MockupFrame>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#f58529] via-[#dd2a7b] to-[#8134af]" />
+                  <div>
+                    <p className="text-xs font-bold text-[#2c2825]">@yourcreatorname</p>
+                    <p className="text-[10px] text-[#8a8580]">12.4K followers · 892 posts</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {[
+                    { label: "Reach", value: "48.2K" },
+                    { label: "Likes", value: "3,841" },
+                    { label: "Comments", value: "294" },
+                  ].map((s) => (
+                    <div key={s.label} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2 text-center">
+                      <p className="text-[10px] text-[#8a8580]">{s.label}</p>
+                      <p className="font-display text-xs font-bold text-[#2c2825]">{s.value}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] font-medium text-[#6b6560] mb-2">Recent Posts</p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { eng: "4.8%" }, { eng: "3.2%" }, { eng: "5.1%" },
+                    { eng: "2.9%" }, { eng: "6.3%" }, { eng: "4.1%" },
+                  ].map((p, i) => (
+                    <div key={i} className="aspect-square rounded-md bg-gradient-to-br from-[#e8e6e1] to-[#d4d0ca] flex items-end justify-center pb-1">
+                      <span className="text-[8px] font-medium text-[#6b6560] bg-white/80 px-1 rounded">{p.eng}</span>
+                    </div>
+                  ))}
+                </div>
+              </MockupFrame>
+            </FadeUp>
+            <FadeUp delay={0.1} className="order-1 md:order-2">
+              <div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary mb-4">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <h3 className="font-display text-2xl font-bold">
+                  Deep Instagram analytics
+                </h3>
+                <p className="mt-3 leading-relaxed text-text-secondary">
+                  See your profile metrics, track post performance, and discover which content drives the most engagement — all updated in real time.
+                </p>
+              </div>
+            </FadeUp>
+          </div>
+
+          {/* Feature 3: Brand Deal CRM */}
+          <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
+            <FadeUp>
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary">
+                    <Handshake className="h-5 w-5" />
+                  </div>
+                  <span className="rounded-full bg-accent-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-accent-primary">PRO</span>
+                </div>
+                <h3 className="font-display text-2xl font-bold">
+                  Brand deal CRM
+                </h3>
+                <p className="mt-3 leading-relaxed text-text-secondary">
+                  Manage your entire brand partnership pipeline from inquiry to payment with a drag-and-drop kanban board. Never lose track of a deal again.
+                </p>
+              </div>
+            </FadeUp>
+            <FadeUp delay={0.1}>
+              <MockupFrame>
+                <p className="text-[10px] font-medium text-[#6b6560] mb-2">Deal Pipeline</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { stage: "Inquiry", color: "#3b82f6", deals: [{ name: "Nike", amount: "$2,500" }, { name: "Adobe", amount: "$1,800" }] },
+                    { stage: "Negotiating", color: "#f59e0b", deals: [{ name: "Spotify", amount: "$3,200" }] },
+                    { stage: "Confirmed", color: "#6b8f71", deals: [{ name: "Samsung", amount: "$5,000" }, { name: "Notion", amount: "$1,200" }] },
+                  ].map((col) => (
+                    <div key={col.stage}>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <div className="h-2 w-2 rounded-full" style={{ backgroundColor: col.color }} />
+                        <p className="text-[10px] font-medium text-[#2c2825]">{col.stage}</p>
+                      </div>
+                      <div className="space-y-1.5">
+                        {col.deals.map((d) => (
+                          <div key={d.name} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2">
+                            <p className="text-[10px] font-bold text-[#2c2825]">{d.name}</p>
+                            <p className="text-[10px] text-[#6b8f71] font-medium">{d.amount}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </MockupFrame>
+            </FadeUp>
+          </div>
+
+          {/* Feature 4: Goals & Tasks */}
+          <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
+            <FadeUp className="order-2 md:order-1">
+              <MockupFrame>
+                <p className="text-[10px] font-medium text-[#6b6560] mb-2">Your Goals</p>
+                <div className="space-y-2 mb-3">
+                  {[
+                    { name: "Reach 50K followers", progress: 72, color: "#6b8f71" },
+                    { name: "Land 3 brand deals", progress: 33, color: "#c4947a" },
+                    { name: "Post 5x per week", progress: 80, color: "#3b82f6" },
+                  ].map((g) => (
+                    <div key={g.name} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2">
+                      <div className="flex justify-between mb-1">
+                        <p className="text-[10px] font-medium text-[#2c2825]">{g.name}</p>
+                        <p className="text-[10px] font-bold" style={{ color: g.color }}>{g.progress}%</p>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-[#e8e6e1]">
+                        <div className="h-full rounded-full" style={{ width: `${g.progress}%`, backgroundColor: g.color }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] font-medium text-[#6b6560] mb-2">Today&apos;s Tasks</p>
+                <div className="space-y-1.5">
+                  {[
+                    { task: "Edit reel for Nike collab", done: true },
+                    { task: "Reply to Spotify email", done: false },
+                    { task: "Draft caption for tomorrow", done: false },
+                  ].map((t) => (
+                    <div key={t.task} className="flex items-center gap-2 text-[10px]">
+                      <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center ${t.done ? "bg-[#6b8f71] border-[#6b8f71]" : "border-[#d4d0ca]"}`}>
+                        {t.done && <Check className="h-2.5 w-2.5 text-white" />}
+                      </div>
+                      <span className={t.done ? "line-through text-[#8a8580]" : "text-[#2c2825]"}>{t.task}</span>
+                    </div>
+                  ))}
+                </div>
+              </MockupFrame>
+            </FadeUp>
+            <FadeUp delay={0.1} className="order-1 md:order-2">
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary">
+                    <Target className="h-5 w-5" />
+                  </div>
+                  <span className="rounded-full bg-accent-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-accent-primary">PRO</span>
+                </div>
+                <h3 className="font-display text-2xl font-bold">
+                  Your personal HQ
+                </h3>
+                <p className="mt-3 leading-relaxed text-text-secondary">
+                  Set goals, track progress, manage daily tasks, and journal your creator journey — all in one space designed for focus.
+                </p>
+              </div>
+            </FadeUp>
           </div>
         </div>
       </section>
