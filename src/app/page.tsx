@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import {
   motion,
   useScroll,
@@ -250,6 +250,12 @@ export default function LandingPage() {
                 >
                   Dashboard
                 </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+                >
+                  Sign Out
+                </button>
                 <Link
                   href="/dashboard"
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-primary text-xs font-bold text-white overflow-hidden"
