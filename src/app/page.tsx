@@ -17,6 +17,11 @@ import {
   Check,
   ArrowRight,
   ChevronRight,
+  TrendingUp,
+  TrendingDown,
+  Heart,
+  MessageCircle,
+  Bot,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
@@ -458,7 +463,7 @@ export default function LandingPage() {
             </h2>
           </FadeUp>
 
-          {/* Feature 1: Analytics Overview */}
+          {/* Feature 1: Analytics Overview + AI Briefing */}
           <div className="mt-20 grid items-center gap-10 md:grid-cols-2">
             <FadeUp>
               <div>
@@ -477,10 +482,10 @@ export default function LandingPage() {
               <MockupFrame>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { label: "Followers", value: "24.8K", change: "+12.3%" },
-                    { label: "Engagement", value: "4.7%", change: "+0.8%" },
-                    { label: "Impressions", value: "1.2M", change: "+23%" },
-                    { label: "Revenue", value: "$3,420", change: "+18.5%" },
+                    { label: "Total Followers", value: "847,293", change: "+12.4%" },
+                    { label: "Total Reach (30D)", value: "2.4M", change: "+8.7%" },
+                    { label: "Engagement Rate", value: "4.82%", change: "+0.3%" },
+                    { label: "Revenue This Month", value: "$24,850", change: "+18.2%" },
                   ].map((m) => (
                     <div key={m.label} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2.5">
                       <p className="text-[10px] text-[#8a8580]">{m.label}</p>
@@ -489,21 +494,60 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-                <div className="mt-3 rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-3">
-                  <div className="flex justify-between mb-2">
-                    <p className="text-[10px] font-medium text-[#6b6560]">Audience Growth</p>
-                    <p className="text-[10px] text-[#8a8580]">Last 30 days</p>
+                {/* AI Briefing */}
+                <div className="mt-3 rounded-lg border border-[#c4947a]/30 bg-[#c4947a]/5 p-3">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Bot className="h-3.5 w-3.5 text-[#c4947a]" />
+                    <p className="text-[10px] font-bold text-[#c4947a]">AI Daily Briefing</p>
                   </div>
-                  <svg viewBox="0 0 300 60" className="w-full h-12" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id="showGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#c4947a" stopOpacity="0.25" />
-                        <stop offset="100%" stopColor="#c4947a" stopOpacity="0" />
-                      </linearGradient>
-                    </defs>
-                    <path d="M0 50 Q40 45 80 38 T160 28 T240 18 T300 8" fill="none" stroke="#c4947a" strokeWidth="2" />
-                    <path d="M0 50 Q40 45 80 38 T160 28 T240 18 T300 8 L300 60 L0 60Z" fill="url(#showGrad)" />
-                  </svg>
+                  <p className="text-[10px] leading-relaxed text-[#6b6560]">
+                    Your Instagram Reels are outperforming all other content this week with 6.8% engagement. YouTube collab hit 340K views. 3 new brand deal inquiries came in overnight.
+                  </p>
+                  <div className="mt-2 space-y-1">
+                    {[
+                      "Reels averaging 6.8% engagement rate",
+                      "YouTube collab hit 340K views, +2,400 subs",
+                      "3 new inquiries: Glossier, Nike, Adobe CC",
+                    ].map((h) => (
+                      <div key={h} className="flex items-start gap-1.5">
+                        <Sparkles className="h-2.5 w-2.5 text-[#c4947a] mt-0.5 shrink-0" />
+                        <p className="text-[9px] text-[#6b6560]">{h}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* What's Working / Flopping */}
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="rounded-lg border border-[#6b8f71]/20 bg-[#6b8f71]/5 p-2.5">
+                    <div className="flex items-center gap-1 mb-1.5">
+                      <TrendingUp className="h-3 w-3 text-[#6b8f71]" />
+                      <p className="text-[9px] font-bold text-[#6b8f71]">Working</p>
+                    </div>
+                    {[
+                      { text: "BTS Reels: 3x saves", badge: "+312%" },
+                      { text: "YT Shorts crosspost", badge: "+2.4K subs" },
+                    ].map((w) => (
+                      <div key={w.text} className="flex items-start justify-between gap-1 mt-1">
+                        <p className="text-[8px] text-[#2c2825] leading-tight">{w.text}</p>
+                        <span className="shrink-0 rounded bg-[#6b8f71]/10 px-1 py-px text-[7px] font-bold text-[#6b8f71]">{w.badge}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rounded-lg border border-[#c4626a]/20 bg-[#c4626a]/5 p-2.5">
+                    <div className="flex items-center gap-1 mb-1.5">
+                      <TrendingDown className="h-3 w-3 text-[#c4626a]" />
+                      <p className="text-[9px] font-bold text-[#c4626a]">Needs Work</p>
+                    </div>
+                    {[
+                      { text: "FB text posts", badge: "1.8% reach" },
+                      { text: "Stories after 9pm", badge: "-45% views" },
+                    ].map((w) => (
+                      <div key={w.text} className="flex items-start justify-between gap-1 mt-1">
+                        <p className="text-[8px] text-[#2c2825] leading-tight">{w.text}</p>
+                        <span className="shrink-0 rounded bg-[#c4626a]/10 px-1 py-px text-[7px] font-bold text-[#c4626a]">{w.badge}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </MockupFrame>
             </FadeUp>
@@ -513,33 +557,66 @@ export default function LandingPage() {
           <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
             <FadeUp className="order-2 md:order-1">
               <MockupFrame>
+                {/* Profile */}
                 <div className="flex items-center gap-3 mb-3">
                   <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#f58529] via-[#dd2a7b] to-[#8134af]" />
                   <div>
-                    <p className="text-xs font-bold text-[#2c2825]">@yourcreatorname</p>
-                    <p className="text-[10px] text-[#8a8580]">12.4K followers · 892 posts</p>
+                    <p className="text-xs font-bold text-[#2c2825]">@commandhq</p>
+                    <p className="text-[10px] text-[#8a8580]">94.2K followers · 1,247 posts</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 mb-3">
+                {/* Metrics */}
+                <div className="grid grid-cols-4 gap-1.5 mb-3">
                   {[
-                    { label: "Reach", value: "48.2K" },
-                    { label: "Likes", value: "3,841" },
-                    { label: "Comments", value: "294" },
+                    { label: "Followers", value: "94.2K" },
+                    { label: "Following", value: "842" },
+                    { label: "Posts", value: "1,247" },
+                    { label: "30D Reach", value: "342K" },
                   ].map((s) => (
-                    <div key={s.label} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2 text-center">
-                      <p className="text-[10px] text-[#8a8580]">{s.label}</p>
-                      <p className="font-display text-xs font-bold text-[#2c2825]">{s.value}</p>
+                    <div key={s.label} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-1.5 text-center">
+                      <p className="text-[8px] text-[#8a8580]">{s.label}</p>
+                      <p className="font-display text-[11px] font-bold text-[#2c2825]">{s.value}</p>
                     </div>
                   ))}
                 </div>
-                <p className="text-[10px] font-medium text-[#6b6560] mb-2">Recent Posts</p>
-                <div className="grid grid-cols-3 gap-1.5">
+                {/* Posts */}
+                <p className="text-[10px] font-medium text-[#6b6560] mb-1.5">Latest Posts</p>
+                <div className="space-y-1.5 mb-3">
                   {[
-                    { eng: "4.8%" }, { eng: "3.2%" }, { eng: "5.1%" },
-                    { eng: "2.9%" }, { eng: "6.3%" }, { eng: "4.1%" },
-                  ].map((p, i) => (
-                    <div key={i} className="aspect-square rounded-md bg-gradient-to-br from-[#e8e6e1] to-[#d4d0ca] flex items-end justify-center pb-1">
-                      <span className="text-[8px] font-medium text-[#6b6560] bg-white/80 px-1 rounded">{p.eng}</span>
+                    { caption: "The anatomy of a viral post — breaking down what works in 2026 📊", likes: "4,820", comments: "342", type: "Carousel", typeColor: "#e3f2fd", typeText: "#1565c0" },
+                    { caption: "Studio tour update! New setup who dis 🎬", likes: "3,210", comments: "189", type: "Reel", typeColor: "#fce4ec", typeText: "#c62828" },
+                    { caption: "5 tools I can't live without for content creation", likes: "5,100", comments: "421", type: "Carousel", typeColor: "#e3f2fd", typeText: "#1565c0" },
+                  ].map((p) => (
+                    <div key={p.caption} className="flex items-start gap-2 rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2">
+                      <div className="h-10 w-10 shrink-0 rounded-md bg-gradient-to-br from-[#e8e6e1] to-[#d4d0ca]" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[9px] text-[#2c2825] leading-tight truncate">{p.caption}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="flex items-center gap-0.5 text-[8px] text-[#8a8580]">
+                            <Heart className="h-2.5 w-2.5" /> {p.likes}
+                          </span>
+                          <span className="flex items-center gap-0.5 text-[8px] text-[#8a8580]">
+                            <MessageCircle className="h-2.5 w-2.5" /> {p.comments}
+                          </span>
+                          <span className="rounded px-1 py-px text-[7px] font-medium" style={{ backgroundColor: p.typeColor, color: p.typeText }}>{p.type}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Comments */}
+                <p className="text-[10px] font-medium text-[#6b6560] mb-1.5">Recent Comments</p>
+                <div className="space-y-1.5">
+                  {[
+                    { author: "@design.daily", text: "Your color theory series has been incredible!", time: "1h" },
+                    { author: "@startuplife", text: "Implemented your strategy — 40% reach increase!", time: "5h" },
+                  ].map((c) => (
+                    <div key={c.author} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2">
+                      <div className="flex justify-between">
+                        <p className="text-[9px] font-bold text-[#2c2825]">{c.author}</p>
+                        <p className="text-[8px] text-[#8a8580]">{c.time}</p>
+                      </div>
+                      <p className="text-[8px] text-[#6b6560] mt-0.5">{c.text}</p>
                     </div>
                   ))}
                 </div>
@@ -554,7 +631,7 @@ export default function LandingPage() {
                   Deep Instagram analytics
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">
-                  See your profile metrics, track post performance, and discover which content drives the most engagement — all updated in real time.
+                  Track profile metrics, monitor post performance with engagement breakdowns, see recent comments, and get AI-powered insights on what content drives the most growth.
                 </p>
               </div>
             </FadeUp>
@@ -574,29 +651,59 @@ export default function LandingPage() {
                   Brand deal CRM
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">
-                  Manage your entire brand partnership pipeline from inquiry to payment with a drag-and-drop kanban board. Never lose track of a deal again.
+                  Manage your entire brand partnership pipeline from inquiry to payment. Track active deals, pending payouts, and monthly earnings with a drag-and-drop kanban board.
                 </p>
               </div>
             </FadeUp>
             <FadeUp delay={0.1}>
               <MockupFrame>
+                {/* Deal metrics */}
+                <div className="grid grid-cols-4 gap-1.5 mb-3">
+                  {[
+                    { label: "Active Deals", value: "8", change: "+2" },
+                    { label: "Pipeline", value: "$142.5K", change: "+$34K" },
+                    { label: "Pending", value: "$28.4K", change: "3 inv." },
+                    { label: "Earned", value: "$48.2K", change: "+$12K" },
+                  ].map((m) => (
+                    <div key={m.label} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-1.5 text-center">
+                      <p className="text-[8px] text-[#8a8580]">{m.label}</p>
+                      <p className="font-display text-[11px] font-bold text-[#2c2825]">{m.value}</p>
+                      <p className="text-[7px] font-medium text-[#6b8f71]">{m.change}</p>
+                    </div>
+                  ))}
+                </div>
+                {/* Kanban */}
                 <p className="text-[10px] font-medium text-[#6b6560] mb-2">Deal Pipeline</p>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { stage: "Inquiry", color: "#3b82f6", deals: [{ name: "Nike", amount: "$2,500" }, { name: "Adobe", amount: "$1,800" }] },
-                    { stage: "Negotiating", color: "#f59e0b", deals: [{ name: "Spotify", amount: "$3,200" }] },
-                    { stage: "Confirmed", color: "#6b8f71", deals: [{ name: "Samsung", amount: "$5,000" }, { name: "Notion", amount: "$1,200" }] },
+                    { stage: "Inquiry", color: "#3b82f6", bg: "#eff6ff", deals: [
+                      { brand: "Glossier", value: "$12K", type: "IG · 3 Reels" },
+                      { brand: "Squarespace", value: "$8.5K", type: "YT · Sponsored" },
+                      { brand: "Canva", value: "$6K", type: "IG · Spotlight" },
+                    ]},
+                    { stage: "Negotiating", color: "#f59e0b", bg: "#fffbeb", deals: [
+                      { brand: "Nike Digital", value: "$35K", type: "YT · 2 Videos" },
+                      { brand: "Notion", value: "$15K", type: "YT · 3 Videos" },
+                    ]},
+                    { stage: "In Progress", color: "#c4947a", bg: "#fdf4f0", deals: [
+                      { brand: "Adobe CC", value: "$24K", type: "IG · Annual" },
+                      { brand: "Samsung", value: "$42K", type: "YT · Q2/Q3" },
+                    ]},
                   ].map((col) => (
                     <div key={col.stage}>
-                      <div className="flex items-center gap-1.5 mb-2">
+                      <div className="flex items-center gap-1.5 mb-1.5">
                         <div className="h-2 w-2 rounded-full" style={{ backgroundColor: col.color }} />
-                        <p className="text-[10px] font-medium text-[#2c2825]">{col.stage}</p>
+                        <p className="text-[9px] font-bold text-[#2c2825]">{col.stage}</p>
+                        <span className="text-[8px] text-[#8a8580]">{col.deals.length}</span>
                       </div>
                       <div className="space-y-1.5">
                         {col.deals.map((d) => (
-                          <div key={d.name} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2">
-                            <p className="text-[10px] font-bold text-[#2c2825]">{d.name}</p>
-                            <p className="text-[10px] text-[#6b8f71] font-medium">{d.amount}</p>
+                          <div key={d.brand} className="rounded-lg border p-2" style={{ borderColor: col.color + "30", backgroundColor: col.bg }}>
+                            <p className="text-[9px] font-bold text-[#2c2825]">{d.brand}</p>
+                            <div className="flex justify-between mt-0.5">
+                              <p className="text-[8px] text-[#8a8580]">{d.type}</p>
+                              <p className="text-[8px] font-bold text-[#6b8f71]">{d.value}</p>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -611,38 +718,61 @@ export default function LandingPage() {
           <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
             <FadeUp className="order-2 md:order-1">
               <MockupFrame>
+                {/* Goals */}
                 <p className="text-[10px] font-medium text-[#6b6560] mb-2">Your Goals</p>
-                <div className="space-y-2 mb-3">
+                <div className="grid grid-cols-2 gap-2 mb-3">
                   {[
-                    { name: "Reach 50K followers", progress: 72, color: "#6b8f71" },
-                    { name: "Land 3 brand deals", progress: 33, color: "#c4947a" },
-                    { name: "Post 5x per week", progress: 80, color: "#3b82f6" },
+                    { name: "Reach 100K followers", current: "94.2K", target: "100K", progress: 94, color: "#6b8f71", category: "Growth" },
+                    { name: "Land 5 brand deals", current: "3", target: "5", progress: 60, color: "#c4947a", category: "Revenue" },
+                    { name: "Post 5x per week", current: "4", target: "5", progress: 80, color: "#3b82f6", category: "Content" },
+                    { name: "Save $10K for studio", current: "$7.2K", target: "$10K", progress: 72, color: "#8b5cf6", category: "Personal" },
                   ].map((g) => (
                     <div key={g.name} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2">
-                      <div className="flex justify-between mb-1">
-                        <p className="text-[10px] font-medium text-[#2c2825]">{g.name}</p>
-                        <p className="text-[10px] font-bold" style={{ color: g.color }}>{g.progress}%</p>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="rounded px-1 py-px text-[7px] font-medium" style={{ backgroundColor: g.color + "15", color: g.color }}>{g.category}</span>
+                        <p className="text-[8px] font-bold" style={{ color: g.color }}>{g.progress}%</p>
                       </div>
+                      <p className="text-[9px] font-medium text-[#2c2825] mb-1">{g.name}</p>
                       <div className="h-1.5 rounded-full bg-[#e8e6e1]">
                         <div className="h-full rounded-full" style={{ width: `${g.progress}%`, backgroundColor: g.color }} />
                       </div>
+                      <p className="text-[7px] text-[#8a8580] mt-1">{g.current} / {g.target}</p>
                     </div>
                   ))}
                 </div>
-                <p className="text-[10px] font-medium text-[#6b6560] mb-2">Today&apos;s Tasks</p>
-                <div className="space-y-1.5">
-                  {[
-                    { task: "Edit reel for Nike collab", done: true },
-                    { task: "Reply to Spotify email", done: false },
-                    { task: "Draft caption for tomorrow", done: false },
-                  ].map((t) => (
-                    <div key={t.task} className="flex items-center gap-2 text-[10px]">
-                      <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center ${t.done ? "bg-[#6b8f71] border-[#6b8f71]" : "border-[#d4d0ca]"}`}>
-                        {t.done && <Check className="h-2.5 w-2.5 text-white" />}
-                      </div>
-                      <span className={t.done ? "line-through text-[#8a8580]" : "text-[#2c2825]"}>{t.task}</span>
+                {/* Tasks */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-[10px] font-medium text-[#6b6560] mb-1.5">Today&apos;s Tasks</p>
+                    <div className="space-y-1.5">
+                      {[
+                        { task: "Edit Reel for Nike collab", done: true },
+                        { task: "Reply to Spotify email", done: true },
+                        { task: "Draft caption for tmrw", done: false },
+                        { task: "Review Samsung contract", done: false },
+                      ].map((t) => (
+                        <div key={t.task} className="flex items-center gap-1.5 text-[9px]">
+                          <div className={`h-3 w-3 rounded border flex items-center justify-center shrink-0 ${t.done ? "bg-[#6b8f71] border-[#6b8f71]" : "border-[#d4d0ca]"}`}>
+                            {t.done && <Check className="h-2 w-2 text-white" />}
+                          </div>
+                          <span className={t.done ? "line-through text-[#8a8580]" : "text-[#2c2825]"}>{t.task}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                  {/* Journal */}
+                  <div>
+                    <p className="text-[10px] font-medium text-[#6b6560] mb-1.5">Journal</p>
+                    <div className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="text-sm">😊</span>
+                        <p className="text-[8px] font-medium text-[#2c2825]">Mar 27, 2026</p>
+                      </div>
+                      <p className="text-[8px] text-[#6b6560] leading-relaxed">
+                        Great day! Nike approved the final edit. Glossier wants to jump on a call tomorrow about the spring campaign. Hit 94K followers — so close to 100K!
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </MockupFrame>
             </FadeUp>
@@ -658,7 +788,7 @@ export default function LandingPage() {
                   Your personal HQ
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">
-                  Set goals, track progress, manage daily tasks, and journal your creator journey — all in one space designed for focus.
+                  Set goals with progress tracking, manage daily tasks, journal your creator journey, and plan your content calendar — all in one space designed for focus.
                 </p>
               </div>
             </FadeUp>
