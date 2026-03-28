@@ -1,10 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { isDemoUser } from "@/lib/demo-mode";
 
 export async function GET(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (await isDemoUser(req)) {
+    return NextResponse.json({
+      activeDeals: 7,
+      pipelineValue: 142500,
+      pendingPayouts: 28400,
+      earnedThisMonth: 48200,
+      monthlyEarnings: [
+        { month: "Oct", amount: 18500 },
+        { month: "Nov", amount: 24200 },
+        { month: "Dec", amount: 31400 },
+        { month: "Jan", amount: 22800 },
+        { month: "Feb", amount: 28900 },
+        { month: "Mar", amount: 48200 },
+      ],
+    });
+  }
 
   const supabase = getSupabaseAdmin();
 
