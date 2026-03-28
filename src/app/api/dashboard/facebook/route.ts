@@ -17,25 +17,26 @@ export async function GET(req: NextRequest) {
       lastSynced: new Date().toISOString(),
       page: {
         name: "Command HQ",
-        followers_count: 128400,
+        followers: 128400,
+        likes: 98200,
         page_views: 34200,
         post_engagements: 18900,
       },
       posts: facebookPosts.map((p) => ({
         id: p.id,
         message: p.content,
-        type: p.type,
-        reactions_total: Object.values(p.reactions).reduce((a, b) => a + b, 0),
+        post_type: p.type,
+        reactions: { total: Object.values(p.reactions).reduce((a, b) => a + b, 0) },
         comments_count: p.comments,
-        shares_count: p.shares,
+        shares: p.shares,
         reach: p.reach,
         created_time: p.publishedAt,
       })),
       comments: facebookComments.map((c) => ({
         id: c.id,
-        from_name: c.author,
-        message: c.text,
-        created_time: c.timestamp,
+        author: c.author,
+        text: c.text,
+        timestamp: c.timestamp,
       })),
     });
   }

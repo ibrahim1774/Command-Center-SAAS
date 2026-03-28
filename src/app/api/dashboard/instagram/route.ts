@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
       posts: instagramPosts.slice(0, 6).map((p) => ({
         id: p.id,
         caption: p.caption,
-        like_count: p.likes,
+        likes: p.likes,
         comments_count: p.comments,
         timestamp: p.timestamp,
         media_type: p.type,
