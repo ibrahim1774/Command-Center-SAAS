@@ -17,11 +17,6 @@ import {
   Check,
   ArrowRight,
   ChevronRight,
-  TrendingUp,
-  TrendingDown,
-  Heart,
-  MessageCircle,
-  Bot,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
@@ -48,25 +43,6 @@ function FadeUp({
     >
       {children}
     </motion.div>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   Browser mockup frame wrapper
-   ───────────────────────────────────────────── */
-function MockupFrame({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="overflow-hidden rounded-xl border border-card-border bg-white shadow-xl shadow-black/5">
-      <div className="flex items-center gap-1.5 border-b border-card-border bg-[#fafaf8] px-3 py-2">
-        <span className="h-2.5 w-2.5 rounded-full bg-[#ee6a5f]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#f5bf4f]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#62c554]" />
-        <div className="ml-3 flex-1">
-          <div className="mx-auto h-4 w-32 rounded-md bg-card-border/60" />
-        </div>
-      </div>
-      <div className="p-4">{children}</div>
-    </div>
   );
 }
 
@@ -357,95 +333,14 @@ export default function LandingPage() {
             </div>
           </FadeUp>
 
-          {/* Dashboard mockup */}
+          {/* Dashboard screenshot */}
           <FadeUp delay={0.35}>
             <div className="mx-auto mt-16 max-w-4xl">
-              <div className="overflow-hidden rounded-xl border border-card-border bg-white shadow-2xl shadow-black/5">
-                {/* Browser toolbar */}
-                <div className="flex items-center gap-2 border-b border-card-border bg-[#fafaf8] px-4 py-3">
-                  <span className="h-3 w-3 rounded-full bg-[#ee6a5f]" />
-                  <span className="h-3 w-3 rounded-full bg-[#f5bf4f]" />
-                  <span className="h-3 w-3 rounded-full bg-[#62c554]" />
-                  <div className="ml-4 flex-1">
-                    <div className="mx-auto h-5 w-56 rounded-md bg-card-border/60" />
-                  </div>
-                </div>
-
-                {/* Dashboard content */}
-                <div className="p-5 md:p-8">
-                  {/* Top metric cards */}
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-                    {[
-                      { label: "Followers", value: "24.8K", change: "+12.3%" },
-                      { label: "Engagement", value: "4.7%", change: "+0.8%" },
-                      { label: "Impressions", value: "1.2M", change: "+23%" },
-                      { label: "Revenue", value: "$3,420", change: "+18.5%" },
-                    ].map((m) => (
-                      <div
-                        key={m.label}
-                        className="rounded-lg border border-card-border bg-page-bg/60 p-3 md:p-4"
-                      >
-                        <p className="text-xs text-text-muted">{m.label}</p>
-                        <p className="mt-1 font-display text-lg font-bold md:text-xl">
-                          {m.value}
-                        </p>
-                        <p className="mt-0.5 text-xs font-medium text-success">
-                          {m.change}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Fake chart area */}
-                  <div className="mt-5 rounded-lg border border-card-border bg-page-bg/40 p-4 md:p-6">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-text-secondary">
-                        Audience Growth
-                      </p>
-                      <p className="text-xs text-text-muted">Last 30 days</p>
-                    </div>
-                    <div className="relative mt-4 h-28 w-full md:h-36">
-                      <svg
-                        viewBox="0 0 400 120"
-                        className="h-full w-full"
-                        preserveAspectRatio="none"
-                      >
-                        <defs>
-                          <linearGradient
-                            id="chartGrad"
-                            x1="0"
-                            y1="0"
-                            x2="0"
-                            y2="1"
-                          >
-                            <stop
-                              offset="0%"
-                              stopColor="#c4947a"
-                              stopOpacity="0.25"
-                            />
-                            <stop
-                              offset="100%"
-                              stopColor="#c4947a"
-                              stopOpacity="0"
-                            />
-                          </linearGradient>
-                        </defs>
-                        <path
-                          d="M0 100 Q30 95 60 85 T120 70 T180 55 T240 50 T300 35 T360 28 T400 15"
-                          fill="none"
-                          stroke="#c4947a"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M0 100 Q30 95 60 85 T120 70 T180 55 T240 50 T300 35 T360 28 T400 15 L400 120 L0 120Z"
-                          fill="url(#chartGrad)"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <img
+                src="/SCR-20260328-maio.png"
+                alt="Nurplix Instagram analytics dashboard"
+                className="w-full rounded-xl border border-card-border shadow-2xl shadow-black/5"
+              />
             </div>
           </FadeUp>
         </div>
@@ -463,7 +358,7 @@ export default function LandingPage() {
             </h2>
           </FadeUp>
 
-          {/* Feature 1: Analytics Overview + AI Briefing */}
+          {/* Feature 1: Instagram */}
           <div className="mt-20 grid items-center gap-10 md:grid-cols-2">
             <FadeUp>
               <div>
@@ -471,156 +366,30 @@ export default function LandingPage() {
                   <BarChart3 className="h-5 w-5" />
                 </div>
                 <h3 className="font-display text-2xl font-bold">
-                  Every platform, one view
+                  Know exactly what&apos;s working on Instagram
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">
-                  See all your analytics unified in a single, beautiful dashboard. Track followers, engagement, impressions, and revenue across every connected platform.
+                  Track follower growth, see which posts drive engagement, read comments in one place, and get AI-powered insights on what to do next. No more guessing — just data you can act on.
                 </p>
               </div>
             </FadeUp>
             <FadeUp delay={0.1}>
-              <MockupFrame>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { label: "Total Followers", value: "847,293", change: "+12.4%" },
-                    { label: "Total Reach (30D)", value: "2.4M", change: "+8.7%" },
-                    { label: "Engagement Rate", value: "4.82%", change: "+0.3%" },
-                    { label: "Revenue This Month", value: "$24,850", change: "+18.2%" },
-                  ].map((m) => (
-                    <div key={m.label} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2.5">
-                      <p className="text-[10px] text-[#8a8580]">{m.label}</p>
-                      <p className="font-display text-sm font-bold text-[#2c2825]">{m.value}</p>
-                      <p className="text-[10px] font-medium text-[#6b8f71]">{m.change}</p>
-                    </div>
-                  ))}
-                </div>
-                {/* AI Briefing */}
-                <div className="mt-3 rounded-lg border border-[#c4947a]/30 bg-[#c4947a]/5 p-3">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Bot className="h-3.5 w-3.5 text-[#c4947a]" />
-                    <p className="text-[10px] font-bold text-[#c4947a]">AI Daily Briefing</p>
-                  </div>
-                  <p className="text-[10px] leading-relaxed text-[#6b6560]">
-                    Your Instagram Reels are outperforming all other content this week with 6.8% engagement. YouTube collab hit 340K views. 3 new brand deal inquiries came in overnight.
-                  </p>
-                  <div className="mt-2 space-y-1">
-                    {[
-                      "Reels averaging 6.8% engagement rate",
-                      "YouTube collab hit 340K views, +2,400 subs",
-                      "3 new inquiries: Glossier, Nike, Adobe CC",
-                    ].map((h) => (
-                      <div key={h} className="flex items-start gap-1.5">
-                        <Sparkles className="h-2.5 w-2.5 text-[#c4947a] mt-0.5 shrink-0" />
-                        <p className="text-[9px] text-[#6b6560]">{h}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {/* What's Working / Flopping */}
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div className="rounded-lg border border-[#6b8f71]/20 bg-[#6b8f71]/5 p-2.5">
-                    <div className="flex items-center gap-1 mb-1.5">
-                      <TrendingUp className="h-3 w-3 text-[#6b8f71]" />
-                      <p className="text-[9px] font-bold text-[#6b8f71]">Working</p>
-                    </div>
-                    {[
-                      { text: "BTS Reels: 3x saves", badge: "+312%" },
-                      { text: "YT Shorts crosspost", badge: "+2.4K subs" },
-                    ].map((w) => (
-                      <div key={w.text} className="flex items-start justify-between gap-1 mt-1">
-                        <p className="text-[8px] text-[#2c2825] leading-tight">{w.text}</p>
-                        <span className="shrink-0 rounded bg-[#6b8f71]/10 px-1 py-px text-[7px] font-bold text-[#6b8f71]">{w.badge}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="rounded-lg border border-[#c4626a]/20 bg-[#c4626a]/5 p-2.5">
-                    <div className="flex items-center gap-1 mb-1.5">
-                      <TrendingDown className="h-3 w-3 text-[#c4626a]" />
-                      <p className="text-[9px] font-bold text-[#c4626a]">Needs Work</p>
-                    </div>
-                    {[
-                      { text: "FB text posts", badge: "1.8% reach" },
-                      { text: "Stories after 9pm", badge: "-45% views" },
-                    ].map((w) => (
-                      <div key={w.text} className="flex items-start justify-between gap-1 mt-1">
-                        <p className="text-[8px] text-[#2c2825] leading-tight">{w.text}</p>
-                        <span className="shrink-0 rounded bg-[#c4626a]/10 px-1 py-px text-[7px] font-bold text-[#c4626a]">{w.badge}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </MockupFrame>
+              <img
+                src="/SCR-20260328-maio.png"
+                alt="Instagram analytics dashboard showing follower metrics, daily reach chart, latest posts, and AI insights"
+                className="w-full rounded-xl border border-card-border shadow-lg"
+              />
             </FadeUp>
           </div>
 
-          {/* Feature 2: Instagram Dashboard */}
+          {/* Feature 2: YouTube */}
           <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
             <FadeUp className="order-2 md:order-1">
-              <MockupFrame>
-                {/* Profile */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#f58529] via-[#dd2a7b] to-[#8134af]" />
-                  <div>
-                    <p className="text-xs font-bold text-[#2c2825]">@commandhq</p>
-                    <p className="text-[10px] text-[#8a8580]">94.2K followers · 1,247 posts</p>
-                  </div>
-                </div>
-                {/* Metrics */}
-                <div className="grid grid-cols-4 gap-1.5 mb-3">
-                  {[
-                    { label: "Followers", value: "94.2K" },
-                    { label: "Following", value: "842" },
-                    { label: "Posts", value: "1,247" },
-                    { label: "30D Reach", value: "342K" },
-                  ].map((s) => (
-                    <div key={s.label} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-1.5 text-center">
-                      <p className="text-[8px] text-[#8a8580]">{s.label}</p>
-                      <p className="font-display text-[11px] font-bold text-[#2c2825]">{s.value}</p>
-                    </div>
-                  ))}
-                </div>
-                {/* Posts */}
-                <p className="text-[10px] font-medium text-[#6b6560] mb-1.5">Latest Posts</p>
-                <div className="space-y-1.5 mb-3">
-                  {[
-                    { caption: "The anatomy of a viral post — breaking down what works in 2026 📊", likes: "4,820", comments: "342", type: "Carousel", typeColor: "#e3f2fd", typeText: "#1565c0" },
-                    { caption: "Studio tour update! New setup who dis 🎬", likes: "3,210", comments: "189", type: "Reel", typeColor: "#fce4ec", typeText: "#c62828" },
-                    { caption: "5 tools I can't live without for content creation", likes: "5,100", comments: "421", type: "Carousel", typeColor: "#e3f2fd", typeText: "#1565c0" },
-                  ].map((p) => (
-                    <div key={p.caption} className="flex items-start gap-2 rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2">
-                      <div className="h-10 w-10 shrink-0 rounded-md bg-gradient-to-br from-[#e8e6e1] to-[#d4d0ca]" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[9px] text-[#2c2825] leading-tight truncate">{p.caption}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="flex items-center gap-0.5 text-[8px] text-[#8a8580]">
-                            <Heart className="h-2.5 w-2.5" /> {p.likes}
-                          </span>
-                          <span className="flex items-center gap-0.5 text-[8px] text-[#8a8580]">
-                            <MessageCircle className="h-2.5 w-2.5" /> {p.comments}
-                          </span>
-                          <span className="rounded px-1 py-px text-[7px] font-medium" style={{ backgroundColor: p.typeColor, color: p.typeText }}>{p.type}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {/* Comments */}
-                <p className="text-[10px] font-medium text-[#6b6560] mb-1.5">Recent Comments</p>
-                <div className="space-y-1.5">
-                  {[
-                    { author: "@design.daily", text: "Your color theory series has been incredible!", time: "1h" },
-                    { author: "@startuplife", text: "Implemented your strategy — 40% reach increase!", time: "5h" },
-                  ].map((c) => (
-                    <div key={c.author} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2">
-                      <div className="flex justify-between">
-                        <p className="text-[9px] font-bold text-[#2c2825]">{c.author}</p>
-                        <p className="text-[8px] text-[#8a8580]">{c.time}</p>
-                      </div>
-                      <p className="text-[8px] text-[#6b6560] mt-0.5">{c.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </MockupFrame>
+              <img
+                src="/SCR-20260328-malu.png"
+                alt="YouTube dashboard showing subscriber count, view trends, recent uploads, and top comments"
+                className="w-full rounded-xl border border-card-border shadow-lg"
+              />
             </FadeUp>
             <FadeUp delay={0.1} className="order-1 md:order-2">
               <div>
@@ -628,18 +397,49 @@ export default function LandingPage() {
                   <Sparkles className="h-5 w-5" />
                 </div>
                 <h3 className="font-display text-2xl font-bold">
-                  Deep Instagram analytics
+                  YouTube performance at a glance
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">
-                  Track profile metrics, monitor post performance with engagement breakdowns, see recent comments, and get AI-powered insights on what content drives the most growth.
+                  Monitor subscriber growth, view counts, and watch time. See your recent uploads ranked by performance and read top comments — all without switching between tabs.
                 </p>
               </div>
             </FadeUp>
           </div>
 
-          {/* Feature 3: Brand Deal CRM */}
+          {/* Feature 3: TikTok */}
           <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
             <FadeUp>
+              <div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary mb-4">
+                  <BarChart3 className="h-5 w-5" />
+                </div>
+                <h3 className="font-display text-2xl font-bold">
+                  Track your TikTok growth
+                </h3>
+                <p className="mt-3 leading-relaxed text-text-secondary">
+                  See total views, likes, and follower count. Review your recent videos sorted by performance and spot which content resonates with your audience.
+                </p>
+              </div>
+            </FadeUp>
+            <FadeUp delay={0.1}>
+              <img
+                src="/SCR-20260328-merx.png"
+                alt="TikTok dashboard showing follower count, total views, recent videos, and engagement metrics"
+                className="w-full rounded-xl border border-card-border shadow-lg"
+              />
+            </FadeUp>
+          </div>
+
+          {/* Feature 4: Brand Deals */}
+          <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
+            <FadeUp className="order-2 md:order-1">
+              <img
+                src="/SCR-20260328-mdnk.png"
+                alt="Brand deals CRM showing deal pipeline, active deals, pending payouts, and monthly earnings chart"
+                className="w-full rounded-xl border border-card-border shadow-lg"
+              />
+            </FadeUp>
+            <FadeUp delay={0.1} className="order-1 md:order-2">
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary">
@@ -648,135 +448,18 @@ export default function LandingPage() {
                   <span className="rounded-full bg-accent-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-accent-primary">PRO</span>
                 </div>
                 <h3 className="font-display text-2xl font-bold">
-                  Brand deal CRM
+                  Manage every brand deal in one place
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">
-                  Manage your entire brand partnership pipeline from inquiry to payment. Track active deals, pending payouts, and monthly earnings with a drag-and-drop kanban board.
+                  Track deals from first inquiry to final payment. See your pipeline value, pending payouts, and monthly earnings — so nothing falls through the cracks.
                 </p>
               </div>
             </FadeUp>
-            <FadeUp delay={0.1}>
-              <MockupFrame>
-                {/* Deal metrics */}
-                <div className="grid grid-cols-4 gap-1.5 mb-3">
-                  {[
-                    { label: "Active Deals", value: "8", change: "+2" },
-                    { label: "Pipeline", value: "$142.5K", change: "+$34K" },
-                    { label: "Pending", value: "$28.4K", change: "3 inv." },
-                    { label: "Earned", value: "$48.2K", change: "+$12K" },
-                  ].map((m) => (
-                    <div key={m.label} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-1.5 text-center">
-                      <p className="text-[8px] text-[#8a8580]">{m.label}</p>
-                      <p className="font-display text-[11px] font-bold text-[#2c2825]">{m.value}</p>
-                      <p className="text-[7px] font-medium text-[#6b8f71]">{m.change}</p>
-                    </div>
-                  ))}
-                </div>
-                {/* Kanban */}
-                <p className="text-[10px] font-medium text-[#6b6560] mb-2">Deal Pipeline</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { stage: "Inquiry", color: "#3b82f6", bg: "#eff6ff", deals: [
-                      { brand: "Glossier", value: "$12K", type: "IG · 3 Reels" },
-                      { brand: "Squarespace", value: "$8.5K", type: "YT · Sponsored" },
-                      { brand: "Canva", value: "$6K", type: "IG · Spotlight" },
-                    ]},
-                    { stage: "Negotiating", color: "#f59e0b", bg: "#fffbeb", deals: [
-                      { brand: "Nike Digital", value: "$35K", type: "YT · 2 Videos" },
-                      { brand: "Notion", value: "$15K", type: "YT · 3 Videos" },
-                    ]},
-                    { stage: "In Progress", color: "#c4947a", bg: "#fdf4f0", deals: [
-                      { brand: "Adobe CC", value: "$24K", type: "IG · Annual" },
-                      { brand: "Samsung", value: "$42K", type: "YT · Q2/Q3" },
-                    ]},
-                  ].map((col) => (
-                    <div key={col.stage}>
-                      <div className="flex items-center gap-1.5 mb-1.5">
-                        <div className="h-2 w-2 rounded-full" style={{ backgroundColor: col.color }} />
-                        <p className="text-[9px] font-bold text-[#2c2825]">{col.stage}</p>
-                        <span className="text-[8px] text-[#8a8580]">{col.deals.length}</span>
-                      </div>
-                      <div className="space-y-1.5">
-                        {col.deals.map((d) => (
-                          <div key={d.brand} className="rounded-lg border p-2" style={{ borderColor: col.color + "30", backgroundColor: col.bg }}>
-                            <p className="text-[9px] font-bold text-[#2c2825]">{d.brand}</p>
-                            <div className="flex justify-between mt-0.5">
-                              <p className="text-[8px] text-[#8a8580]">{d.type}</p>
-                              <p className="text-[8px] font-bold text-[#6b8f71]">{d.value}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </MockupFrame>
-            </FadeUp>
           </div>
 
-          {/* Feature 4: Goals & Tasks */}
+          {/* Feature 5: Goals & Tasks */}
           <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
-            <FadeUp className="order-2 md:order-1">
-              <MockupFrame>
-                {/* Goals */}
-                <p className="text-[10px] font-medium text-[#6b6560] mb-2">Your Goals</p>
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  {[
-                    { name: "Reach 100K followers", current: "94.2K", target: "100K", progress: 94, color: "#6b8f71", category: "Growth" },
-                    { name: "Land 5 brand deals", current: "3", target: "5", progress: 60, color: "#c4947a", category: "Revenue" },
-                    { name: "Post 5x per week", current: "4", target: "5", progress: 80, color: "#3b82f6", category: "Content" },
-                    { name: "Save $10K for studio", current: "$7.2K", target: "$10K", progress: 72, color: "#8b5cf6", category: "Personal" },
-                  ].map((g) => (
-                    <div key={g.name} className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="rounded px-1 py-px text-[7px] font-medium" style={{ backgroundColor: g.color + "15", color: g.color }}>{g.category}</span>
-                        <p className="text-[8px] font-bold" style={{ color: g.color }}>{g.progress}%</p>
-                      </div>
-                      <p className="text-[9px] font-medium text-[#2c2825] mb-1">{g.name}</p>
-                      <div className="h-1.5 rounded-full bg-[#e8e6e1]">
-                        <div className="h-full rounded-full" style={{ width: `${g.progress}%`, backgroundColor: g.color }} />
-                      </div>
-                      <p className="text-[7px] text-[#8a8580] mt-1">{g.current} / {g.target}</p>
-                    </div>
-                  ))}
-                </div>
-                {/* Tasks */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <p className="text-[10px] font-medium text-[#6b6560] mb-1.5">Today&apos;s Tasks</p>
-                    <div className="space-y-1.5">
-                      {[
-                        { task: "Edit Reel for Nike collab", done: true },
-                        { task: "Reply to Spotify email", done: true },
-                        { task: "Draft caption for tmrw", done: false },
-                        { task: "Review Samsung contract", done: false },
-                      ].map((t) => (
-                        <div key={t.task} className="flex items-center gap-1.5 text-[9px]">
-                          <div className={`h-3 w-3 rounded border flex items-center justify-center shrink-0 ${t.done ? "bg-[#6b8f71] border-[#6b8f71]" : "border-[#d4d0ca]"}`}>
-                            {t.done && <Check className="h-2 w-2 text-white" />}
-                          </div>
-                          <span className={t.done ? "line-through text-[#8a8580]" : "text-[#2c2825]"}>{t.task}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  {/* Journal */}
-                  <div>
-                    <p className="text-[10px] font-medium text-[#6b6560] mb-1.5">Journal</p>
-                    <div className="rounded-lg border border-[#e8e6e1] bg-[#fafaf8] p-2">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="text-sm">😊</span>
-                        <p className="text-[8px] font-medium text-[#2c2825]">Mar 27, 2026</p>
-                      </div>
-                      <p className="text-[8px] text-[#6b6560] leading-relaxed">
-                        Great day! Nike approved the final edit. Glossier wants to jump on a call tomorrow about the spring campaign. Hit 94K followers — so close to 100K!
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </MockupFrame>
-            </FadeUp>
-            <FadeUp delay={0.1} className="order-1 md:order-2">
+            <FadeUp>
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary">
@@ -785,12 +468,19 @@ export default function LandingPage() {
                   <span className="rounded-full bg-accent-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-accent-primary">PRO</span>
                 </div>
                 <h3 className="font-display text-2xl font-bold">
-                  Your personal HQ
+                  Stay on track with goals and daily planning
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">
-                  Set goals with progress tracking, manage daily tasks, journal your creator journey, and plan your content calendar — all in one space designed for focus.
+                  Set measurable goals, track your progress, manage daily tasks, and journal your creator journey. Everything you need to stay focused and consistent.
                 </p>
               </div>
+            </FadeUp>
+            <FadeUp delay={0.1}>
+              <img
+                src="/SCR-20260328-mdlk.png"
+                alt="Goals dashboard showing progress tracking, daily journal entries, and task management"
+                className="w-full rounded-xl border border-card-border shadow-lg"
+              />
             </FadeUp>
           </div>
         </div>
