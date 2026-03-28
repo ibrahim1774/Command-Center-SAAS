@@ -61,7 +61,7 @@ function PricingSection() {
       planId: "hobby",
       highlight: false,
       features: [
-        "1 platform connection",
+        "Access to 1 channel (Instagram)",
         "Full analytics dashboard",
         "Trending headlines",
         "Email support",
@@ -75,7 +75,8 @@ function PricingSection() {
       planId: "pro",
       highlight: true,
       features: [
-        "Up to 4 platform connections",
+        "Access to all channels",
+        "Instagram, X, YouTube, Facebook, TikTok",
         "Full analytics dashboard",
         "Trending headlines",
         "Brand deal CRM",

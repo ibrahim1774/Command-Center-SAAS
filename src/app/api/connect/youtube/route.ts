@@ -8,10 +8,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  const { allowed, limit } = await checkAccountLimit(userId);
+  const { allowed, reason } = await checkAccountLimit(userId, "youtube");
   if (!allowed) {
+    const errorParam = reason === "platform_not_allowed" ? "upgrade_required" : "limit_reached";
     return NextResponse.redirect(
-      new URL(`/dashboard/settings?error=limit_reached&max=${limit}`, req.url)
+      new URL(`/dashboard/settings?error=${errorParam}`, req.url)
     );
   }
 

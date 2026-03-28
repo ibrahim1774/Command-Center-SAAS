@@ -41,7 +41,7 @@ const PLAN_INFO: Record<string, { name: string; price: string; features: string[
     name: "Hobby",
     price: "$9/mo",
     features: [
-      "1 platform connection",
+      "Access to 1 channel (Instagram)",
       "Full analytics dashboard",
       "Trending headlines",
       "Email support",
@@ -51,7 +51,8 @@ const PLAN_INFO: Record<string, { name: string; price: string; features: string[
     name: "Pro",
     price: "$29/mo",
     features: [
-      "Up to 4 platform connections",
+      "Access to all channels",
+      "Instagram, X, YouTube, Facebook, TikTok",
       "Full analytics dashboard",
       "Trending headlines",
       "Brand deal CRM",
