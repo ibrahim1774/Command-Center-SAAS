@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStripe, PLANS } from "@/lib/stripe";
+import { getStripe, getPlanFromPriceId } from "@/lib/stripe";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import type Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
-
-function getPlanFromPriceId(priceId: string): string {
-  for (const [key, plan] of Object.entries(PLANS)) {
-    if (plan.stripePriceId === priceId) return key;
-  }
-  return "free";
-}
 
 export async function POST(req: NextRequest) {
   const stripe = getStripe();
@@ -56,7 +49,7 @@ export async function POST(req: NextRequest) {
           subscriptionId
         );
         const priceId = subscription.items.data[0]?.price.id;
-        const plan = getPlanFromPriceId(priceId);
+        const plan = getPlanFromPriceId(priceId) || "free";
 
         // Find user by customer email or metadata
         let userId = session.metadata?.userId;
@@ -111,7 +104,7 @@ export async function POST(req: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
         const priceId = subscription.items.data[0]?.price.id;
-        const plan = getPlanFromPriceId(priceId);
+        const plan = getPlanFromPriceId(priceId) || "free";
 
         await supabase
           .from("subscriptions")

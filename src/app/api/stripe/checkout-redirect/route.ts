@@ -3,43 +3,53 @@ import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getStripe, PLANS, getPriceId, type PlanId, type BillingInterval } from "@/lib/stripe";
 
-export async function POST(req: NextRequest) {
+// This route handles OAuth signup → Stripe checkout redirect.
+// After OAuth sign-in, the user lands here with plan/interval params,
+// and gets redirected to Stripe Checkout.
+export async function GET(req: NextRequest) {
   try {
     const userId = await getAuthenticatedUserId(req);
+    const { searchParams } = new URL(req.url);
+    const planId = searchParams.get("plan") as PlanId | null;
+    const interval = (searchParams.get("interval") || "monthly") as BillingInterval;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "";
+
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.redirect(`${appUrl}/login`);
     }
 
-    const { planId, interval = "monthly" } = (await req.json()) as {
-      planId: PlanId;
-      interval?: BillingInterval;
-    };
-
     if (!planId || !PLANS[planId]) {
-      return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+      return NextResponse.redirect(`${appUrl}/#pricing`);
+    }
+
+    // Check if user already has an active subscription
+    const supabase = getSupabaseAdmin();
+    const { data: existingSub } = await supabase
+      .from("subscriptions")
+      .select("status, plan")
+      .eq("user_id", userId)
+      .single();
+
+    if (existingSub?.status === "active" && existingSub.plan !== "free") {
+      return NextResponse.redirect(`${appUrl}/dashboard`);
     }
 
     const priceId = getPriceId(planId, interval);
     if (!priceId) {
-      return NextResponse.json(
-        { error: "Price not configured for this plan" },
-        { status: 400 }
-      );
+      return NextResponse.redirect(`${appUrl}/#pricing`);
     }
 
-    const supabase = getSupabaseAdmin();
     const stripe = getStripe();
 
-    // Look up existing Stripe customer
-    const { data: existingSub } = await supabase
+    // Get or create Stripe customer
+    const { data: sub } = await supabase
       .from("subscriptions")
       .select("stripe_customer_id")
       .eq("user_id", userId)
       .single();
 
-    let stripeCustomerId = existingSub?.stripe_customer_id;
+    let stripeCustomerId = sub?.stripe_customer_id;
 
-    // If no customer exists, create one
     if (!stripeCustomerId) {
       const { data: user } = await supabase
         .from("users")
@@ -55,7 +65,6 @@ export async function POST(req: NextRequest) {
 
       stripeCustomerId = customer.id;
 
-      // Upsert the subscription record with the new customer ID
       await supabase.from("subscriptions").upsert(
         {
           user_id: userId,
@@ -67,9 +76,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "";
-
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       mode: "subscription",
@@ -79,12 +85,10 @@ export async function POST(req: NextRequest) {
       metadata: { userId, planId },
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.redirect(session.url!);
   } catch (error) {
-    console.error("[stripe/checkout] Error:", error);
-    return NextResponse.json(
-      { error: "Failed to create checkout session" },
-      { status: 500 }
-    );
+    console.error("[stripe/checkout-redirect] Error:", error);
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "";
+    return NextResponse.redirect(`${appUrl}/#pricing`);
   }
 }

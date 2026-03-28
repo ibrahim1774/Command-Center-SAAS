@@ -46,6 +46,158 @@ function FadeUp({
   );
 }
 
+/* ─────────────────────────────────────────────
+   Pricing section with monthly/yearly toggle
+   ───────────────────────────────────────────── */
+function PricingSection() {
+  const [yearly, setYearly] = useState(false);
+
+  const plans = [
+    {
+      name: "Hobby",
+      monthlyPrice: 9,
+      yearlyPrice: 60,
+      cta: "Get Started",
+      planId: "hobby",
+      highlight: false,
+      features: [
+        "1 platform connection",
+        "Full analytics dashboard",
+        "Trending headlines",
+        "Email support",
+      ],
+    },
+    {
+      name: "Pro",
+      monthlyPrice: 29,
+      yearlyPrice: 199,
+      cta: "Get Started",
+      planId: "pro",
+      highlight: true,
+      features: [
+        "Up to 4 platform connections",
+        "Full analytics dashboard",
+        "Trending headlines",
+        "Brand deal CRM",
+        "Goals & task management",
+        "Priority support",
+      ],
+    },
+  ];
+
+  return (
+    <section id="pricing" className="py-16 md:py-24">
+      <div className="mx-auto max-w-4xl px-6">
+        <FadeUp>
+          <p className="text-center text-sm font-medium uppercase tracking-widest text-accent-primary">
+            Pricing
+          </p>
+          <h2 className="mt-3 text-center font-display text-3xl font-bold tracking-tight md:text-4xl">
+            Invest in your growth
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-center text-text-secondary">
+            Simple, transparent pricing. Pick the plan that fits your needs.
+          </p>
+        </FadeUp>
+
+        {/* Monthly / Yearly toggle */}
+        <FadeUp delay={0.08}>
+          <div className="mt-10 flex items-center justify-center gap-3">
+            <span
+              className={`text-sm font-medium ${!yearly ? "text-text-primary" : "text-text-muted"}`}
+            >
+              Monthly
+            </span>
+            <button
+              type="button"
+              onClick={() => setYearly(!yearly)}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                yearly ? "bg-accent-primary" : "bg-card-border"
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                  yearly ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+            <span
+              className={`text-sm font-medium ${yearly ? "text-text-primary" : "text-text-muted"}`}
+            >
+              Yearly
+            </span>
+            {yearly && (
+              <span className="rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-semibold text-success">
+                Save up to 45%
+              </span>
+            )}
+          </div>
+        </FadeUp>
+
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
+          {plans.map((plan, i) => (
+            <FadeUp key={plan.name} delay={i * 0.08}>
+              <div
+                className={`relative flex flex-col rounded-2xl border p-7 md:p-9 ${
+                  plan.highlight
+                    ? "border-accent-primary bg-card-bg shadow-xl shadow-accent-primary/10"
+                    : "border-card-border bg-card-bg"
+                }`}
+              >
+                {plan.highlight && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent-primary px-4 py-1 text-xs font-semibold text-white">
+                    Most Popular
+                  </span>
+                )}
+
+                <p className="font-display text-lg font-bold">{plan.name}</p>
+                <div className="mt-3 flex items-baseline gap-1">
+                  <span className="font-display text-4xl font-bold tracking-tight">
+                    ${yearly ? plan.yearlyPrice : plan.monthlyPrice}
+                  </span>
+                  <span className="text-text-muted">
+                    /{yearly ? "year" : "mo"}
+                  </span>
+                </div>
+                {yearly && (
+                  <p className="mt-1 text-xs text-text-muted">
+                    ${(plan.yearlyPrice / 12).toFixed(2)}/mo billed annually
+                  </p>
+                )}
+
+                <ul className="mt-7 flex flex-col gap-3">
+                  {plan.features.map((f) => (
+                    <li
+                      key={f}
+                      className="flex items-start gap-2.5 text-sm text-text-secondary"
+                    >
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-auto pt-8">
+                  <Link
+                    href={`/signup?plan=${plan.planId}&interval=${yearly ? "yearly" : "monthly"}`}
+                    className={`block w-full rounded-full py-3 text-center text-sm font-medium transition-all ${
+                      plan.highlight
+                        ? "bg-accent-primary text-white hover:opacity-90 hover:shadow-md"
+                        : "border border-card-border text-text-primary hover:border-accent-primary hover:text-accent-primary"
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
+                </div>
+              </div>
+            </FadeUp>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ═════════════════════════════════════════════
    PAGE
    ═════════════════════════════════════════════ */
@@ -121,10 +273,10 @@ export default function LandingPage() {
                   Sign In
                 </Link>
                 <Link
-                  href="/signup"
+                  href="#pricing"
                   className="rounded-full bg-accent-primary px-5 py-2 text-sm font-medium text-white transition-all hover:opacity-90 hover:shadow-md"
                 >
-                  Start Free
+                  Get Started
                 </Link>
               </>
             )}
@@ -158,10 +310,10 @@ export default function LandingPage() {
           <FadeUp delay={0.22}>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link
-                href="/signup"
+                href="#pricing"
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3 text-base font-medium text-white transition-all hover:opacity-90 hover:shadow-lg"
               >
-                Start for free
+                View plans
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
@@ -172,9 +324,6 @@ export default function LandingPage() {
                 <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
-            <p className="mt-4 text-sm text-text-muted">
-              No credit card required
-            </p>
           </FadeUp>
 
           {/* Dashboard mockup */}
@@ -376,122 +525,8 @@ export default function LandingPage() {
       </section>
 
       {/* ── PRICING ── */}
-      <section id="pricing" className="py-16 md:py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <FadeUp>
-            <p className="text-center text-sm font-medium uppercase tracking-widest text-accent-primary">
-              Pricing
-            </p>
-            <h2 className="mt-3 text-center font-display text-3xl font-bold tracking-tight md:text-4xl">
-              Invest in your growth
-            </h2>
-            <p className="mx-auto mt-4 max-w-lg text-center text-text-secondary">
-              Start free, upgrade when you&apos;re ready. Every plan includes a
-              14-day trial of Pro features.
-            </p>
-          </FadeUp>
+      <PricingSection />
 
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {[
-              {
-                name: "Starter",
-                price: "Free",
-                period: "",
-                cta: "Get Started",
-                href: "/signup",
-                highlight: false,
-                features: [
-                  "1 platform connection",
-                  "Basic analytics dashboard",
-                  "Community access",
-                ],
-              },
-              {
-                name: "Pro",
-                price: "$29",
-                period: "/mo",
-                cta: "Start Free Trial",
-                href: "/signup?plan=pro",
-                highlight: true,
-                features: [
-                  "All platforms (IG, YT, FB)",
-                  "Daily AI insights & briefings",
-                  "Brand deal CRM with kanban",
-                  "Goals, journal & task management",
-                  "Calendar with smart scheduling",
-                  "Priority support",
-                ],
-              },
-              {
-                name: "Business",
-                price: "$79",
-                period: "/mo",
-                cta: "Contact Sales",
-                href: "/signup?plan=business",
-                highlight: false,
-                features: [
-                  "Everything in Pro",
-                  "Deep analysis reports",
-                  "Team access (5 seats)",
-                  "Custom weekly reports",
-                  "Dedicated support",
-                ],
-              },
-            ].map((plan, i) => (
-              <FadeUp key={plan.name} delay={i * 0.08}>
-                <div
-                  className={`relative flex flex-col rounded-2xl border p-7 md:p-9 ${
-                    plan.highlight
-                      ? "border-accent-primary bg-card-bg shadow-xl shadow-accent-primary/10"
-                      : "border-card-border bg-card-bg"
-                  }`}
-                >
-                  {plan.highlight && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent-primary px-4 py-1 text-xs font-semibold text-white">
-                      Most Popular
-                    </span>
-                  )}
-
-                  <p className="font-display text-lg font-bold">{plan.name}</p>
-                  <div className="mt-3 flex items-baseline gap-1">
-                    <span className="font-display text-4xl font-bold tracking-tight">
-                      {plan.price}
-                    </span>
-                    {plan.period && (
-                      <span className="text-text-muted">{plan.period}</span>
-                    )}
-                  </div>
-
-                  <ul className="mt-7 flex flex-col gap-3">
-                    {plan.features.map((f) => (
-                      <li
-                        key={f}
-                        className="flex items-start gap-2.5 text-sm text-text-secondary"
-                      >
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-auto pt-8">
-                    <Link
-                      href={plan.href}
-                      className={`block w-full rounded-full py-3 text-center text-sm font-medium transition-all ${
-                        plan.highlight
-                          ? "bg-accent-primary text-white hover:opacity-90 hover:shadow-md"
-                          : "border border-card-border text-text-primary hover:border-accent-primary hover:text-accent-primary"
-                      }`}
-                    >
-                      {plan.cta}
-                    </Link>
-                  </div>
-                </div>
-              </FadeUp>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── FINAL CTA ── */}
       <section className="relative overflow-hidden py-24 md:py-32">
@@ -502,14 +537,14 @@ export default function LandingPage() {
               Ready to see what&apos;s working?
             </h2>
             <p className="mx-auto mt-4 max-w-md text-lg text-text-secondary">
-              Join 2,000+ creators already growing smarter.
+              Start growing smarter today.
             </p>
             <div className="mt-10">
               <Link
-                href="/signup"
+                href="#pricing"
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-10 py-4 text-base font-medium text-white transition-all hover:opacity-90 hover:shadow-lg"
               >
-                Start for free
+                Choose your plan
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

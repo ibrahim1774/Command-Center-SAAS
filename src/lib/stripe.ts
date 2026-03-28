@@ -10,17 +10,51 @@ export function getStripe(): Stripe {
 }
 
 export const PLANS = {
-  starter: { name: "Starter", price: 0, stripePriceId: null as string | null },
+  hobby: {
+    name: "Hobby",
+    monthlyPrice: 9,
+    yearlyPrice: 60,
+    monthlyPriceId: "price_1TFoOqBDYfWlyCVaI6k41boy",
+    yearlyPriceId: "price_1TFoOrBDYfWlyCVacI7eghAb",
+    accountLimit: 1,
+    features: [
+      "1 platform connection",
+      "Full analytics dashboard",
+      "Trending headlines",
+      "Email support",
+    ],
+  },
   pro: {
     name: "Pro",
-    price: 29,
-    stripePriceId: process.env.STRIPE_PRO_PRICE_ID || null,
-  },
-  business: {
-    name: "Business",
-    price: 79,
-    stripePriceId: process.env.STRIPE_BUSINESS_PRICE_ID || null,
+    monthlyPrice: 29,
+    yearlyPrice: 199,
+    monthlyPriceId: "price_1TFoOrBDYfWlyCVazVsUMnEd",
+    yearlyPriceId: "price_1TFoOrBDYfWlyCVajCwi5ovr",
+    accountLimit: 4,
+    features: [
+      "Up to 4 platform connections",
+      "Full analytics dashboard",
+      "Trending headlines",
+      "Brand deal CRM",
+      "Goals & task management",
+      "Priority support",
+    ],
   },
 } as const;
 
 export type PlanId = keyof typeof PLANS;
+export type BillingInterval = "monthly" | "yearly";
+
+export function getPriceId(planId: PlanId, interval: BillingInterval): string | null {
+  const plan = PLANS[planId];
+  return interval === "yearly" ? plan.yearlyPriceId : plan.monthlyPriceId;
+}
+
+export function getPlanFromPriceId(priceId: string): PlanId | null {
+  for (const [key, plan] of Object.entries(PLANS)) {
+    if (plan.monthlyPriceId === priceId || plan.yearlyPriceId === priceId) {
+      return key as PlanId;
+    }
+  }
+  return null;
+}

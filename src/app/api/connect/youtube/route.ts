@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
+import { checkAccountLimit } from "@/lib/account-limits";
 
 export async function GET(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
   if (!userId) {
     return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  const { allowed, limit } = await checkAccountLimit(userId);
+  if (!allowed) {
+    return NextResponse.redirect(
+      new URL(`/dashboard/settings?error=limit_reached&max=${limit}`, req.url)
+    );
   }
 
   const workspaceId = process.env.UNIFIED_WORKSPACE_ID!;

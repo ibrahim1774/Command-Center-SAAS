@@ -1,16 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
+const PLAN_DETAILS: Record<
+  string,
+  { name: string; monthlyPrice: number; yearlyPrice: number }
+> = {
+  hobby: { name: "Hobby", monthlyPrice: 9, yearlyPrice: 60 },
+  pro: { name: "Pro", monthlyPrice: 29, yearlyPrice: 199 },
+};
+
 export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupContent />
+    </Suspense>
+  );
+}
+
+function SignupContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const planId = searchParams.get("plan");
+  const interval = searchParams.get("interval") || "monthly";
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Redirect to pricing if no valid plan selected
+  useEffect(() => {
+    if (!planId || !PLAN_DETAILS[planId]) {
+      router.replace("/#pricing");
+    }
+  }, [planId, router]);
+
+  const plan = planId ? PLAN_DETAILS[planId] : null;
+  const isYearly = interval === "yearly";
+  const displayPrice = plan
+    ? isYearly
+      ? plan.yearlyPrice
+      : plan.monthlyPrice
+    : 0;
 
   const inputStyle = {
     border: "1px solid #e8e6e1",
@@ -43,6 +80,7 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
+      // 1. Create the account
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,25 +95,42 @@ export default function SignupPage() {
         return;
       }
 
-      // Auto-login after successful signup
-      const result = await signIn("credentials", {
+      // 2. Sign in to establish session
+      const signInResult = await signIn("credentials", {
         email,
         password,
         redirect: false,
-        callbackUrl: "/dashboard",
       });
 
-      if (result?.url) {
-        window.location.href = result.url;
-      } else {
+      if (!signInResult?.ok) {
         setError("Account created but sign-in failed. Please try logging in.");
         setLoading(false);
+        return;
       }
+
+      // 3. Redirect to Stripe Checkout
+      const checkoutRes = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId, interval }),
+      });
+
+      const checkoutData = await checkoutRes.json();
+
+      if (!checkoutRes.ok || !checkoutData.url) {
+        setError("Failed to start checkout. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      window.location.href = checkoutData.url;
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
     }
   }
+
+  if (!plan) return null;
 
   return (
     <div className="w-full max-w-md">
@@ -84,17 +139,23 @@ export default function SignupPage() {
         style={{
           backgroundColor: "#ffffff",
           border: "1px solid #e8e6e1",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
+          boxShadow:
+            "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
         }}
       >
         {/* Brand */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h1
             className="text-3xl tracking-tight mb-2"
             style={{ fontFamily: "var(--font-display)" }}
           >
             <span className="font-bold">Nurplix</span>
-            <span className="font-normal text-lg block text-[#8a8580] tracking-widest uppercase" style={{ fontSize: "0.7rem" }}>Command Center</span>
+            <span
+              className="font-normal text-lg block text-[#8a8580] tracking-widest uppercase"
+              style={{ fontSize: "0.7rem" }}
+            >
+              Command Center
+            </span>
           </h1>
           <p
             className="text-sm tracking-wide"
@@ -102,6 +163,35 @@ export default function SignupPage() {
           >
             Create your account
           </p>
+        </div>
+
+        {/* Selected plan badge */}
+        <div
+          className="mb-6 rounded-lg p-4 text-center"
+          style={{
+            backgroundColor: "#c4947a10",
+            border: "1px solid #c4947a30",
+          }}
+        >
+          <p
+            className="text-xs font-medium uppercase tracking-widest mb-1"
+            style={{ color: "#8a8580", fontFamily: "var(--font-body)" }}
+          >
+            Selected Plan
+          </p>
+          <p
+            className="text-lg font-bold"
+            style={{ fontFamily: "var(--font-display)", color: "#2c2825" }}
+          >
+            {plan.name} — ${displayPrice}/{isYearly ? "year" : "mo"}
+          </p>
+          <Link
+            href="/#pricing"
+            className="text-xs font-medium transition-colors duration-200"
+            style={{ color: "#c4947a", fontFamily: "var(--font-body)" }}
+          >
+            Change plan
+          </Link>
         </div>
 
         {/* Error */}
@@ -226,37 +316,53 @@ export default function SignupPage() {
             onMouseEnter={(e) => {
               if (!loading) e.currentTarget.style.backgroundColor = "#b5856b";
             }}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#c4947a")}
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "#c4947a")
+            }
           >
-            {loading ? "Creating account..." : "Create Account"}
+            {loading ? "Setting up..." : "Continue to Payment"}
           </button>
         </form>
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-6">
-          <div className="flex-1 h-px" style={{ backgroundColor: "#e8e6e1" }} />
+          <div
+            className="flex-1 h-px"
+            style={{ backgroundColor: "#e8e6e1" }}
+          />
           <span
             className="text-xs tracking-wide"
             style={{ color: "#a09a95", fontFamily: "var(--font-body)" }}
           >
             or continue with
           </span>
-          <div className="flex-1 h-px" style={{ backgroundColor: "#e8e6e1" }} />
+          <div
+            className="flex-1 h-px"
+            style={{ backgroundColor: "#e8e6e1" }}
+          />
         </div>
 
         {/* OAuth Buttons */}
         <div className="space-y-3" style={{ fontFamily: "var(--font-body)" }}>
           <button
             type="button"
-            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+            onClick={() =>
+              signIn("google", {
+                callbackUrl: `/api/stripe/checkout-redirect?plan=${planId}&interval=${interval}`,
+              })
+            }
             className="w-full rounded-lg h-11 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 cursor-pointer"
             style={{
               border: "1px solid #e8e6e1",
               backgroundColor: "#ffffff",
               color: "#2c2825",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fafaf8")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = "#fafaf8")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "#ffffff")
+            }
           >
             <svg width="18" height="18" viewBox="0 0 24 24">
               <path
@@ -281,15 +387,23 @@ export default function SignupPage() {
 
           <button
             type="button"
-            onClick={() => signIn("facebook", { callbackUrl: "/dashboard" })}
+            onClick={() =>
+              signIn("facebook", {
+                callbackUrl: `/api/stripe/checkout-redirect?plan=${planId}&interval=${interval}`,
+              })
+            }
             className="w-full rounded-lg h-11 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 cursor-pointer"
             style={{
               border: "1px solid #e8e6e1",
               backgroundColor: "#ffffff",
               color: "#2c2825",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fafaf8")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = "#fafaf8")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "#ffffff")
+            }
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />

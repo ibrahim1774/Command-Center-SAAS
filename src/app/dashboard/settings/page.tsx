@@ -36,38 +36,27 @@ const PLATFORMS = [
   { key: "tiktok", label: "TikTok", icon: Music },
 ] as const;
 
-const PLAN_INFO: Record<string, { name: string; price: number; features: string[] }> = {
-  free: {
-    name: "Starter",
-    price: 0,
-    features: ["1 platform connection", "Basic analytics dashboard", "Community access"],
-  },
-  starter: {
-    name: "Starter",
-    price: 0,
-    features: ["1 platform connection", "Basic analytics dashboard", "Community access"],
+const PLAN_INFO: Record<string, { name: string; price: string; features: string[] }> = {
+  hobby: {
+    name: "Hobby",
+    price: "$9/mo",
+    features: [
+      "1 platform connection",
+      "Full analytics dashboard",
+      "Trending headlines",
+      "Email support",
+    ],
   },
   pro: {
     name: "Pro",
-    price: 29,
+    price: "$29/mo",
     features: [
-      "All platforms (Instagram, YouTube, Facebook)",
-      "Daily AI insights & briefings",
-      "Brand deal CRM with kanban",
-      "Goals, journal & task management",
-      "Calendar with smart scheduling",
+      "Up to 4 platform connections",
+      "Full analytics dashboard",
+      "Trending headlines",
+      "Brand deal CRM",
+      "Goals & task management",
       "Priority support",
-    ],
-  },
-  business: {
-    name: "Business",
-    price: 79,
-    features: [
-      "Everything in Pro",
-      "Deep analysis reports",
-      "Team access (5 seats)",
-      "Custom weekly reports",
-      "Dedicated support",
     ],
   },
 };
@@ -404,18 +393,17 @@ function SettingsContent() {
         </h2>
 
         {(() => {
-          const userPlan = (session?.user?.plan as string) || "free";
-          const info = PLAN_INFO[userPlan] || PLAN_INFO.free;
+          const userPlan = (session?.user?.plan as string) || "hobby";
+          const info = PLAN_INFO[userPlan] || PLAN_INFO.hobby;
           return (
             <>
               <div className="rounded-lg border border-card-border p-5 mb-6 max-w-lg">
                 <div className="flex items-center justify-between mb-4">
-                  <Badge variant={userPlan === "free" || userPlan === "starter" ? "neutral" : "info"} size="md">
+                  <Badge variant="info" size="md">
                     {info.name} Plan
                   </Badge>
-                  <span className="font-display text-xl text-text-primary">
-                    ${info.price}
-                    <span className="text-sm font-body text-text-secondary">/month</span>
+                  <span className="font-display text-lg text-text-primary">
+                    {info.price}
                   </span>
                 </div>
 
@@ -430,7 +418,7 @@ function SettingsContent() {
               </div>
 
               <div className="flex flex-wrap gap-3">
-                {(userPlan === "free" || userPlan === "starter") && (
+                {userPlan === "hobby" && (
                   <Button
                     variant="primary"
                     size="md"
@@ -438,7 +426,7 @@ function SettingsContent() {
                       const res = await fetch("/api/stripe/checkout", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ planId: "pro" }),
+                        body: JSON.stringify({ planId: "pro", interval: "monthly" }),
                       });
                       const data = await res.json();
                       if (data.url) window.location.href = data.url;
@@ -447,36 +435,17 @@ function SettingsContent() {
                     Upgrade to Pro — $29/mo
                   </Button>
                 )}
-                {userPlan === "pro" && (
-                  <Button
-                    variant="primary"
-                    size="md"
-                    onClick={async () => {
-                      const res = await fetch("/api/stripe/checkout", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ planId: "business" }),
-                      });
-                      const data = await res.json();
-                      if (data.url) window.location.href = data.url;
-                    }}
-                  >
-                    Upgrade to Business — $79/mo
-                  </Button>
-                )}
-                {userPlan !== "free" && userPlan !== "starter" && (
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    onClick={async () => {
-                      const res = await fetch("/api/stripe/portal", { method: "POST" });
-                      const data = await res.json();
-                      if (data.url) window.location.href = data.url;
-                    }}
-                  >
-                    Manage Subscription
-                  </Button>
-                )}
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={async () => {
+                    const res = await fetch("/api/stripe/portal", { method: "POST" });
+                    const data = await res.json();
+                    if (data.url) window.location.href = data.url;
+                  }}
+                >
+                  Manage Subscription
+                </Button>
               </div>
             </>
           );
