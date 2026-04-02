@@ -118,9 +118,12 @@ export default function InstagramPage() {
   const posts = data?.posts || [];
   const comments = data?.comments || [];
 
-  // Calculate avg likes from posts
+  // Calculate avg likes and avg comments from posts
   const avgLikes = posts.length > 0
     ? Math.round(posts.reduce((sum, p) => sum + (p.likes || 0), 0) / posts.length)
+    : 0;
+  const avgComments = posts.length > 0
+    ? Math.round(posts.reduce((sum, p) => sum + (p.comments_count || 0), 0) / posts.length)
     : 0;
 
   // Custom goal state
@@ -296,9 +299,9 @@ export default function InstagramPage() {
                   <p className="text-[10px] text-text-muted">per post</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">Total Posts</p>
-                  <p className="text-xl font-bold font-display text-text-primary">{fmtWhole(profile?.media_count || 0)}</p>
-                  <p className="text-[10px] text-text-muted">all time</p>
+                  <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">Avg Comments</p>
+                  <p className="text-xl font-bold font-display text-text-primary">{fmtWhole(avgComments)}</p>
+                  <p className="text-[10px] text-text-muted">per post</p>
                 </div>
               </div>
             </>
@@ -385,16 +388,22 @@ export default function InstagramPage() {
           </h3>
           <div className="space-y-3">
             {comments.map((comment) => (
-              <div key={comment.id}>
-                <div className="flex items-center gap-2">
+              <div
+                key={comment.id}
+                className="rounded-lg border border-card-border bg-page-bg/40 p-3"
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="h-6 w-6 rounded-full bg-accent-primary/10 flex items-center justify-center text-[10px] font-bold text-accent-primary">
+                    {(comment.username || "?")[0].toUpperCase()}
+                  </div>
                   <p className="text-sm font-semibold text-text-primary font-body">
                     {comment.username}
                   </p>
-                  <span className="text-[10px] text-text-secondary font-body">
+                  <span className="text-[10px] text-text-muted font-body ml-auto">
                     {timeAgo(comment.timestamp)}
                   </span>
                 </div>
-                <p className="text-sm text-text-secondary font-body mt-0.5">
+                <p className="text-sm text-text-secondary font-body leading-relaxed pl-8">
                   {comment.text}
                 </p>
               </div>
