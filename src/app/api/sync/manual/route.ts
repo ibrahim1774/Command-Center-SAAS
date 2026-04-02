@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
-import { syncInstagram, syncYouTube, syncFacebook } from "@/lib/platform-sync";
-
-const SYNC_MAP: Record<string, (userId: string) => Promise<unknown>> = {
-  instagram: syncInstagram,
-  youtube: syncYouTube,
-  facebook: syncFacebook,
-};
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import {
+  scrapeInstagramProfile,
+  scrapeInstagramComments,
+  scrapeYouTubeChannel,
+  scrapeTikTokProfile,
+} from "@/lib/apify";
 
 export async function POST(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
@@ -15,11 +15,148 @@ export async function POST(req: NextRequest) {
   }
 
   const { platform } = await req.json();
-  const syncFn = SYNC_MAP[platform];
-  if (!syncFn) {
-    return NextResponse.json({ error: "Invalid platform" }, { status: 400 });
+  if (!platform) {
+    return NextResponse.json({ error: "Platform required" }, { status: 400 });
   }
 
-  const result = await syncFn(userId);
-  return NextResponse.json(result);
+  const supabase = getSupabaseAdmin();
+
+  // Get the connected account's username
+  const { data: account } = await supabase
+    .from("connected_accounts")
+    .select("platform_username, platform_user_id")
+    .eq("user_id", userId)
+    .eq("platform", platform)
+    .eq("status", "active")
+    .single();
+
+  if (!account) {
+    return NextResponse.json({ error: "Platform not connected" }, { status: 404 });
+  }
+
+  const handle = account.platform_username || account.platform_user_id || "";
+  if (!handle) {
+    return NextResponse.json({ error: "No handle stored for this platform" }, { status: 400 });
+  }
+
+  try {
+    if (platform === "instagram") {
+      const profile = await scrapeInstagramProfile(handle);
+      if (!profile) return NextResponse.json({ error: "Scrape failed" }, { status: 500 });
+
+      await supabase.from("instagram_profiles").upsert(
+        {
+          user_id: userId,
+          username: profile.username,
+          follower_count: profile.followersCount,
+          following_count: profile.followsCount,
+          media_count: profile.postsCount,
+          profile_picture_url: profile.profilePicUrl,
+        },
+        { onConflict: "user_id" }
+      );
+
+      await supabase.from("instagram_posts").delete().eq("user_id", userId);
+      if (profile.posts.length > 0) {
+        await supabase.from("instagram_posts").insert(
+          profile.posts.map((p) => ({
+            user_id: userId,
+            post_id: p.id,
+            caption: p.caption,
+            likes: p.likesCount,
+            comments_count: p.commentsCount,
+            media_type: p.type,
+            timestamp: p.timestamp,
+            permalink: p.url,
+          }))
+        );
+      }
+
+      // Scrape comments
+      const postUrls = profile.posts.filter((p) => p.url).map((p) => p.url);
+      try {
+        const comments = await scrapeInstagramComments(postUrls, 10);
+        if (comments.length > 0) {
+          await supabase.from("instagram_comments").delete().eq("user_id", userId);
+          await supabase.from("instagram_comments").insert(
+            comments.map((c) => ({
+              user_id: userId,
+              comment_id: c.id,
+              username: c.username,
+              text: c.text,
+              timestamp: c.timestamp,
+            }))
+          );
+        }
+      } catch {
+        // Comments are optional
+      }
+
+      await supabase
+        .from("connected_accounts")
+        .update({ last_synced: new Date().toISOString() })
+        .eq("user_id", userId)
+        .eq("platform", "instagram");
+
+    } else if (platform === "youtube") {
+      const channel = await scrapeYouTubeChannel(handle);
+      if (!channel) return NextResponse.json({ error: "Scrape failed" }, { status: 500 });
+
+      await supabase.from("youtube_channels").upsert(
+        {
+          user_id: userId,
+          title: channel.channelName,
+          subscriber_count: channel.subscriberCount,
+          total_views: channel.totalViews,
+          video_count: channel.videoCount,
+          thumbnail_url: channel.thumbnailUrl,
+        },
+        { onConflict: "user_id" }
+      );
+
+      await supabase.from("youtube_videos").delete().eq("user_id", userId);
+      if (channel.videos.length > 0) {
+        await supabase.from("youtube_videos").insert(
+          channel.videos.map((v) => ({
+            user_id: userId,
+            video_id: v.id,
+            title: v.title,
+            views: v.viewCount,
+            likes: v.likeCount,
+            comments_count: v.commentCount,
+            duration: v.duration,
+            published_at: v.publishedAt,
+            thumbnail_url: v.thumbnailUrl,
+          }))
+        );
+      }
+
+      await supabase
+        .from("connected_accounts")
+        .update({ last_synced: new Date().toISOString() })
+        .eq("user_id", userId)
+        .eq("platform", "youtube");
+
+    } else if (platform === "tiktok") {
+      const profile = await scrapeTikTokProfile(handle);
+      if (!profile) return NextResponse.json({ error: "Scrape failed" }, { status: 500 });
+
+      await supabase
+        .from("connected_accounts")
+        .update({
+          platform_username: profile.username,
+          last_synced: new Date().toISOString(),
+        })
+        .eq("user_id", userId)
+        .eq("platform", "tiktok");
+
+    } else {
+      return NextResponse.json({ error: "Unsupported platform" }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(`[sync/manual] ${platform} error:`, error);
+    return NextResponse.json({ error: "Sync failed" }, { status: 500 });
+  }
 }

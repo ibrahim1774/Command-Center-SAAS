@@ -98,34 +98,54 @@ function SettingsContent() {
   const [syncError, setSyncError] = useState<string | null>(null);
 
   const handleSync = async (platform: string) => {
-    const handle = handleInputs[platform]?.trim();
+    // Use input value, or fall back to stored username for re-sync
+    const inputHandle = handleInputs[platform]?.trim();
+    const storedHandle = accounts.find((a) => a.platform === platform)?.platform_username;
+    const handle = inputHandle || storedHandle;
     if (!handle) return;
 
     setSyncing(platform);
     setSyncError(null);
 
     try {
-      const body: Record<string, string> = {};
-      if (platform === "instagram") body.handle = handle;
-      else if (platform === "youtube") body.channelUrl = handle;
-      else if (platform === "tiktok") body.username = handle;
-      else if (platform === "facebook") body.pageUrl = handle;
+      // If already connected with same handle, use sync/manual for re-scrape
+      const isResync = storedHandle && (!inputHandle || inputHandle === storedHandle);
 
-      const res = await fetch(`/api/connect/${platform}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setSyncError(data.error || "Failed to sync");
+      if (isResync) {
+        const res = await fetch("/api/sync/manual", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ platform }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setSyncError(data.error || "Failed to sync");
+        } else {
+          fetchAccounts();
+          setSuccessMessage(`${platform} synced successfully!`);
+          setTimeout(() => setSuccessMessage(""), 3000);
+        }
       } else {
-        setHandleInputs((prev) => ({ ...prev, [platform]: "" }));
-        fetchAccounts();
-        setSuccessMessage(`${platform} connected successfully!`);
-        setTimeout(() => setSuccessMessage(""), 3000);
+        // New connection
+        const body: Record<string, string> = {};
+        if (platform === "instagram") body.handle = handle;
+        else if (platform === "youtube") body.channelUrl = handle;
+        else if (platform === "tiktok") body.username = handle;
+        else if (platform === "facebook") body.pageUrl = handle;
+
+        const res = await fetch(`/api/connect/${platform}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setSyncError(data.error || "Failed to sync");
+        } else {
+          fetchAccounts();
+          setSuccessMessage(`${platform} connected successfully!`);
+          setTimeout(() => setSuccessMessage(""), 3000);
+        }
       }
     } catch {
       setSyncError("Something went wrong. Please try again.");
@@ -155,6 +175,19 @@ function SettingsContent() {
   useEffect(() => {
     fetchAccounts();
   }, [fetchAccounts]);
+
+  // Pre-populate handle inputs from connected accounts
+  useEffect(() => {
+    if (accounts.length > 0) {
+      const inputs: Record<string, string> = {};
+      accounts.forEach((a) => {
+        if (a.platform_username) {
+          inputs[a.platform] = a.platform_username;
+        }
+      });
+      setHandleInputs((prev) => ({ ...inputs, ...prev }));
+    }
+  }, [accounts]);
 
   // Show success message when redirected back from OAuth
   useEffect(() => {
@@ -345,6 +378,14 @@ function SettingsContent() {
                         </span>
                       )}
                       <Badge variant="positive">Connected</Badge>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={syncing === key}
+                        onClick={() => handleSync(key)}
+                      >
+                        {syncing === key ? "Syncing..." : "Re-sync"}
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"

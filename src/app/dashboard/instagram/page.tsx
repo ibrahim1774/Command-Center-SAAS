@@ -65,14 +65,15 @@ interface InstagramData {
   }>;
 }
 
-function fmt(n: number): string {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
-  if (n >= 1_000) return (n / 1_000).toFixed(n >= 10_000 ? 0 : 1).replace(/\.0$/, "") + "K";
-  return n.toLocaleString();
+function fmt(n: number | null | undefined): string {
+  const v = n || 0;
+  if (v >= 1_000_000) return (v / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (v >= 1_000) return (v / 1_000).toFixed(v >= 10_000 ? 0 : 1).replace(/\.0$/, "") + "K";
+  return v.toLocaleString();
 }
 
-function fmtWhole(n: number): string {
-  return n.toLocaleString();
+function fmtWhole(n: number | null | undefined): string {
+  return (n || 0).toLocaleString();
 }
 
 function timeAgo(dateStr: string): string {
