@@ -83,6 +83,8 @@ export async function POST(req: NextRequest) {
         comments_count: p.commentsCount,
         media_type: p.type === "Image" ? "IMAGE" : p.type === "Video" ? "VIDEO" : p.type === "Sidecar" ? "CAROUSEL_ALBUM" : p.type,
         timestamp: ensureISOTimestamp(p.timestamp),
+        thumbnail_url: p.displayUrl || null,
+        media_url: p.url || null,
       }));
 
       const { error: postsError } = await supabase.from("instagram_posts").insert(postsToInsert);

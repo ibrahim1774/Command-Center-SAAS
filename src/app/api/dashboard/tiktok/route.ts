@@ -21,25 +21,30 @@ export async function GET(req: NextRequest) {
     .eq("status", "active")
     .single();
 
-  // If connected, return stored data
+  // If connected, read cached TikTok data
   if (account) {
-    // TikTok data is stored via the connect route's Apify scrape
-    // For now, return what we have from connected_accounts
+    const { data: cached } = await supabase
+      .from("cached_data")
+      .select("value")
+      .eq("key", `tiktok:${userId}`)
+      .single();
+
+    if (cached?.value) {
+      const td = cached.value as Record<string, unknown>;
+      return NextResponse.json({
+        connected: true,
+        lastSynced: account.last_synced,
+        profile: td.profile || { username: account.platform_username || "", followers: 0, following: 0, videoCount: 0 },
+        metrics: td.metrics || { totalViews: 0, totalLikes: 0, totalComments: 0, totalShares: 0 },
+        videos: td.videos || [],
+      });
+    }
+
     return NextResponse.json({
       connected: true,
       lastSynced: account.last_synced,
-      profile: {
-        username: account.platform_username || "",
-        followers: 0,
-        following: 0,
-        videoCount: 0,
-      },
-      metrics: {
-        totalViews: 0,
-        totalLikes: 0,
-        totalComments: 0,
-        totalShares: 0,
-      },
+      profile: { username: account.platform_username || "", followers: 0, following: 0, videoCount: 0 },
+      metrics: { totalViews: 0, totalLikes: 0, totalComments: 0, totalShares: 0 },
       videos: [],
     });
   }

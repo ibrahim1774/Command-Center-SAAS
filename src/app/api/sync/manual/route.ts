@@ -78,6 +78,8 @@ export async function POST(req: NextRequest) {
             comments_count: p.commentsCount,
             media_type: p.type === "Image" ? "IMAGE" : p.type === "Video" ? "VIDEO" : p.type === "Sidecar" ? "CAROUSEL_ALBUM" : p.type,
             timestamp: ensureISOTimestamp(p.timestamp),
+            thumbnail_url: p.displayUrl || null,
+            media_url: p.url || null,
           }))
         );
       }
@@ -149,6 +151,37 @@ export async function POST(req: NextRequest) {
     } else if (platform === "tiktok") {
       const profile = await scrapeTikTokProfile(handle);
       if (!profile) return NextResponse.json({ error: "Scrape failed" }, { status: 500 });
+
+      const tiktokData = {
+        profile: {
+          username: profile.username,
+          followers: profile.followersCount,
+          following: profile.followingCount,
+          videoCount: profile.videoCount,
+          hearts: profile.heartsCount,
+        },
+        metrics: {
+          totalViews: profile.videos.reduce((s, v) => s + v.viewCount, 0),
+          totalLikes: profile.videos.reduce((s, v) => s + v.likeCount, 0),
+          totalComments: profile.videos.reduce((s, v) => s + v.commentCount, 0),
+          totalShares: profile.videos.reduce((s, v) => s + v.shareCount, 0),
+        },
+        videos: profile.videos.map((v) => ({
+          id: v.id,
+          title: v.caption,
+          views: v.viewCount,
+          likes: v.likeCount,
+          comments: v.commentCount,
+          shares: v.shareCount,
+          thumbnail: "",
+          createdAt: v.timestamp,
+        })),
+      };
+
+      await supabase.from("cached_data").upsert(
+        { key: `tiktok:${userId}`, value: tiktokData, updated_at: new Date().toISOString() },
+        { onConflict: "key" }
+      );
 
       await supabase
         .from("connected_accounts")

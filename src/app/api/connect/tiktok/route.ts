@@ -44,6 +44,42 @@ export async function POST(req: NextRequest) {
       { onConflict: "user_id,platform" }
     );
 
+    // Cache full TikTok data in cached_data table (no dedicated TikTok tables)
+    const tiktokData = {
+      profile: {
+        username: profile.username,
+        followers: profile.followersCount,
+        following: profile.followingCount,
+        videoCount: profile.videoCount,
+        hearts: profile.heartsCount,
+      },
+      metrics: {
+        totalViews: profile.videos.reduce((s, v) => s + v.viewCount, 0),
+        totalLikes: profile.videos.reduce((s, v) => s + v.likeCount, 0),
+        totalComments: profile.videos.reduce((s, v) => s + v.commentCount, 0),
+        totalShares: profile.videos.reduce((s, v) => s + v.shareCount, 0),
+      },
+      videos: profile.videos.map((v) => ({
+        id: v.id,
+        title: v.caption,
+        views: v.viewCount,
+        likes: v.likeCount,
+        comments: v.commentCount,
+        shares: v.shareCount,
+        thumbnail: "",
+        createdAt: v.timestamp,
+      })),
+    };
+
+    await supabase.from("cached_data").upsert(
+      {
+        key: `tiktok:${userId}`,
+        value: tiktokData,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    );
+
     return NextResponse.json({
       success: true,
       profile: {

@@ -50,6 +50,9 @@ interface InstagramData {
     likes: number;
     comments_count: number;
     timestamp: string;
+    thumbnail_url?: string | null;
+    media_url?: string | null;
+    permalink?: string | null;
   }>;
   comments: Array<{
     id: string;
@@ -162,11 +165,25 @@ export default function InstagramPage() {
                 text: "#6b6b6b",
               };
               return (
-                <div key={post.id} className="flex items-start gap-3">
-                  <div
-                    className="h-10 w-10 rounded flex-shrink-0"
-                    style={{ backgroundColor: "#f0ede8" }}
-                  />
+                <a
+                  key={post.id}
+                  href={post.media_url || post.permalink || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 hover:bg-page-bg/60 rounded-lg p-1 -m-1 transition-colors"
+                >
+                  {post.thumbnail_url ? (
+                    <img
+                      src={post.thumbnail_url}
+                      alt=""
+                      className="h-12 w-12 rounded object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div
+                      className="h-12 w-12 rounded flex-shrink-0"
+                      style={{ backgroundColor: "#f0ede8" }}
+                    />
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-text-primary font-body line-clamp-2">
                       {post.caption || "(no caption)"}
@@ -193,7 +210,7 @@ export default function InstagramPage() {
                       </span>
                     </div>
                   </div>
-                </div>
+                </a>
               );
             })}
           </div>

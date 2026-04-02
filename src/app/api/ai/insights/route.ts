@@ -88,14 +88,14 @@ export async function POST(req: NextRequest) {
     await Promise.all([
       supabase
         .from("instagram_posts")
-        .select("caption, like_count, comments_count, timestamp, media_type")
+        .select("caption, likes, comments_count, timestamp, media_type")
         .eq("user_id", userId)
         .gte("timestamp", thirtyDaysAgo)
         .order("timestamp", { ascending: false })
         .limit(30),
       supabase
         .from("youtube_videos")
-        .select("title, view_count, like_count, comment_count, published_at")
+        .select("title, views, likes, comments_count, published_at")
         .eq("user_id", userId)
         .gte("published_at", thirtyDaysAgo)
         .order("published_at", { ascending: false })
