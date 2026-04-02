@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import {
   instagramAnalysisWorking as mockWorking,
   instagramAnalysisFlopping as mockFlopping,
@@ -31,6 +32,8 @@ import {
   Sparkles,
   RefreshCw,
   Loader2,
+  Target,
+  Pencil,
 } from "lucide-react";
 
 interface InstagramData {
@@ -120,11 +123,41 @@ export default function InstagramPage() {
     ? Math.round(posts.reduce((sum, p) => sum + (p.likes || 0), 0) / posts.length)
     : 0;
 
-  // Road to 100K calculations
+  // Custom goal state
+  const [goalTarget, setGoalTarget] = useState<number | null>(null);
+  const [goalLoading, setGoalLoading] = useState(true);
+  const [editingGoal, setEditingGoal] = useState(false);
+  const [goalInput, setGoalInput] = useState("");
+
+  const fetchGoal = useCallback(async () => {
+    try {
+      const res = await fetch("/api/user/ig-goal");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.target) setGoalTarget(data.target);
+      }
+    } finally {
+      setGoalLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchGoal(); }, [fetchGoal]);
+
+  const saveGoal = async () => {
+    const num = parseInt(goalInput.replace(/,/g, ""), 10);
+    if (!num || num <= 0) return;
+    setGoalTarget(num);
+    setEditingGoal(false);
+    await fetch("/api/user/ig-goal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target: num }),
+    });
+  };
+
+  // Road to goal calculations
   const followers = profile?.follower_count || 0;
-  const goal = followers >= 1_000_000 ? Math.ceil(followers / 1_000_000) * 1_000_000
-    : followers >= 100_000 ? Math.ceil(followers / 100_000) * 100_000
-    : 100_000;
+  const goal = goalTarget || 0;
   const followersToGo = Math.max(0, goal - followers);
   const progressPct = goal > 0 ? Math.min(100, (followers / goal) * 100) : 0;
   const engRate = followers > 0 && posts.length > 0
@@ -163,52 +196,113 @@ export default function InstagramPage() {
       </div>
 
       {/* Row 2: Road to Goal + Engagement Rate */}
-      {followers > 0 && (
+      {followers > 0 && !goalLoading && (
         <Card>
-          <div className="flex items-baseline gap-2 mb-4">
-            <h3 className="font-display text-lg font-semibold text-text-primary">
-              @{profile?.username || "—"} Road to {fmt(goal)}
-            </h3>
-          </div>
+          {!goalTarget && !editingGoal ? (
+            /* No goal set — prompt to create one */
+            <div className="text-center py-6">
+              <Target className="h-8 w-8 text-accent-primary mx-auto mb-3" />
+              <h3 className="font-display text-lg font-semibold text-text-primary mb-1">
+                Set your follower goal
+              </h3>
+              <p className="text-sm text-text-secondary mb-4">
+                Track your progress toward a follower milestone
+              </p>
+              <button
+                onClick={() => { setEditingGoal(true); setGoalInput(""); }}
+                className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-6 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+              >
+                Set Goal
+              </button>
+            </div>
+          ) : editingGoal ? (
+            /* Editing goal */
+            <div className="text-center py-6">
+              <h3 className="font-display text-lg font-semibold text-text-primary mb-4">
+                Set your follower goal
+              </h3>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <input
+                  type="text"
+                  placeholder="e.g. 100000"
+                  value={goalInput}
+                  onChange={(e) => setGoalInput(e.target.value.replace(/[^0-9,]/g, ""))}
+                  className="h-10 w-48 rounded-lg border border-card-border bg-page-bg px-4 text-center text-lg font-display font-bold outline-none focus:border-accent-primary transition-colors"
+                  autoFocus
+                  onKeyDown={(e) => e.key === "Enter" && saveGoal()}
+                />
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <button
+                  onClick={saveGoal}
+                  className="rounded-full bg-accent-primary px-5 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setEditingGoal(false)}
+                  className="rounded-full border border-card-border px-5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Goal is set — show progress */
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-display text-lg font-semibold text-text-primary">
+                  @{profile?.username || "—"} Road to {fmt(goal)}
+                </h3>
+                <button
+                  onClick={() => { setEditingGoal(true); setGoalInput(String(goalTarget)); }}
+                  className="flex items-center gap-1 text-xs text-text-muted hover:text-accent-primary transition-colors"
+                >
+                  <Pencil className="h-3 w-3" />
+                  Edit
+                </button>
+              </div>
 
-          {/* Progress bar */}
-          <div className="relative mb-3">
-            <div className="h-3 w-full rounded-full bg-[#f0ede8]">
-              <div
-                className="h-full rounded-full bg-accent-primary transition-all"
-                style={{ width: `${progressPct}%` }}
-              />
-            </div>
-            <div className="flex justify-between mt-1 text-[10px] text-text-muted">
-              <span>0</span>
-              <span>{fmt(goal / 4)}</span>
-              <span>{fmt(goal / 2)}</span>
-              <span>{fmt((goal / 4) * 3)}</span>
-              <span>{fmt(goal)}</span>
-            </div>
-          </div>
+              {/* Progress bar */}
+              <div className="relative mb-3">
+                <div className="h-3 w-full rounded-full bg-[#f0ede8]">
+                  <div
+                    className="h-full rounded-full bg-accent-primary transition-all"
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
+                <div className="flex justify-between mt-1 text-[10px] text-text-muted">
+                  <span>0</span>
+                  <span>{fmt(goal / 4)}</span>
+                  <span>{fmt(goal / 2)}</span>
+                  <span>{fmt((goal / 4) * 3)}</span>
+                  <span>{fmt(goal)}</span>
+                </div>
+              </div>
 
-          <p className="text-center text-2xl font-display font-bold text-text-primary mb-4">
-            {fmtWhole(followersToGo)} <span className="text-base font-normal text-text-secondary">followers to go</span>
-          </p>
+              <p className="text-center text-2xl font-display font-bold text-text-primary mb-4">
+                {fmtWhole(followersToGo)} <span className="text-base font-normal text-text-secondary">followers to go</span>
+              </p>
 
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">Engagement Rate</p>
-              <p className="text-xl font-bold font-display text-text-primary">{engRate}%</p>
-              <p className="text-[10px] text-text-muted">avg/post</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">Avg Likes</p>
-              <p className="text-xl font-bold font-display text-text-primary">{fmt(avgLikes)}</p>
-              <p className="text-[10px] text-text-muted">per post</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">Total Posts</p>
-              <p className="text-xl font-bold font-display text-text-primary">{fmtWhole(profile?.media_count || 0)}</p>
-              <p className="text-[10px] text-text-muted">all time</p>
-            </div>
-          </div>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">Engagement Rate</p>
+                  <p className="text-xl font-bold font-display text-text-primary">{engRate}%</p>
+                  <p className="text-[10px] text-text-muted">avg/post</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">Avg Likes</p>
+                  <p className="text-xl font-bold font-display text-text-primary">{fmt(avgLikes)}</p>
+                  <p className="text-[10px] text-text-muted">per post</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">Total Posts</p>
+                  <p className="text-xl font-bold font-display text-text-primary">{fmtWhole(profile?.media_count || 0)}</p>
+                  <p className="text-[10px] text-text-muted">all time</p>
+                </div>
+              </div>
+            </>
+          )}
         </Card>
       )}
 
