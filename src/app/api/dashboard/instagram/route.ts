@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
       .select("*")
       .eq("user_id", userId)
       .order("timestamp", { ascending: false })
-      .limit(10);
+      .limit(5);
 
     return NextResponse.json({
       connected: true,
@@ -76,6 +76,8 @@ export async function GET(req: NextRequest) {
         comments_count: p.comments,
         timestamp: p.timestamp,
         media_type: p.type,
+        thumbnail_url: null,
+        media_url: null,
         permalink: "#",
       })),
       comments: instagramComments.map((c) => ({

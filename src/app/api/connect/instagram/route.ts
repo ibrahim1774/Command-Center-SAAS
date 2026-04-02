@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
       .map((p) => p.url);
 
     try {
-      const comments = await scrapeInstagramComments(postUrls, 10);
+      const comments = await scrapeInstagramComments(postUrls, 5);
       if (comments.length > 0) {
         await supabase.from("instagram_comments").delete().eq("user_id", userId);
         const { error: commentsError } = await supabase.from("instagram_comments").insert(
