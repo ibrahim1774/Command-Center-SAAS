@@ -110,10 +110,11 @@ export default function InstagramPage() {
   const profile = data?.profile;
   const posts = data?.posts || [];
   const comments = data?.comments || [];
-  const dailyMetrics = data?.dailyMetrics || [];
 
-  // Calculate total reach from daily metrics
-  const totalReach = dailyMetrics.reduce((sum, d) => sum + d.reach, 0);
+  // Calculate avg likes from posts
+  const avgLikes = posts.length > 0
+    ? Math.round(posts.reduce((sum, p) => sum + (p.likes || 0), 0) / posts.length)
+    : 0;
 
   return (
     <div className="space-y-8">
@@ -140,76 +141,13 @@ export default function InstagramPage() {
           icon={<MessageCircle className="h-4 w-4 text-[#c4947a]" />}
         />
         <MetricCard
-          label="30D Reach"
-          value={fmt(totalReach)}
+          label="Avg Likes"
+          value={fmt(avgLikes)}
           icon={<Eye className="h-4 w-4 text-[#c4947a]" />}
         />
       </div>
 
-      {/* Row 2: Daily Reach Chart */}
-      {dailyMetrics.length > 0 && (
-        <Card>
-          <h3 className="font-display text-lg font-semibold text-text-primary mb-4">
-            Daily Reach
-          </h3>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={dailyMetrics}>
-                <defs>
-                  <linearGradient id="reachGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#c4947a" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#c4947a" stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e8e6e1" vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 11, fill: "#6b6b6b" }}
-                  tickLine={false}
-                  axisLine={{ stroke: "#e8e6e1" }}
-                  tickFormatter={(v: string) => {
-                    const d = new Date(v);
-                    return `${d.getMonth() + 1}/${d.getDate()}`;
-                  }}
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: "#6b6b6b" }}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(v: number) => fmt(v)}
-                  width={48}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: "#ffffff",
-                    border: "1px solid #e8e6e1",
-                    borderRadius: 8,
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    fontSize: 12,
-                  }}
-                  formatter={(value) => [fmtWhole(Number(value)), "Reach"]}
-                  labelFormatter={(label) => {
-                    const d = new Date(label);
-                    return d.toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    });
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="reach"
-                  stroke="#c4947a"
-                  strokeWidth={2}
-                  fill="url(#reachGradient)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      )}
-
-      {/* Row 3: Latest Posts */}
+      {/* Row 2: Latest Posts */}
       {posts.length > 0 && (
         <Card>
           <h3 className="font-display text-lg font-semibold text-text-primary mb-4">

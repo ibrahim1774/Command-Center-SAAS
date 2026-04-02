@@ -168,11 +168,6 @@ function FacebookPageContent() {
                     <Share2 className="w-3.5 h-3.5" />
                     {post.shares.toLocaleString()}
                   </span>
-                  {post.reach > 0 && (
-                    <Badge variant="neutral" size="sm">
-                      Reach: {post.reach.toLocaleString()}
-                    </Badge>
-                  )}
                 </div>
               </div>
             ))}

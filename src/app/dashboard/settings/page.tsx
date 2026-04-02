@@ -93,6 +93,46 @@ function SettingsContent() {
   >([]);
   const [igPickerOpen, setIgPickerOpen] = useState(false);
   const [igPickerLoading, setIgPickerLoading] = useState(false);
+  const [handleInputs, setHandleInputs] = useState<Record<string, string>>({});
+  const [syncing, setSyncing] = useState<string | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
+
+  const handleSync = async (platform: string) => {
+    const handle = handleInputs[platform]?.trim();
+    if (!handle) return;
+
+    setSyncing(platform);
+    setSyncError(null);
+
+    try {
+      const body: Record<string, string> = {};
+      if (platform === "instagram") body.handle = handle;
+      else if (platform === "youtube") body.channelUrl = handle;
+      else if (platform === "tiktok") body.username = handle;
+      else if (platform === "facebook") body.pageUrl = handle;
+
+      const res = await fetch(`/api/connect/${platform}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSyncError(data.error || "Failed to sync");
+      } else {
+        setHandleInputs((prev) => ({ ...prev, [platform]: "" }));
+        fetchAccounts();
+        setSuccessMessage(`${platform} connected successfully!`);
+        setTimeout(() => setSuccessMessage(""), 3000);
+      }
+    } catch {
+      setSyncError("Something went wrong. Please try again.");
+    } finally {
+      setSyncing(null);
+    }
+  };
 
   const [toggles, setToggles] = useState<Record<string, boolean>>(
     Object.fromEntries(notificationSettings.map((s) => [s.id, s.enabled]))
@@ -209,6 +249,20 @@ function SettingsContent() {
         </div>
       )}
 
+      {syncError && (
+        <div
+          className="rounded-lg px-4 py-3 text-sm"
+          style={{
+            backgroundColor: "#c4626a10",
+            color: "#c4626a",
+            border: "1px solid #c4626a20",
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          {syncError}
+        </div>
+      )}
+
       {/* Instagram Account Picker Modal */}
       {igPickerOpen && igPickerAccounts.length > 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -303,7 +357,6 @@ function SettingsContent() {
                     </>
                   ) : (
                     <>
-                      <Badge variant="neutral">Not connected</Badge>
                       {key !== "instagram" && ((session?.user?.plan as string) || "free") !== "pro" ? (
                         <a href="/#pricing">
                           <Button variant="secondary" size="sm">
@@ -311,11 +364,29 @@ function SettingsContent() {
                           </Button>
                         </a>
                       ) : (
-                        <a href={`/api/connect/${key}`}>
-                          <Button variant="primary" size="sm">
-                            Connect
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            placeholder={
+                              key === "youtube"
+                                ? "youtube.com/c/YourChannel"
+                                : `@${key === "facebook" ? "pagename" : "username"}`
+                            }
+                            value={handleInputs[key] || ""}
+                            onChange={(e) =>
+                              setHandleInputs((prev) => ({ ...prev, [key]: e.target.value }))
+                            }
+                            className="h-9 w-40 sm:w-48 rounded-lg border border-card-border bg-page-bg px-3 text-sm outline-none focus:border-accent-primary transition-colors"
+                          />
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            disabled={syncing === key || !handleInputs[key]?.trim()}
+                            onClick={() => handleSync(key)}
+                          >
+                            {syncing === key ? "Syncing..." : "Sync"}
                           </Button>
-                        </a>
+                        </div>
                       )}
                     </>
                   )}

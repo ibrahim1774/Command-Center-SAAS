@@ -11,19 +11,19 @@ import type {
 
 export const overviewMetrics: MetricCard[] = [
   { label: "Total Followers", value: "847,293", change: "+12.4%", changeType: "positive" },
-  { label: "Total Reach (30D)", value: "2.4M", change: "+8.7%", changeType: "positive" },
+  { label: "Total Posts", value: "3,426", change: "+48 this month", changeType: "positive" },
   { label: "Engagement Rate", value: "4.82%", change: "+0.3%", changeType: "positive" },
-  { label: "Revenue This Month", value: "$24,850", change: "+18.2%", changeType: "positive", prefix: "$" },
+  { label: "Total Likes (30D)", value: "142K", change: "+18.2%", changeType: "positive" },
 ];
 
 export const aiBriefing: AIBriefing = {
   date: "2026-03-26",
-  summary: "Your Instagram Reels are outperforming all other content formats this week, with an average engagement rate of 6.8% — nearly double your carousel posts. YouTube subscriber growth accelerated after your collaboration video with @techreviewer hit 340K views. Facebook reach dipped 12% due to algorithm changes favoring short-form video. Consider repurposing your top-performing Reels for Facebook to recover lost reach. Three brand deal inquiries came in overnight — Glossier, Nike Digital, and a recurring ask from Adobe Creative Cloud.",
+  summary: "Your Instagram Reels are outperforming all other content formats this week, with an average engagement rate of 6.8% — nearly double your carousel posts. YouTube subscriber growth accelerated after your collaboration video with @techreviewer hit 340K views. Facebook video posts are getting significantly more likes than text-only posts. Three brand deal inquiries came in overnight — Glossier, Nike Digital, and a recurring ask from Adobe Creative Cloud.",
   highlights: [
     "Instagram Reels averaging 6.8% engagement rate this week",
     "YouTube collab video hit 340K views, driving 2,400 new subscribers",
     "3 new brand deal inquiries: Glossier, Nike Digital, Adobe CC",
-    "Facebook reach down 12% — algorithm shift toward short-form video",
+    "Facebook video posts getting 3x more likes than text posts",
   ],
 };
 
@@ -35,9 +35,9 @@ export const whatsWorking: InsightItem[] = [
 ];
 
 export const whatsFlopping: InsightItem[] = [
-  { text: "Facebook text-only posts reaching less than 2% of followers", platform: "facebook", metric: "1.8% reach" },
-  { text: "YouTube thumbnails with text overlays underperforming clean shots", platform: "youtube", metric: "-18% CTR" },
-  { text: "Instagram Stories posted after 9pm getting minimal views", platform: "instagram", metric: "-45% views" },
+  { text: "Facebook text-only posts getting fewer likes than video content", platform: "facebook", metric: "-62% likes" },
+  { text: "YouTube videos under 5 minutes getting fewer comments", platform: "youtube", metric: "-40% comments" },
+  { text: "Static image posts underperforming Reels significantly", platform: "instagram", metric: "-55% likes" },
   { text: "Promotional posts without storytelling seeing engagement drops", metric: "-34% engagement" },
 ];
 
@@ -140,24 +140,24 @@ export const instagramComments: InstagramComment[] = [
 ];
 
 export const instagramAnalysisWorking: InsightItem[] = [
-  { text: "Reels with face-to-camera hooks in first 2 seconds get 4x more views", metric: "+312% views" },
+  { text: "Reels with face-to-camera hooks in first 2 seconds get 4x more likes", metric: "+312% likes" },
   { text: "Carousels with data/stats on slide 1 earn highest saves", metric: "89 avg saves" },
-  { text: "Posting between 11am-1pm EST consistently outperforms other times", metric: "+28% reach" },
+  { text: "Posting between 11am-1pm EST gets more comments", metric: "+28% comments" },
 ];
 
 export const instagramAnalysisFlopping: InsightItem[] = [
-  { text: "Static image posts getting minimal engagement vs Reels", metric: "-62% engagement" },
-  { text: "Stories posted after 9pm getting less than half typical views", metric: "-45% views" },
-  { text: "Hashtags over 15 per post are hurting reach", metric: "-18% reach" },
+  { text: "Static image posts getting minimal engagement vs Reels", metric: "-62% likes" },
+  { text: "Posts with more than 15 hashtags getting fewer comments", metric: "-18% comments" },
+  { text: "Carousel posts over 8 slides seeing drop-off in engagement", metric: "-30% likes" },
 ];
 
 // ==================== YOUTUBE PAGE ====================
 
 export const youtubeMetrics: MetricCard[] = [
   { label: "Subscribers", value: "234,800", change: "+2,400", changeType: "positive" },
-  { label: "Views (30D)", value: "1.8M", change: "+24.3%", changeType: "positive" },
-  { label: "Watch Time (hrs)", value: "42,600", change: "+15.8%", changeType: "positive" },
-  { label: "Avg View Duration", value: "8:42", change: "+0:34", changeType: "positive" },
+  { label: "Total Views", value: "28.4M", change: "+24.3%", changeType: "positive" },
+  { label: "Videos", value: "187", change: "+4 this month", changeType: "positive" },
+  { label: "Total Likes", value: "1.2M", change: "+18K", changeType: "positive" },
 ];
 
 export const youtubeViewsData: ViewsDataPoint[] = Array.from({ length: 30 }, (_, i) => {
@@ -171,11 +171,11 @@ export const youtubeViewsData: ViewsDataPoint[] = Array.from({ length: 30 }, (_,
 });
 
 export const youtubeVideos: YouTubeVideo[] = [
-  { id: "yt1", title: "I Tried Every AI Video Tool So You Don't Have To", views: 342000, likes: 18200, comments: 2100, publishedAt: "3d ago", duration: "18:42", retention: 62, thumbnailColor: "#ff6b6b" },
-  { id: "yt2", title: "The Content Strategy That Got Me to 200K Subscribers", views: 189000, likes: 12400, comments: 1800, publishedAt: "1w ago", duration: "22:15", retention: 58, thumbnailColor: "#4ecdc4" },
-  { id: "yt3", title: "Reacting to My First YouTube Video (Cringe Warning)", views: 156000, likes: 14800, comments: 3200, publishedAt: "2w ago", duration: "14:08", retention: 71, thumbnailColor: "#45b7d1" },
-  { id: "yt4", title: "How I Edit Videos in Half the Time — Full Workflow", views: 98000, likes: 8900, comments: 920, publishedAt: "2w ago", duration: "25:33", retention: 54, thumbnailColor: "#96ceb4" },
-  { id: "yt5", title: "Brand Deals 101: What Nobody Tells You", views: 224000, likes: 16100, comments: 2800, publishedAt: "3w ago", duration: "19:47", retention: 65, thumbnailColor: "#ffeaa7" },
+  { id: "yt1", title: "I Tried Every AI Video Tool So You Don't Have To", views: 342000, likes: 18200, comments: 2100, publishedAt: "3d ago", duration: "18:42", thumbnailColor: "#ff6b6b" },
+  { id: "yt2", title: "The Content Strategy That Got Me to 200K Subscribers", views: 189000, likes: 12400, comments: 1800, publishedAt: "1w ago", duration: "22:15", thumbnailColor: "#4ecdc4" },
+  { id: "yt3", title: "Reacting to My First YouTube Video (Cringe Warning)", views: 156000, likes: 14800, comments: 3200, publishedAt: "2w ago", duration: "14:08", thumbnailColor: "#45b7d1" },
+  { id: "yt4", title: "How I Edit Videos in Half the Time — Full Workflow", views: 98000, likes: 8900, comments: 920, publishedAt: "2w ago", duration: "25:33", thumbnailColor: "#96ceb4" },
+  { id: "yt5", title: "Brand Deals 101: What Nobody Tells You", views: 224000, likes: 16100, comments: 2800, publishedAt: "3w ago", duration: "19:47", thumbnailColor: "#ffeaa7" },
 ];
 
 export const youtubeComments: YouTubeComment[] = [
@@ -191,13 +191,13 @@ export const youtubeComments: YouTubeComment[] = [
 
 export const youtubeAnalysis = {
   working: [
-    { text: "Long-form tutorials (15-25 min) getting highest watch time", metric: "8:42 avg duration" },
+    { text: "Long-form tutorials (15-25 min) getting the most views", metric: "342K avg views" },
     { text: "Collaboration videos driving 3x subscriber growth", metric: "+2,400 subs" },
-    { text: "Videos with clear numbered lists in titles outperforming", metric: "+34% CTR" },
+    { text: "Videos with clear numbered lists in titles getting more likes", metric: "+34% likes" },
   ] as InsightItem[],
   flopping: [
-    { text: "Thumbnails with text overlays underperforming clean portraits", metric: "-18% CTR" },
-    { text: "Videos over 30 minutes seeing significant drop-off", metric: "42% retention" },
+    { text: "Thumbnails with text overlays getting fewer clicks", metric: "-18% likes" },
+    { text: "Videos over 30 minutes getting fewer comments", metric: "-42% comments" },
     { text: "Shorts reposts getting less traction than native content", metric: "-55% views" },
   ] as InsightItem[],
   contentIdeas: [

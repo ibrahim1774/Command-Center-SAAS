@@ -104,7 +104,7 @@ export interface YouTubeVideo {
   comments: number;
   publishedAt: string;
   duration: string;
-  retention: number; // percentage
+  retention?: number;
   thumbnailColor: string;
 }
 

@@ -6,7 +6,6 @@ import {
   instagramAccounts,
   instagramPosts,
   instagramComments,
-  instagramDailyReach,
 } from "@/lib/mock-data";
 
 export async function GET(req: NextRequest) {
@@ -42,11 +41,6 @@ export async function GET(req: NextRequest) {
         username: c.author,
         text: c.text,
         timestamp: c.timestamp,
-      })),
-      dailyMetrics: instagramDailyReach.map((d) => ({
-        date: d.date,
-        reach: d.reach,
-        impressions: Math.round(d.reach * 1.4),
       })),
     });
   }

@@ -376,7 +376,7 @@ export default function LandingPage() {
             <FadeUp delay={0.1}>
               <img
                 src="/SCR-20260328-maio.png"
-                alt="Instagram analytics dashboard showing follower metrics, daily reach chart, latest posts, and AI insights"
+                alt="Instagram analytics dashboard showing follower metrics, latest posts, and AI insights"
                 className="w-full rounded-xl border border-card-border shadow-lg"
               />
             </FadeUp>
