@@ -108,6 +108,26 @@ export default function InstagramPage() {
     useDashboardData<InstagramData>("/api/dashboard/instagram");
   const { insights, generating, regenerate } = useAIInsights();
 
+  // All hooks MUST be called before any early returns (React Rules of Hooks)
+  const [goalTarget, setGoalTarget] = useState<number | null>(null);
+  const [goalLoading, setGoalLoading] = useState(true);
+  const [editingGoal, setEditingGoal] = useState(false);
+  const [goalInput, setGoalInput] = useState("");
+
+  const fetchGoal = useCallback(async () => {
+    try {
+      const res = await fetch("/api/user/ig-goal");
+      if (res.ok) {
+        const d = await res.json();
+        if (d.target) setGoalTarget(d.target);
+      }
+    } finally {
+      setGoalLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchGoal(); }, [fetchGoal]);
+
   if (loading) return <DashboardSkeleton />;
   if (!connected) return <ConnectAccountCard platform="instagram" />;
 
@@ -125,26 +145,6 @@ export default function InstagramPage() {
   const avgComments = posts.length > 0
     ? Math.round(posts.reduce((sum, p) => sum + (p.comments_count || 0), 0) / posts.length)
     : 0;
-
-  // Custom goal state
-  const [goalTarget, setGoalTarget] = useState<number | null>(null);
-  const [goalLoading, setGoalLoading] = useState(true);
-  const [editingGoal, setEditingGoal] = useState(false);
-  const [goalInput, setGoalInput] = useState("");
-
-  const fetchGoal = useCallback(async () => {
-    try {
-      const res = await fetch("/api/user/ig-goal");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.target) setGoalTarget(data.target);
-      }
-    } finally {
-      setGoalLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchGoal(); }, [fetchGoal]);
 
   const saveGoal = async () => {
     const num = parseInt(goalInput.replace(/,/g, ""), 10);
