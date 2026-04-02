@@ -317,7 +317,7 @@ export default function InstagramPage() {
           </h3>
           <div className="space-y-3">
             {posts.map((post) => {
-              const typeLabel = getMediaTypeLabel(post.media_type);
+              const typeLabel = getMediaTypeLabel(String(post.media_type || ""));
               const typeColor = POST_TYPE_COLORS[typeLabel] ?? {
                 bg: "#f0ede8",
                 text: "#6b6b6b",
@@ -369,7 +369,7 @@ export default function InstagramPage() {
                         {typeLabel}
                       </Badge>
                       <span className="text-[10px] text-text-secondary font-body">
-                        {timeAgo(post.timestamp)}
+                        {timeAgo(String(post.timestamp || ""))}
                       </span>
                     </div>
                   </div>
@@ -387,27 +387,34 @@ export default function InstagramPage() {
             Recent Comments
           </h3>
           <div className="space-y-3">
-            {comments.map((comment) => (
-              <div
-                key={comment.id}
-                className="rounded-lg border border-card-border bg-page-bg/40 p-3"
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <div className="h-6 w-6 rounded-full bg-accent-primary/10 flex items-center justify-center text-[10px] font-bold text-accent-primary">
-                    {(comment.username || "?")[0].toUpperCase()}
+            {comments.map((comment) => {
+              const uname = String(comment.username || "?");
+              const ctext = String(comment.text || "");
+              const ctime = String(comment.timestamp || "");
+              return (
+                <div
+                  key={String(comment.id)}
+                  className="rounded-lg border border-card-border bg-page-bg/40 p-3"
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="h-6 w-6 rounded-full bg-accent-primary/10 flex items-center justify-center text-[10px] font-bold text-accent-primary">
+                      {uname[0]?.toUpperCase() || "?"}
+                    </div>
+                    <p className="text-sm font-semibold text-text-primary font-body">
+                      {uname}
+                    </p>
+                    {ctime && (
+                      <span className="text-[10px] text-text-muted font-body ml-auto">
+                        {timeAgo(ctime)}
+                      </span>
+                    )}
                   </div>
-                  <p className="text-sm font-semibold text-text-primary font-body">
-                    {comment.username}
+                  <p className="text-sm text-text-secondary font-body leading-relaxed pl-8">
+                    {ctext}
                   </p>
-                  <span className="text-[10px] text-text-muted font-body ml-auto">
-                    {timeAgo(comment.timestamp)}
-                  </span>
                 </div>
-                <p className="text-sm text-text-secondary font-body leading-relaxed pl-8">
-                  {comment.text}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Card>
       )}
