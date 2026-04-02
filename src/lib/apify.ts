@@ -107,6 +107,39 @@ export async function scrapeInstagramProfile(
   };
 }
 
+export interface ScrapedInstagramComment {
+  id: string;
+  username: string;
+  text: string;
+  timestamp: string;
+  likesCount: number;
+}
+
+export async function scrapeInstagramComments(
+  postUrls: string[],
+  maxComments: number = 10
+): Promise<ScrapedInstagramComment[]> {
+  if (postUrls.length === 0) return [];
+
+  // Only scrape top 3 posts to keep costs down, limit total comments to maxComments
+  const urls = postUrls.slice(0, 3);
+
+  const items = await runActor("apify~instagram-comment-scraper", {
+    directUrls: urls,
+    resultsLimit: maxComments,
+  });
+
+  if (!items || items.length === 0) return [];
+
+  return (items as Record<string, unknown>[]).slice(0, maxComments).map((c) => ({
+    id: (c.id as string) || "",
+    username: (c.ownerUsername as string) || (c.username as string) || "",
+    text: (c.text as string) || "",
+    timestamp: (c.timestamp as string) || (c.createdAt as string) || new Date().toISOString(),
+    likesCount: (c.likesCount as number) || 0,
+  }));
+}
+
 export interface ScrapedYouTubeChannel {
   channelName: string;
   subscriberCount: number;

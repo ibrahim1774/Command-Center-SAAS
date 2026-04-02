@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkAccountLimit } from "@/lib/account-limits";
-import { scrapeInstagramProfile } from "@/lib/apify";
+import { scrapeInstagramProfile, scrapeInstagramComments } from "@/lib/apify";
 
 export async function POST(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
@@ -73,6 +73,30 @@ export async function POST(req: NextRequest) {
           permalink: p.url,
         }))
       );
+    }
+
+    // Scrape comments from top posts (10 total across top 3 posts)
+    const postUrls = profile.posts
+      .filter((p) => p.url)
+      .map((p) => p.url);
+
+    try {
+      const comments = await scrapeInstagramComments(postUrls, 10);
+      if (comments.length > 0) {
+        await supabase.from("instagram_comments").delete().eq("user_id", userId);
+        await supabase.from("instagram_comments").insert(
+          comments.map((c) => ({
+            user_id: userId,
+            comment_id: c.id,
+            username: c.username,
+            text: c.text,
+            timestamp: c.timestamp,
+          }))
+        );
+      }
+    } catch (commentErr) {
+      // Comments are optional — don't fail the whole sync
+      console.error("[connect/instagram] Comment scrape failed:", commentErr);
     }
 
     return NextResponse.json({
