@@ -120,6 +120,17 @@ export default function InstagramPage() {
     ? Math.round(posts.reduce((sum, p) => sum + (p.likes || 0), 0) / posts.length)
     : 0;
 
+  // Road to 100K calculations
+  const followers = profile?.follower_count || 0;
+  const goal = followers >= 1_000_000 ? Math.ceil(followers / 1_000_000) * 1_000_000
+    : followers >= 100_000 ? Math.ceil(followers / 100_000) * 100_000
+    : 100_000;
+  const followersToGo = Math.max(0, goal - followers);
+  const progressPct = goal > 0 ? Math.min(100, (followers / goal) * 100) : 0;
+  const engRate = followers > 0 && posts.length > 0
+    ? ((posts.reduce((s, p) => s + (p.likes || 0) + (p.comments_count || 0), 0) / posts.length) / followers * 100).toFixed(2)
+    : "0.00";
+
   return (
     <div className="space-y-8">
       <SyncStatusBar
@@ -151,7 +162,57 @@ export default function InstagramPage() {
         />
       </div>
 
-      {/* Row 2: Latest Posts */}
+      {/* Row 2: Road to Goal + Engagement Rate */}
+      {followers > 0 && (
+        <Card>
+          <div className="flex items-baseline gap-2 mb-4">
+            <h3 className="font-display text-lg font-semibold text-text-primary">
+              @{profile?.username || "—"} Road to {fmt(goal)}
+            </h3>
+          </div>
+
+          {/* Progress bar */}
+          <div className="relative mb-3">
+            <div className="h-3 w-full rounded-full bg-[#f0ede8]">
+              <div
+                className="h-full rounded-full bg-accent-primary transition-all"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+            <div className="flex justify-between mt-1 text-[10px] text-text-muted">
+              <span>0</span>
+              <span>{fmt(goal / 4)}</span>
+              <span>{fmt(goal / 2)}</span>
+              <span>{fmt((goal / 4) * 3)}</span>
+              <span>{fmt(goal)}</span>
+            </div>
+          </div>
+
+          <p className="text-center text-2xl font-display font-bold text-text-primary mb-4">
+            {fmtWhole(followersToGo)} <span className="text-base font-normal text-text-secondary">followers to go</span>
+          </p>
+
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">Engagement Rate</p>
+              <p className="text-xl font-bold font-display text-text-primary">{engRate}%</p>
+              <p className="text-[10px] text-text-muted">avg/post</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">Avg Likes</p>
+              <p className="text-xl font-bold font-display text-text-primary">{fmt(avgLikes)}</p>
+              <p className="text-[10px] text-text-muted">per post</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-medium uppercase tracking-widest text-text-muted mb-1">Total Posts</p>
+              <p className="text-xl font-bold font-display text-text-primary">{fmtWhole(profile?.media_count || 0)}</p>
+              <p className="text-[10px] text-text-muted">all time</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Row 3: Latest Posts */}
       {posts.length > 0 && (
         <Card>
           <h3 className="font-display text-lg font-semibold text-text-primary mb-4">
@@ -176,11 +237,11 @@ export default function InstagramPage() {
                     <img
                       src={post.thumbnail_url}
                       alt=""
-                      className="h-12 w-12 rounded object-cover flex-shrink-0"
+                      className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
                     />
                   ) : (
                     <div
-                      className="h-12 w-12 rounded flex-shrink-0"
+                      className="h-16 w-16 rounded-lg flex-shrink-0"
                       style={{ backgroundColor: "#f0ede8" }}
                     />
                   )}
@@ -195,6 +256,11 @@ export default function InstagramPage() {
                       <span className="text-xs text-text-secondary font-body">
                         {fmtWhole(post.comments_count)} comments
                       </span>
+                      {followers > 0 && (
+                        <span className="text-xs font-medium text-accent-primary font-body">
+                          {(((post.likes || 0) + (post.comments_count || 0)) / followers * 100).toFixed(2)}%
+                        </span>
+                      )}
                       <Badge
                         size="sm"
                         className="ml-auto"
