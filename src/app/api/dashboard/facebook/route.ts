@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import { isDemoUser } from "@/lib/demo-mode";
+import { shouldShowMockData } from "@/lib/demo-mode";
 import { facebookPosts, facebookComments } from "@/lib/mock-data";
 
 export async function GET(req: NextRequest) {
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Not connected — demo user gets mock data
-  if (await isDemoUser(req)) {
+  if (await shouldShowMockData(req, userId)) {
     return NextResponse.json({
       connected: true,
       lastSynced: new Date().toISOString(),

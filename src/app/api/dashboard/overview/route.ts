@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { shouldShowMockData } from "@/lib/demo-mode";
 
 interface ChannelSummary {
   platform: string;
@@ -15,6 +16,30 @@ export async function GET(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Test mode: return mock overview data
+  if (await shouldShowMockData(req, userId)) {
+    return NextResponse.json({
+      connected: true,
+      connectedPlatforms: ["instagram", "youtube", "facebook", "tiktok"],
+      totalFollowers: 847293,
+      totalPosts: 3426,
+      totalLikes: 142000,
+      engagementRate: "4.82",
+      channels: [
+        { platform: "instagram", username: "@commandhq", followers: 94200, posts: 1247, likes: 48200, goal: 100000 },
+        { platform: "youtube", username: "Command HQ", followers: 312400, posts: 245, likes: 89000, goal: 500000 },
+        { platform: "facebook", username: "Command HQ", followers: 128293, posts: 892, likes: 35100, goal: 200000 },
+        { platform: "tiktok", username: "@commandhq", followers: 312400, posts: 1042, likes: 245000, goal: 500000 },
+      ],
+      followerGrowth: [],
+      recentComments: [
+        { username: "@sarah.designs", platform: "instagram", comment: "Your content literally changed how I approach my own brand.", timestamp: new Date(Date.now() - 7200000).toISOString() },
+        { username: "Mike Chen", platform: "youtube", comment: "Been watching since 10K subs. Your editing style is unique.", timestamp: new Date(Date.now() - 18000000).toISOString() },
+        { username: "@creativejuice", platform: "instagram", comment: "Just landed my first brand deal because of your tips!", timestamp: new Date(Date.now() - 28800000).toISOString() },
+      ],
+    });
   }
 
   const supabase = getSupabaseAdmin();

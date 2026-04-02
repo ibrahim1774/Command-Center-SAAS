@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import { isDemoUser } from "@/lib/demo-mode";
+import { shouldShowMockData } from "@/lib/demo-mode";
 import {
   instagramAccounts,
   instagramPosts,
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Not connected — demo user gets mock data, others get "not connected"
-  if (await isDemoUser(req)) {
+  if (await shouldShowMockData(req, userId)) {
     const acct = instagramAccounts[0];
     return NextResponse.json({
       connected: true,

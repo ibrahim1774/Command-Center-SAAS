@@ -333,13 +333,21 @@ export default function InstagramPage() {
                       src={post.thumbnail_url}
                       alt=""
                       className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = "none";
+                        const placeholder = target.nextElementSibling as HTMLElement;
+                        if (placeholder) placeholder.style.display = "block";
+                      }}
                     />
-                  ) : (
-                    <div
-                      className="h-16 w-16 rounded-lg flex-shrink-0"
-                      style={{ backgroundColor: "#f0ede8" }}
-                    />
-                  )}
+                  ) : null}
+                  <div
+                    className="h-16 w-16 rounded-lg flex-shrink-0"
+                    style={{
+                      backgroundColor: "#f0ede8",
+                      display: post.thumbnail_url ? "none" : "block",
+                    }}
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-text-primary font-body line-clamp-2">
                       {post.caption || "(no caption)"}
