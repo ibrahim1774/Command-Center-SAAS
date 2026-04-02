@@ -4,6 +4,20 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkAccountLimit } from "@/lib/account-limits";
 import { scrapeInstagramProfile, scrapeInstagramComments } from "@/lib/apify";
 
+function ensureISOTimestamp(ts: string): string {
+  if (!ts) return new Date().toISOString();
+  // If it's a Unix timestamp (number string)
+  const num = Number(ts);
+  if (!isNaN(num) && num > 1000000000) {
+    return new Date(num * 1000).toISOString();
+  }
+  // If it's already ISO or parseable
+  const d = new Date(ts);
+  if (!isNaN(d.getTime())) return d.toISOString();
+  // Fallback
+  return new Date().toISOString();
+}
+
 export async function POST(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
   if (!userId) {
@@ -61,18 +75,20 @@ export async function POST(req: NextRequest) {
     await supabase.from("instagram_posts").delete().eq("user_id", userId);
 
     if (profile.posts.length > 0) {
-      await supabase.from("instagram_posts").insert(
-        profile.posts.map((p) => ({
-          user_id: userId,
-          post_id: p.id,
-          caption: p.caption,
-          likes: p.likesCount,
-          comments_count: p.commentsCount,
-          media_type: p.type,
-          timestamp: p.timestamp,
-          permalink: p.url,
-        }))
-      );
+      const postsToInsert = profile.posts.map((p) => ({
+        user_id: userId,
+        post_id: p.id || `post_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        caption: p.caption,
+        likes: p.likesCount,
+        comments_count: p.commentsCount,
+        media_type: p.type === "Image" ? "IMAGE" : p.type === "Video" ? "VIDEO" : p.type === "Sidecar" ? "CAROUSEL_ALBUM" : p.type,
+        timestamp: ensureISOTimestamp(p.timestamp),
+      }));
+
+      const { error: postsError } = await supabase.from("instagram_posts").insert(postsToInsert);
+      if (postsError) {
+        console.error("[connect/instagram] Posts insert error:", postsError);
+      }
     }
 
     // Scrape comments from top posts (10 total across top 3 posts)
@@ -84,15 +100,17 @@ export async function POST(req: NextRequest) {
       const comments = await scrapeInstagramComments(postUrls, 10);
       if (comments.length > 0) {
         await supabase.from("instagram_comments").delete().eq("user_id", userId);
-        await supabase.from("instagram_comments").insert(
+        const { error: commentsError } = await supabase.from("instagram_comments").insert(
           comments.map((c) => ({
             user_id: userId,
-            comment_id: c.id,
-            username: c.username,
-            text: c.text,
-            timestamp: c.timestamp,
+            username: c.username || "unknown",
+            text: c.text || "",
+            timestamp: ensureISOTimestamp(c.timestamp),
           }))
         );
+        if (commentsError) {
+          console.error("[connect/instagram] Comments insert error:", commentsError);
+        }
       }
     } catch (commentErr) {
       // Comments are optional — don't fail the whole sync

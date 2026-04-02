@@ -8,6 +8,17 @@ import {
   scrapeTikTokProfile,
 } from "@/lib/apify";
 
+function ensureISOTimestamp(ts: string): string {
+  if (!ts) return new Date().toISOString();
+  const num = Number(ts);
+  if (!isNaN(num) && num > 1000000000) {
+    return new Date(num * 1000).toISOString();
+  }
+  const d = new Date(ts);
+  if (!isNaN(d.getTime())) return d.toISOString();
+  return new Date().toISOString();
+}
+
 export async function POST(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
   if (!userId) {
@@ -61,13 +72,12 @@ export async function POST(req: NextRequest) {
         await supabase.from("instagram_posts").insert(
           profile.posts.map((p) => ({
             user_id: userId,
-            post_id: p.id,
+            post_id: p.id || `post_${Date.now()}_${Math.random().toString(36).slice(2)}`,
             caption: p.caption,
             likes: p.likesCount,
             comments_count: p.commentsCount,
-            media_type: p.type,
-            timestamp: p.timestamp,
-            permalink: p.url,
+            media_type: p.type === "Image" ? "IMAGE" : p.type === "Video" ? "VIDEO" : p.type === "Sidecar" ? "CAROUSEL_ALBUM" : p.type,
+            timestamp: ensureISOTimestamp(p.timestamp),
           }))
         );
       }
@@ -81,10 +91,9 @@ export async function POST(req: NextRequest) {
           await supabase.from("instagram_comments").insert(
             comments.map((c) => ({
               user_id: userId,
-              comment_id: c.id,
-              username: c.username,
-              text: c.text,
-              timestamp: c.timestamp,
+              username: c.username || "unknown",
+              text: c.text || "",
+              timestamp: ensureISOTimestamp(c.timestamp),
             }))
           );
         }
