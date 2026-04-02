@@ -65,7 +65,9 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.redirect(`${appUrl}/dashboard?checkout=success`);
+    const price = subscription.items.data[0]?.price.unit_amount;
+    const priceUsd = price ? (price / 100).toFixed(2) : "9.00";
+    return NextResponse.redirect(`${appUrl}/dashboard?checkout=success&plan=${plan}&price=${priceUsd}`);
   } catch (error) {
     console.error("[stripe/verify-checkout] Error:", error);
     return NextResponse.redirect(`${appUrl}/dashboard?checkout=success`);

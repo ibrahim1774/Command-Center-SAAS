@@ -116,6 +116,14 @@ function SignupContent() {
         return;
       }
 
+      // Fire Meta Pixel InitiateCheckout event
+      if (typeof window !== "undefined" && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
+        (window as unknown as { fbq: (...args: unknown[]) => void }).fbq("track", "InitiateCheckout", {
+          value: displayPrice,
+          currency: "USD",
+          content_name: `${planId} plan`,
+        });
+      }
       window.location.href = checkoutData.url;
     } catch {
       setError("Something went wrong. Please try again.");

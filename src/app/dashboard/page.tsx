@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   socialHeadlines,
   followerComments as mockComments,
@@ -226,9 +226,32 @@ function ChannelCard({
   );
 }
 
+declare global {
+  interface Window {
+    fbq?: (...args: unknown[]) => void;
+  }
+}
+
 export default function DashboardPage() {
   const { data, refetch } = useDashboardData<OverviewData>("/api/dashboard/overview");
   const { insights, generating, regenerate } = useAIInsights();
+
+  // Fire Meta Pixel Purchase event after Stripe checkout
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "success" && window.fbq) {
+      const price = parseFloat(params.get("price") || "9");
+      const plan = params.get("plan") || "hobby";
+      window.fbq("track", "Purchase", {
+        value: price,
+        currency: "USD",
+        content_name: `${plan} plan`,
+        content_type: "subscription",
+      });
+      // Clean up URL so it doesn't re-fire on refresh
+      window.history.replaceState({}, "", "/dashboard");
+    }
+  }, []);
 
   const hasInsights = insights !== null;
   const channels = data?.channels || [];
