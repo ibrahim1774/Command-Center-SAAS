@@ -51,15 +51,16 @@ function LoginContent() {
       // If there's a checkout session, link it
       if (checkoutSession) {
         try {
-          await fetch("/api/stripe/link-subscription", {
+          const linkRes = await fetch("/api/stripe/link-subscription", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ sessionId: checkoutSession }),
           });
+          const linkData = await linkRes.json().catch(() => ({}));
+          window.location.href = `/dashboard?checkout=success&plan=${linkData.plan || "hobby"}&price=${linkData.price || "9.00"}`;
         } catch {
-          // Non-fatal
+          window.location.href = "/dashboard";
         }
-        window.location.href = "/dashboard";
       } else if (result?.url) {
         window.location.href = result.url;
       }

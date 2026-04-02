@@ -37,19 +37,6 @@ function SignupContent() {
     e.currentTarget.style.borderColor = "#e8e6e1";
   };
 
-  async function linkSubscription() {
-    if (!checkoutSession) return;
-    try {
-      await fetch("/api/stripe/link-subscription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: checkoutSession }),
-      });
-    } catch {
-      // Non-fatal — webhook will handle it
-    }
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -92,15 +79,14 @@ function SignupContent() {
 
       // 3. If coming from payment, link the subscription
       if (checkoutSession) {
-        await linkSubscription();
-        // Fire Meta Pixel Purchase event
-        if (typeof window !== "undefined" && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
-          (window as unknown as { fbq: (...args: unknown[]) => void }).fbq("track", "Purchase", {
-            currency: "USD",
-            content_type: "subscription",
-          });
-        }
-        router.push("/dashboard");
+        const linkRes = await fetch("/api/stripe/link-subscription", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: checkoutSession }),
+        });
+        const linkData = await linkRes.json().catch(() => ({}));
+        // Redirect to dashboard with checkout params so Purchase pixel fires there
+        router.push(`/dashboard?checkout=success&plan=${linkData.plan || "hobby"}&price=${linkData.price || "9.00"}`);
       } else {
         // No payment session — redirect to pricing
         router.push("/#pricing");
