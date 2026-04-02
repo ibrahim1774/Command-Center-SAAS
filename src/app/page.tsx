@@ -17,6 +17,7 @@ import {
   Check,
   ArrowRight,
   ChevronRight,
+  TrendingUp,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
@@ -76,9 +77,9 @@ function PricingSection() {
       highlight: true,
       features: [
         "Access to all channels",
-        "Instagram, X, YouTube, Facebook, TikTok",
+        "Instagram, YouTube, Facebook, TikTok",
         "Full analytics dashboard",
-        "Trending headlines",
+        "AI-powered insights",
         "Brand deal CRM",
         "Goals & task management",
         "Priority support",
@@ -309,8 +310,8 @@ export default function LandingPage() {
 
           <FadeUp delay={0.12}>
             <p className="mx-auto mt-6 max-w-xl text-lg text-text-secondary leading-relaxed md:text-xl">
-              AI-powered analytics, brand deal CRM, goal tracking, and
-              daily journaling — everything creators need to grow smarter.
+              Multi-platform analytics, AI-powered insights, brand deal tracking,
+              and goal management — everything creators need to grow smarter.
             </p>
           </FadeUp>
 
@@ -333,12 +334,12 @@ export default function LandingPage() {
             </div>
           </FadeUp>
 
-          {/* Dashboard screenshot */}
+          {/* Dashboard screenshot — Overview */}
           <FadeUp delay={0.35}>
             <div className="mx-auto mt-16 max-w-4xl">
               <img
-                src="/SCR-20260328-maio.png"
-                alt="Nurplix Instagram analytics dashboard"
+                src="/SCR-20260402-ngtw.png"
+                alt="Nurplix overview dashboard showing all channels, follower metrics, AI briefing, and goal trackers"
                 className="w-full rounded-xl border border-card-border shadow-2xl shadow-black/5"
               />
             </div>
@@ -358,7 +359,7 @@ export default function LandingPage() {
             </h2>
           </FadeUp>
 
-          {/* Feature 1: Instagram */}
+          {/* Feature 1: Instagram Analytics */}
           <div className="mt-20 grid items-center gap-10 md:grid-cols-2">
             <FadeUp>
               <div>
@@ -366,28 +367,28 @@ export default function LandingPage() {
                   <BarChart3 className="h-5 w-5" />
                 </div>
                 <h3 className="font-display text-2xl font-bold">
-                  Know exactly what&apos;s working on Instagram
+                  Track your growth with a clear goal in mind
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">
-                  Track follower growth, see which posts drive engagement, read comments in one place, and get AI-powered insights on what to do next. No more guessing — just data you can act on.
+                  Set a follower goal and watch your progress with a visual tracker. See per-post engagement rates, browse your latest posts with thumbnails, and read recent comments — all in one place. No more switching between apps.
                 </p>
               </div>
             </FadeUp>
             <FadeUp delay={0.1}>
               <img
-                src="/SCR-20260328-maio.png"
-                alt="Instagram analytics dashboard showing follower metrics, latest posts, and AI insights"
+                src="/SCR-20260402-nibp.png"
+                alt="Instagram dashboard with follower goal tracker, latest posts with engagement rates, and recent comments"
                 className="w-full rounded-xl border border-card-border shadow-lg"
               />
             </FadeUp>
           </div>
 
-          {/* Feature 2: YouTube */}
+          {/* Feature 2: AI-Powered Insights */}
           <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
             <FadeUp className="order-2 md:order-1">
               <img
-                src="/SCR-20260328-malu.png"
-                alt="YouTube dashboard showing subscriber count, view trends, recent uploads, and top comments"
+                src="/SCR-20260402-nicv.png"
+                alt="AI analysis showing what's working and what's flopping with specific metrics and data-driven recommendations"
                 className="w-full rounded-xl border border-card-border shadow-lg"
               />
             </FadeUp>
@@ -397,49 +398,18 @@ export default function LandingPage() {
                   <Sparkles className="h-5 w-5" />
                 </div>
                 <h3 className="font-display text-2xl font-bold">
-                  YouTube performance at a glance
+                  AI tells you exactly what&apos;s working
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">
-                  Monitor subscriber growth, view counts, and watch time. See your recent uploads ranked by performance and read top comments — all without switching between tabs.
+                  Get AI-powered analysis that breaks down your performance into clear &ldquo;What&apos;s Working&rdquo; and &ldquo;What&apos;s Flopping&rdquo; cards with real metrics. No vague advice — just specific, actionable insights based on your actual data.
                 </p>
               </div>
             </FadeUp>
           </div>
 
-          {/* Feature 3: TikTok */}
+          {/* Feature 3: Brand Deals */}
           <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
             <FadeUp>
-              <div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary mb-4">
-                  <BarChart3 className="h-5 w-5" />
-                </div>
-                <h3 className="font-display text-2xl font-bold">
-                  Track your TikTok growth
-                </h3>
-                <p className="mt-3 leading-relaxed text-text-secondary">
-                  See total views, likes, and follower count. Review your recent videos sorted by performance and spot which content resonates with your audience.
-                </p>
-              </div>
-            </FadeUp>
-            <FadeUp delay={0.1}>
-              <img
-                src="/SCR-20260328-merx.png"
-                alt="TikTok dashboard showing follower count, total views, recent videos, and engagement metrics"
-                className="w-full rounded-xl border border-card-border shadow-lg"
-              />
-            </FadeUp>
-          </div>
-
-          {/* Feature 4: Brand Deals */}
-          <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
-            <FadeUp className="order-2 md:order-1">
-              <img
-                src="/SCR-20260328-mdnk.png"
-                alt="Brand deals CRM showing deal pipeline, active deals, pending payouts, and monthly earnings chart"
-                className="w-full rounded-xl border border-card-border shadow-lg"
-              />
-            </FadeUp>
-            <FadeUp delay={0.1} className="order-1 md:order-2">
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary">
@@ -451,15 +421,29 @@ export default function LandingPage() {
                   Manage every brand deal in one place
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">
-                  Track deals from first inquiry to final payment. See your pipeline value, pending payouts, and monthly earnings — so nothing falls through the cracks.
+                  Track deals from first inquiry to final payment with a visual pipeline. See your total pipeline value, pending payouts, and monthly earnings chart — so nothing falls through the cracks.
                 </p>
               </div>
             </FadeUp>
+            <FadeUp delay={0.1}>
+              <img
+                src="/SCR-20260402-nieu.png"
+                alt="Brand deals CRM with deal pipeline stages, monthly earnings chart, and payout tracking"
+                className="w-full rounded-xl border border-card-border shadow-lg"
+              />
+            </FadeUp>
           </div>
 
-          {/* Feature 5: Goals & Tasks */}
+          {/* Feature 4: Goals & Journal */}
           <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
-            <FadeUp>
+            <FadeUp className="order-2 md:order-1">
+              <img
+                src="/SCR-20260402-nigf.png"
+                alt="Goals dashboard with progress tracking, daily journal entries, and to-do task management"
+                className="w-full rounded-xl border border-card-border shadow-lg"
+              />
+            </FadeUp>
+            <FadeUp delay={0.1} className="order-1 md:order-2">
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary">
@@ -468,17 +452,34 @@ export default function LandingPage() {
                   <span className="rounded-full bg-accent-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-accent-primary">PRO</span>
                 </div>
                 <h3 className="font-display text-2xl font-bold">
-                  Stay on track with goals and daily planning
+                  Stay on track with goals, journal, and daily tasks
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">
-                  Set measurable goals, track your progress, manage daily tasks, and journal your creator journey. Everything you need to stay focused and consistent.
+                  Set measurable goals with progress bars, keep a daily journal to reflect on your creator journey, and manage your to-do list — all in one place. Stay focused and consistent.
+                </p>
+              </div>
+            </FadeUp>
+          </div>
+
+          {/* Feature 5: Trending */}
+          <div className="mt-24 grid items-center gap-10 md:grid-cols-2">
+            <FadeUp>
+              <div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/10 text-accent-primary mb-4">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+                <h3 className="font-display text-2xl font-bold">
+                  Never miss a trending topic
+                </h3>
+                <p className="mt-3 leading-relaxed text-text-secondary">
+                  See what&apos;s trending right now with daily updates from Google Trends. Jump on viral topics early, create timely content, and ride the wave before everyone else catches on.
                 </p>
               </div>
             </FadeUp>
             <FadeUp delay={0.1}>
               <img
-                src="/SCR-20260328-mdlk.png"
-                alt="Goals dashboard showing progress tracking, daily journal entries, and task management"
+                src="/SCR-20260402-nihq.png"
+                alt="Trending topics dashboard showing daily trending searches from Google Trends"
                 className="w-full rounded-xl border border-card-border shadow-lg"
               />
             </FadeUp>
@@ -505,18 +506,18 @@ export default function LandingPage() {
             {[
               {
                 step: "1",
-                title: "Connect your accounts",
-                body: "Link Instagram, YouTube, and Facebook in seconds. We handle all the OAuth so you don\u2019t have to.",
+                title: "Enter your usernames",
+                body: "Type in your Instagram, YouTube, TikTok, or Facebook handle. No complicated OAuth — just your public username and we pull your data automatically.",
               },
               {
                 step: "2",
                 title: "Get AI-powered insights",
-                body: "Daily briefings tell you exactly what\u2019s working, surface trends, and recommend your next move.",
+                body: "Our AI analyzes your posts, engagement, and comments across every platform to tell you exactly what\u2019s working and what needs improvement.",
               },
               {
                 step: "3",
                 title: "Grow your empire",
-                body: "Make data-driven decisions, close more brand deals, and watch your audience grow week after week.",
+                body: "Set follower goals, track brand deals, manage daily tasks, and watch your audience grow week after week with data-driven decisions.",
               },
             ].map((s, i) => (
               <FadeUp key={s.step} delay={i * 0.12}>
@@ -539,7 +540,6 @@ export default function LandingPage() {
 
       {/* ── PRICING ── */}
       <PricingSection />
-
 
       {/* ── FINAL CTA ── */}
       <section className="relative overflow-hidden py-24 md:py-32">
