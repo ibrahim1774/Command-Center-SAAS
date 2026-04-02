@@ -52,6 +52,28 @@ function FadeUp({
    ───────────────────────────────────────────── */
 function PricingSection() {
   const [yearly, setYearly] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  const handleCheckout = async (planId: string) => {
+    setCheckoutLoading(planId);
+    try {
+      // Fire Meta Pixel InitiateCheckout
+      if (typeof window !== "undefined" && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
+        (window as unknown as { fbq: (...args: unknown[]) => void }).fbq("track", "InitiateCheckout");
+      }
+      const res = await fetch("/api/stripe/guest-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId, interval: yearly ? "yearly" : "monthly" }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      setCheckoutLoading(null);
+    }
+  };
 
   const plans = [
     {
@@ -180,16 +202,17 @@ function PricingSection() {
                 </ul>
 
                 <div className="mt-auto pt-8">
-                  <Link
-                    href={`/signup?plan=${plan.planId}&interval=${yearly ? "yearly" : "monthly"}`}
-                    className={`block w-full rounded-full py-3 text-center text-sm font-medium transition-all ${
+                  <button
+                    onClick={() => handleCheckout(plan.planId)}
+                    disabled={checkoutLoading !== null}
+                    className={`block w-full rounded-full py-3 text-center text-sm font-medium transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                       plan.highlight
                         ? "bg-accent-primary text-white hover:opacity-90 hover:shadow-md"
                         : "border border-card-border text-text-primary hover:border-accent-primary hover:text-accent-primary"
                     }`}
                   >
-                    {plan.cta}
-                  </Link>
+                    {checkoutLoading === plan.planId ? "Loading..." : plan.cta}
+                  </button>
                 </div>
               </div>
             </FadeUp>

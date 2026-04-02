@@ -1,17 +1,9 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-
-const PLAN_DETAILS: Record<
-  string,
-  { name: string; monthlyPrice: number; yearlyPrice: number }
-> = {
-  hobby: { name: "Hobby", monthlyPrice: 9, yearlyPrice: 60 },
-  pro: { name: "Pro", monthlyPrice: 29, yearlyPrice: 199 },
-};
 
 export default function SignupPage() {
   return (
@@ -24,28 +16,12 @@ export default function SignupPage() {
 function SignupContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const planId = searchParams.get("plan");
-  const interval = searchParams.get("interval") || "monthly";
+  const checkoutSession = searchParams.get("checkout_session");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  // Redirect to pricing if no valid plan selected
-  useEffect(() => {
-    if (!planId || !PLAN_DETAILS[planId]) {
-      router.replace("/#pricing");
-    }
-  }, [planId, router]);
-
-  const plan = planId ? PLAN_DETAILS[planId] : null;
-  const isYearly = interval === "yearly";
-  const displayPrice = plan
-    ? isYearly
-      ? plan.yearlyPrice
-      : plan.monthlyPrice
-    : 0;
 
   const inputStyle = {
     border: "1px solid #e8e6e1",
@@ -60,6 +36,19 @@ function SignupContent() {
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     e.currentTarget.style.borderColor = "#e8e6e1";
   };
+
+  async function linkSubscription() {
+    if (!checkoutSession) return;
+    try {
+      await fetch("/api/stripe/link-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: checkoutSession }),
+      });
+    } catch {
+      // Non-fatal — webhook will handle it
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -101,37 +90,31 @@ function SignupContent() {
         return;
       }
 
-      // 3. Redirect to Stripe Checkout
-      const checkoutRes = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId, interval }),
-      });
-
-      const checkoutData = await checkoutRes.json();
-
-      if (!checkoutRes.ok || !checkoutData.url) {
-        setError("Failed to start checkout. Please try again.");
-        setLoading(false);
-        return;
+      // 3. If coming from payment, link the subscription
+      if (checkoutSession) {
+        await linkSubscription();
+        // Fire Meta Pixel Purchase event
+        if (typeof window !== "undefined" && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
+          (window as unknown as { fbq: (...args: unknown[]) => void }).fbq("track", "Purchase", {
+            currency: "USD",
+            content_type: "subscription",
+          });
+        }
+        router.push("/dashboard");
+      } else {
+        // No payment session — redirect to pricing
+        router.push("/#pricing");
       }
-
-      // Fire Meta Pixel InitiateCheckout event
-      if (typeof window !== "undefined" && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
-        (window as unknown as { fbq: (...args: unknown[]) => void }).fbq("track", "InitiateCheckout", {
-          value: displayPrice,
-          currency: "USD",
-          content_name: `${planId} plan`,
-        });
-      }
-      window.location.href = checkoutData.url;
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
     }
   }
 
-  if (!plan) return null;
+  // OAuth callback URL — if checkout session exists, pass it through
+  const oauthCallback = checkoutSession
+    ? `/api/stripe/checkout-redirect?checkout_session=${checkoutSession}`
+    : "/dashboard";
 
   return (
     <div className="w-full max-w-md">
@@ -140,8 +123,7 @@ function SignupContent() {
         style={{
           backgroundColor: "#ffffff",
           border: "1px solid #e8e6e1",
-          boxShadow:
-            "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
         }}
       >
         {/* Brand */}
@@ -162,38 +144,26 @@ function SignupContent() {
             className="text-sm tracking-wide"
             style={{ fontFamily: "var(--font-body)", color: "#8a8580" }}
           >
-            Create your account
+            {checkoutSession
+              ? "Payment complete! Create your account to get started."
+              : "Create your account"}
           </p>
         </div>
 
-        {/* Selected plan badge */}
-        <div
-          className="mb-6 rounded-lg p-4 text-center"
-          style={{
-            backgroundColor: "#c4947a10",
-            border: "1px solid #c4947a30",
-          }}
-        >
-          <p
-            className="text-xs font-medium uppercase tracking-widest mb-1"
-            style={{ color: "#8a8580", fontFamily: "var(--font-body)" }}
+        {/* Payment success badge */}
+        {checkoutSession && (
+          <div
+            className="mb-6 rounded-lg p-3 text-center text-sm font-medium"
+            style={{
+              backgroundColor: "#6b8f7110",
+              color: "#6b8f71",
+              border: "1px solid #6b8f7120",
+              fontFamily: "var(--font-body)",
+            }}
           >
-            Selected Plan
-          </p>
-          <p
-            className="text-lg font-bold"
-            style={{ fontFamily: "var(--font-display)", color: "#2c2825" }}
-          >
-            {plan.name} — ${displayPrice}/{isYearly ? "year" : "mo"}
-          </p>
-          <Link
-            href="/#pricing"
-            className="text-xs font-medium transition-colors duration-200"
-            style={{ color: "#c4947a", fontFamily: "var(--font-body)" }}
-          >
-            Change plan
-          </Link>
-        </div>
+            Payment successful! Create your account below.
+          </div>
+        )}
 
         {/* Error */}
         {error && (
@@ -277,7 +247,7 @@ function SignupContent() {
               (e.currentTarget.style.backgroundColor = "#c4947a")
             }
           >
-            {loading ? "Setting up..." : "Continue to Payment"}
+            {loading ? "Setting up..." : checkoutSession ? "Create Account & Go to Dashboard" : "Create Account"}
           </button>
         </form>
 
@@ -303,11 +273,7 @@ function SignupContent() {
         <div className="space-y-3" style={{ fontFamily: "var(--font-body)" }}>
           <button
             type="button"
-            onClick={() =>
-              signIn("google", {
-                callbackUrl: `/api/stripe/checkout-redirect?plan=${planId}&interval=${interval}`,
-              })
-            }
+            onClick={() => signIn("google", { callbackUrl: oauthCallback })}
             className="w-full rounded-lg h-11 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 cursor-pointer"
             style={{
               border: "1px solid #e8e6e1",
@@ -322,33 +288,17 @@ function SignupContent() {
             }
           >
             <svg width="18" height="18" viewBox="0 0 24 24">
-              <path
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
-                fill="#4285F4"
-              />
-              <path
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                fill="#34A853"
-              />
-              <path
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                fill="#FBBC05"
-              />
-              <path
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                fill="#EA4335"
-              />
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
             </svg>
             Continue with Google
           </button>
 
           <button
             type="button"
-            onClick={() =>
-              signIn("facebook", {
-                callbackUrl: `/api/stripe/checkout-redirect?plan=${planId}&interval=${interval}`,
-              })
-            }
+            onClick={() => signIn("facebook", { callbackUrl: oauthCallback })}
             className="w-full rounded-lg h-11 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 cursor-pointer"
             style={{
               border: "1px solid #e8e6e1",
@@ -376,7 +326,7 @@ function SignupContent() {
         >
           Already have an account?{" "}
           <Link
-            href="/login"
+            href={checkoutSession ? `/login?checkout_session=${checkoutSession}` : "/login"}
             className="font-medium transition-colors duration-200"
             style={{ color: "#c4947a" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#b5856b")}
