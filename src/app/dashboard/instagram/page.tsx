@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  instagramAnalysisWorking as mockWorking,
-  instagramAnalysisFlopping as mockFlopping,
-} from "@/lib/mock-data";
+import type { InsightItem } from "@/types";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
 import { useAIInsights } from "@/lib/hooks/useAIInsights";
 import { ConnectAccountCard } from "@/components/ui/ConnectAccountCard";
@@ -116,7 +113,7 @@ export default function InstagramPage() {
 
   const fetchGoal = useCallback(async () => {
     try {
-      const res = await fetch("/api/user/ig-goal");
+      const res = await fetch("/api/user/channel-goal?platform=instagram");
       if (res.ok) {
         const d = await res.json();
         if (d.target) setGoalTarget(d.target);
@@ -131,8 +128,9 @@ export default function InstagramPage() {
   if (loading) return <DashboardSkeleton />;
   if (!connected) return <ConnectAccountCard platform="instagram" />;
 
-  const igWorking = insights?.instagram?.whats_working ?? mockWorking;
-  const igFlopping = insights?.instagram?.whats_flopping ?? mockFlopping;
+  const igWorking: InsightItem[] = insights?.instagram?.whats_working ?? [];
+  const igFlopping: InsightItem[] = insights?.instagram?.whats_flopping ?? [];
+  const hasInsights = igWorking.length > 0 || igFlopping.length > 0;
 
   const profile = data?.profile;
   const posts = data?.posts || [];
@@ -151,10 +149,10 @@ export default function InstagramPage() {
     if (!num || num <= 0) return;
     setGoalTarget(num);
     setEditingGoal(false);
-    await fetch("/api/user/ig-goal", {
+    await fetch("/api/user/channel-goal", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ target: num }),
+      body: JSON.stringify({ platform: "instagram", target: num }),
     });
   };
 
@@ -444,7 +442,7 @@ export default function InstagramPage() {
               <div className="h-3 bg-[#e8e6e1] rounded w-5/6" />
               <div className="h-3 bg-[#e8e6e1] rounded w-4/6" />
             </div>
-          ) : (
+          ) : hasInsights ? (
             <ul className="space-y-3">
               {igWorking.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -460,6 +458,8 @@ export default function InstagramPage() {
                 </li>
               ))}
             </ul>
+          ) : (
+            <p className="text-sm text-text-muted font-body">Click the refresh button to generate AI insights.</p>
           )}
         </Card>
 
@@ -476,7 +476,7 @@ export default function InstagramPage() {
               <div className="h-3 bg-[#e8e6e1] rounded w-5/6" />
               <div className="h-3 bg-[#e8e6e1] rounded w-4/6" />
             </div>
-          ) : (
+          ) : hasInsights ? (
             <ul className="space-y-3">
               {igFlopping.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -492,6 +492,8 @@ export default function InstagramPage() {
                 </li>
               ))}
             </ul>
+          ) : (
+            <p className="text-sm text-text-muted font-body">Click the refresh button to generate AI insights.</p>
           )}
         </Card>
       </div>

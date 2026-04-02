@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
+interface ChannelSummary {
+  platform: string;
+  username: string;
+  followers: number;
+  posts: number;
+  likes: number;
+  goal: number | null;
+}
+
 export async function GET(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
   if (!userId) {
@@ -13,70 +22,127 @@ export async function GET(req: NextRequest) {
   // Check which platforms are connected
   const { data: accounts } = await supabase
     .from("connected_accounts")
-    .select("platform, last_synced")
+    .select("platform, platform_username, last_synced")
     .eq("user_id", userId)
     .eq("status", "active");
 
   const connectedPlatforms = (accounts || []).map((a) => a.platform);
 
-  // Aggregate follower counts
+  // Fetch all platform data + goals in parallel
+  const [
+    igProfileRes, ytChannelRes, fbPageRes, tiktokCacheRes,
+    igPostsRes, ytVideosRes, fbPostsRes,
+    igGoalRes, ytGoalRes, fbGoalRes, tkGoalRes,
+    igCommentsRes, ytCommentsRes,
+    growthDataRes,
+  ] = await Promise.all([
+    supabase.from("instagram_profiles").select("username, follower_count").eq("user_id", userId).single(),
+    supabase.from("youtube_channels").select("title, subscriber_count").eq("user_id", userId).single(),
+    supabase.from("facebook_pages").select("name, followers").eq("user_id", userId).single(),
+    supabase.from("cached_data").select("value").eq("key", `tiktok:${userId}`).single(),
+    supabase.from("instagram_posts").select("likes, comments_count").eq("user_id", userId),
+    supabase.from("youtube_videos").select("likes, comments_count, views").eq("user_id", userId),
+    supabase.from("facebook_posts").select("reactions, comments_count").eq("user_id", userId),
+    supabase.from("cached_data").select("value").eq("key", `goal:instagram:${userId}`).single(),
+    supabase.from("cached_data").select("value").eq("key", `goal:youtube:${userId}`).single(),
+    supabase.from("cached_data").select("value").eq("key", `goal:facebook:${userId}`).single(),
+    supabase.from("cached_data").select("value").eq("key", `goal:tiktok:${userId}`).single(),
+    supabase.from("instagram_comments").select("username, text, timestamp").eq("user_id", userId).order("timestamp", { ascending: false }).limit(3),
+    supabase.from("youtube_comments").select("author, text, published_at").eq("user_id", userId).order("published_at", { ascending: false }).limit(3),
+    supabase.from("instagram_daily_metrics").select("date, follower_count").eq("user_id", userId).gte("date", new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]).order("date", { ascending: true }),
+  ]);
+
+  // Helper to extract goal target
+  const getGoal = (res: { data: { value: unknown } | null }) =>
+    (res.data?.value as Record<string, number>)?.target || null;
+
+  // Build per-channel summaries
+  const channels: ChannelSummary[] = [];
   let totalFollowers = 0;
 
-  const { data: igProfile } = await supabase
-    .from("instagram_profiles")
-    .select("follower_count")
-    .eq("user_id", userId)
-    .single();
-  if (igProfile) totalFollowers += igProfile.follower_count || 0;
+  const igProfile = igProfileRes.data;
+  const igPosts = igPostsRes.data || [];
+  if (igProfile && connectedPlatforms.includes("instagram")) {
+    const followers = igProfile.follower_count || 0;
+    totalFollowers += followers;
+    channels.push({
+      platform: "instagram",
+      username: igProfile.username || "",
+      followers,
+      posts: igPosts.length,
+      likes: igPosts.reduce((s, p) => s + (p.likes || 0), 0),
+      goal: getGoal(igGoalRes),
+    });
+  }
 
-  const { data: ytChannel } = await supabase
-    .from("youtube_channels")
-    .select("subscriber_count")
-    .eq("user_id", userId)
-    .single();
-  if (ytChannel) totalFollowers += ytChannel.subscriber_count || 0;
+  const ytChannel = ytChannelRes.data;
+  const ytVideos = ytVideosRes.data || [];
+  if (ytChannel && connectedPlatforms.includes("youtube")) {
+    const followers = ytChannel.subscriber_count || 0;
+    totalFollowers += followers;
+    channels.push({
+      platform: "youtube",
+      username: ytChannel.title || "",
+      followers,
+      posts: ytVideos.length,
+      likes: ytVideos.reduce((s, v) => s + (v.likes || 0), 0),
+      goal: getGoal(ytGoalRes),
+    });
+  }
 
-  const { data: fbPage } = await supabase
-    .from("facebook_pages")
-    .select("followers")
-    .eq("user_id", userId)
-    .single();
-  if (fbPage) totalFollowers += fbPage.followers || 0;
+  const fbPage = fbPageRes.data;
+  const fbPosts = fbPostsRes.data || [];
+  if (fbPage && connectedPlatforms.includes("facebook")) {
+    const followers = fbPage.followers || 0;
+    totalFollowers += followers;
+    channels.push({
+      platform: "facebook",
+      username: fbPage.name || "",
+      followers,
+      posts: fbPosts.length,
+      likes: fbPosts.reduce((s, p) => s + (p.reactions || 0), 0),
+      goal: getGoal(fbGoalRes),
+    });
+  }
 
-  // Get follower growth data (last 30 days from instagram daily metrics)
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000)
-    .toISOString()
-    .split("T")[0];
-  const { data: growthData } = await supabase
-    .from("instagram_daily_metrics")
-    .select("date, follower_count")
-    .eq("user_id", userId)
-    .gte("date", thirtyDaysAgo)
-    .order("date", { ascending: true });
+  const tiktokData = tiktokCacheRes.data?.value as Record<string, unknown> | null;
+  const tiktokProfile = tiktokData?.profile as Record<string, unknown> | null;
+  const tiktokVideos = (tiktokData?.videos as Array<Record<string, number>>) || [];
+  if (tiktokProfile && connectedPlatforms.includes("tiktok")) {
+    const followers = (tiktokProfile.followers as number) || 0;
+    totalFollowers += followers;
+    channels.push({
+      platform: "tiktok",
+      username: String(tiktokProfile.username || ""),
+      followers,
+      posts: tiktokVideos.length,
+      likes: tiktokVideos.reduce((s, v) => s + (v.likes || 0), 0),
+      goal: getGoal(tkGoalRes),
+    });
+  }
 
-  // Get recent comments from all platforms for "Why We Do This"
-  const { data: igComments } = await supabase
-    .from("instagram_comments")
-    .select("username, text, timestamp")
-    .eq("user_id", userId)
-    .order("timestamp", { ascending: false })
-    .limit(3);
+  // Aggregate totals
+  const totalPosts = channels.reduce((s, c) => s + c.posts, 0);
+  const totalLikes = channels.reduce((s, c) => s + c.likes, 0);
+  const totalEngagements =
+    igPosts.reduce((s, p) => s + (p.likes || 0) + (p.comments_count || 0), 0) +
+    ytVideos.reduce((s, v) => s + (v.likes || 0) + (v.comments_count || 0), 0) +
+    fbPosts.reduce((s, p) => s + (p.reactions || 0) + (p.comments_count || 0), 0);
 
-  const { data: ytComments } = await supabase
-    .from("youtube_comments")
-    .select("author, text, published_at")
-    .eq("user_id", userId)
-    .order("published_at", { ascending: false })
-    .limit(3);
+  const engagementRate =
+    totalFollowers > 0 && totalPosts > 0
+      ? ((totalEngagements / totalPosts / totalFollowers) * 100).toFixed(2)
+      : "0.00";
 
+  // Recent comments
   const recentComments = [
-    ...(igComments || []).map((c) => ({
+    ...(igCommentsRes.data || []).map((c) => ({
       username: c.username,
       platform: "instagram" as const,
       comment: c.text,
       timestamp: c.timestamp,
     })),
-    ...(ytComments || []).map((c) => ({
+    ...(ytCommentsRes.data || []).map((c) => ({
       username: c.author,
       platform: "youtube" as const,
       comment: c.text,
@@ -90,10 +156,11 @@ export async function GET(req: NextRequest) {
     connected: connectedPlatforms.length > 0,
     connectedPlatforms,
     totalFollowers,
-    followerGrowth: growthData || [],
+    totalPosts,
+    totalLikes,
+    engagementRate,
+    channels,
+    followerGrowth: growthDataRes.data || [],
     recentComments: recentComments.slice(0, 4),
-    igProfile: igProfile || null,
-    ytChannel: ytChannel || null,
-    fbPage: fbPage || null,
   });
 }

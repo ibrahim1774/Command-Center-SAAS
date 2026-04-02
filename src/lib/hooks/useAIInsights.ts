@@ -53,12 +53,8 @@ export function useAIInsights(): AIInsightsResult {
 
         if (json.cached && json.insights) {
           setInsights(json.insights);
-          setLoading(false);
-        } else {
-          // Not cached — auto-generate
-          setLoading(false);
-          generate();
         }
+        setLoading(false);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Unknown error");
