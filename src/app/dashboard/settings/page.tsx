@@ -446,7 +446,7 @@ function SettingsContent() {
                             onChange={(e) =>
                               setHandleInputs((prev) => ({ ...prev, [key]: e.target.value }))
                             }
-                            className="h-9 w-40 sm:w-48 rounded-lg border border-card-border bg-page-bg px-3 text-sm outline-none focus:border-accent-primary transition-colors"
+                            className="h-9 w-32 sm:w-44 ml-2 rounded-lg border border-card-border bg-page-bg px-3 text-sm outline-none focus:border-accent-primary transition-colors"
                           />
                           <Button
                             variant="primary"

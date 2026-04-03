@@ -39,6 +39,8 @@ import {
   ArrowRight,
   Flame,
   Calendar,
+  Check,
+  Settings,
 } from "lucide-react";
 
 interface ChannelSummary {
@@ -257,6 +259,62 @@ export default function DashboardPage() {
     refreshing: trendsRefreshing,
     refreshWeekly,
   } = useTrendIntelligence();
+
+  // Quick Setup state
+  const [igHandle, setIgHandle] = useState("");
+  const [igSyncing, setIgSyncing] = useState(false);
+  const [igSyncMsg, setIgSyncMsg] = useState("");
+  const [trendKeywords, setTrendKeywords] = useState("");
+  const [keywordsSaving, setKeywordsSaving] = useState(false);
+  const [keywordsSaved, setKeywordsSaved] = useState(false);
+
+  // Fetch trend keywords on mount
+  useEffect(() => {
+    fetch("/api/user/trend-keywords")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.keywords?.length > 0) setTrendKeywords(d.keywords.join(", "));
+      })
+      .catch(() => {});
+  }, []);
+
+  const syncInstagram = useCallback(async () => {
+    if (!igHandle.trim()) return;
+    setIgSyncing(true);
+    setIgSyncMsg("");
+    try {
+      const res = await fetch("/api/connect/instagram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ handle: igHandle.trim().replace(/^@/, "") }),
+      });
+      if (res.ok) {
+        setIgSyncMsg("Synced! Refresh to see your data.");
+        setIgHandle("");
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setIgSyncMsg(d.error || "Sync failed. Try again.");
+      }
+    } catch {
+      setIgSyncMsg("Something went wrong.");
+    } finally {
+      setIgSyncing(false);
+    }
+  }, [igHandle]);
+
+  const saveKeywords = useCallback(async () => {
+    setKeywordsSaving(true);
+    setKeywordsSaved(false);
+    const keywords = trendKeywords.split(",").map((k) => k.trim()).filter(Boolean);
+    await fetch("/api/user/trend-keywords", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ keywords }),
+    });
+    setKeywordsSaving(false);
+    setKeywordsSaved(true);
+    setTimeout(() => setKeywordsSaved(false), 3000);
+  }, [trendKeywords]);
 
   // Fire Meta Pixel Purchase event after Stripe checkout
   useEffect(() => {
@@ -487,6 +545,87 @@ export default function DashboardPage() {
           </p>
         </Card>
       </section>
+
+      {/* ── QUICK SETUP ── */}
+      <Card padding="md" className="bg-[#faf8f5]">
+        <div className="flex items-center gap-2 mb-4">
+          <Settings className="h-4 w-4 text-accent-primary" />
+          <h3 className="font-display text-base text-text-primary">Quick Setup</h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Instagram Connect */}
+          <div>
+            <label className="block text-xs font-medium text-text-muted uppercase tracking-wider mb-2">
+              Connect Instagram
+            </label>
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full bg-[#E4405F]/10 flex items-center justify-center shrink-0">
+                <Camera className="h-3.5 w-3.5 text-[#E4405F]" />
+              </div>
+              <input
+                type="text"
+                value={igHandle}
+                onChange={(e) => setIgHandle(e.target.value)}
+                placeholder="@username"
+                className="flex-1 h-9 rounded-lg border border-card-border bg-white px-3 text-sm outline-none focus:border-accent-primary transition-colors min-w-0"
+                onKeyDown={(e) => e.key === "Enter" && syncInstagram()}
+              />
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={syncInstagram}
+                disabled={igSyncing || !igHandle.trim()}
+              >
+                {igSyncing ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  "Sync"
+                )}
+              </Button>
+            </div>
+            {igSyncMsg && (
+              <p className={`text-xs mt-1.5 ${igSyncMsg.includes("Synced") ? "text-success" : "text-danger"}`}>
+                {igSyncMsg}
+              </p>
+            )}
+          </div>
+
+          {/* Trend Keywords */}
+          <div>
+            <label className="block text-xs font-medium text-text-muted uppercase tracking-wider mb-2">
+              Trend Keywords
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={trendKeywords}
+                onChange={(e) => setTrendKeywords(e.target.value)}
+                placeholder="e.g. fitness, fashion, tech"
+                className="flex-1 h-9 rounded-lg border border-card-border bg-white px-3 text-sm outline-none focus:border-accent-primary transition-colors min-w-0"
+                onKeyDown={(e) => e.key === "Enter" && saveKeywords()}
+              />
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={saveKeywords}
+                disabled={keywordsSaving}
+              >
+                {keywordsSaving ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : keywordsSaved ? (
+                  <Check className="h-3 w-3" />
+                ) : (
+                  "Save"
+                )}
+              </Button>
+            </div>
+            <p className="text-[10px] text-text-muted mt-1.5">
+              Comma-separated niches to customize your trend report
+            </p>
+          </div>
+        </div>
+      </Card>
 
       {/* ── TREND INTELLIGENCE SECTION ── */}
       <section id="trend-intelligence">

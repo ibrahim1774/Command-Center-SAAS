@@ -31,12 +31,12 @@ export function ConnectAccountCard({ platform }: ConnectAccountCardProps) {
         Connect your {config.label}
       </h3>
       <p className="text-sm text-text-secondary mb-6 max-w-sm mx-auto">
-        Link your {config.label} account to see real analytics, posts, and
-        engagement data on this dashboard.
+        Go to Settings to connect your {config.label} account and start seeing
+        real analytics, posts, and engagement data.
       </p>
-      <a href={`/api/connect/${platform}`}>
+      <a href="/dashboard/settings">
         <Button variant="primary" size="md">
-          Connect {config.label}
+          Go to Settings
         </Button>
       </a>
     </Card>
