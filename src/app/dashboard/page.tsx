@@ -7,6 +7,7 @@ import {
 } from "@/lib/mock-data";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
 import { useAIInsights } from "@/lib/hooks/useAIInsights";
+import { useTrendIntelligence } from "@/lib/hooks/useTrendIntelligence";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -35,6 +36,12 @@ import {
   Play,
   ThumbsUp,
   Music,
+  ArrowRight,
+  Flame,
+  Calendar,
+  Hash,
+  Volume2,
+  UserCheck,
 } from "lucide-react";
 
 interface ChannelSummary {
@@ -61,6 +68,17 @@ interface OverviewData {
     comment: string;
     timestamp: string;
   }>;
+}
+
+function formatRelativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
 }
 
 function fmt(n: number): string {
@@ -235,6 +253,17 @@ declare global {
 export default function DashboardPage() {
   const { data, refetch } = useDashboardData<OverviewData>("/api/dashboard/overview");
   const { insights, generating, regenerate } = useAIInsights();
+  const {
+    daily: trendDaily,
+    weekly: trendWeekly,
+    dailyUpdated: trendDailyUpdated,
+    weeklyUpdated: trendWeeklyUpdated,
+    loading: trendsLoading,
+    refreshing: trendsRefreshing,
+    refreshDaily,
+    refreshWeekly,
+  } = useTrendIntelligence();
+  const [trendTab, setTrendTab] = useState<"hashtags" | "sounds" | "creators">("hashtags");
 
   // Fire Meta Pixel Purchase event after Stripe checkout
   useEffect(() => {
@@ -277,8 +306,153 @@ export default function DashboardPage() {
       }))
     : [];
 
+  const viralScore = trendWeekly?.viralScore ?? 0;
+  const topHashtags = trendDaily?.hashtags?.slice(0, 3) || [];
+  const trendDailyAge = trendDailyUpdated
+    ? formatRelativeTime(trendDailyUpdated)
+    : null;
+
   return (
     <div className="space-y-8">
+      {/* ── HERO TREND BANNER ── */}
+      <section
+        className="rounded-xl p-6 md:p-8"
+        style={{
+          background: "linear-gradient(135deg, #1a1a1a 0%, #2a2420 50%, #1a1a1a 100%)",
+        }}
+      >
+        {trendsLoading ? (
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-white/10 rounded w-40" />
+            <div className="h-8 bg-white/10 rounded w-64" />
+            <div className="flex gap-3 mt-4">
+              <div className="h-8 bg-white/10 rounded-full w-36" />
+              <div className="h-8 bg-white/10 rounded-full w-44" />
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+            {/* Left side */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="h-2 w-2 rounded-full bg-[#6b8f71] animate-pulse" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b8f71]">
+                  Live Trend Intelligence
+                </span>
+              </div>
+              <h2
+                className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-3"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                What&rsquo;s Blowing Up Right Now
+              </h2>
+              <p className="text-sm text-white/50 font-body mb-4 max-w-md">
+                Updated daily from TikTok + weekly across 6 platforms.
+                Act on trends before your competitors even see them.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/80">
+                  <Flame className="h-3 w-3 text-orange-400" />
+                  {trendDailyAge ? `Updated ${trendDailyAge}` : "Awaiting first sync"}
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/80">
+                  <Calendar className="h-3 w-3 text-blue-400" />
+                  Weekly Report: Monday
+                </span>
+              </div>
+            </div>
+
+            {/* Right side */}
+            <div className="w-full md:w-80 shrink-0 space-y-4">
+              {/* Top 3 hashtags */}
+              {topHashtags.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase tracking-widest text-white/40 font-body">
+                    Trending Now
+                  </p>
+                  {topHashtags.map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-xs font-bold text-white/30">
+                          {i + 1}
+                        </span>
+                        <span className="text-sm font-medium text-white truncate">
+                          #{h.name}
+                        </span>
+                        {h.isNew && (
+                          <span className="text-[10px] font-bold text-orange-400">
+                            🔥
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-white/50 shrink-0 ml-2">
+                        {fmt(h.viewCount)} views
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-lg bg-white/5 p-4 text-center">
+                  <p className="text-xs text-white/40">
+                    Click &ldquo;Refresh Now&rdquo; below to load trends
+                  </p>
+                </div>
+              )}
+
+              {/* Viral Score + CTA */}
+              <div className="flex items-center gap-4">
+                {trendWeekly && (
+                  <div className="flex items-center gap-3 rounded-lg bg-white/5 px-4 py-3 flex-1">
+                    <div className="relative h-12 w-12 shrink-0">
+                      <svg viewBox="0 0 36 36" className="h-12 w-12 -rotate-90">
+                        <circle
+                          cx="18"
+                          cy="18"
+                          r="15.9"
+                          fill="none"
+                          stroke="rgba(255,255,255,0.08)"
+                          strokeWidth="3"
+                        />
+                        <circle
+                          cx="18"
+                          cy="18"
+                          r="15.9"
+                          fill="none"
+                          stroke="#c4947a"
+                          strokeWidth="3"
+                          strokeDasharray={`${viralScore} ${100 - viralScore}`}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
+                        {viralScore}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-white/80">Viral Score</p>
+                      <p className="text-[10px] text-white/40">This week</p>
+                    </div>
+                  </div>
+                )}
+                <button
+                  onClick={() => {
+                    const el = document.getElementById("trend-intelligence");
+                    el?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#c4947a] px-4 py-3 text-sm font-medium text-white hover:opacity-90 transition-opacity shrink-0"
+                >
+                  Full Report
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
       {/* ROW 1 — Metric Cards */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card padding="md">
@@ -325,6 +499,306 @@ export default function DashboardPage() {
             {fmt(totalLikes)}
           </p>
         </Card>
+      </section>
+
+      {/* ── TREND INTELLIGENCE SECTION ── */}
+      <section id="trend-intelligence">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-display text-lg text-text-primary">
+            This Week&rsquo;s Trend Intelligence
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* LEFT 2/3: Daily TikTok Trends */}
+          <div className="lg:col-span-2">
+            <Card padding="md" className="h-full">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                <div className="flex items-center gap-2">
+                  <div className="h-7 w-7 rounded-full bg-black/5 flex items-center justify-center">
+                    <Music className="h-3.5 w-3.5 text-text-primary" />
+                  </div>
+                  <h3 className="font-display text-base text-text-primary">
+                    TikTok Daily Trends
+                  </h3>
+                  <Badge variant="info" size="sm">Daily</Badge>
+                </div>
+                <div className="flex items-center gap-3">
+                  {trendDailyUpdated && (
+                    <span className="text-[10px] text-text-muted">
+                      Updated {formatRelativeTime(trendDailyUpdated)}
+                    </span>
+                  )}
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={refreshDaily}
+                    disabled={trendsRefreshing === "daily"}
+                  >
+                    {trendsRefreshing === "daily" ? (
+                      <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-3 w-3 mr-1.5" />
+                    )}
+                    {trendsRefreshing === "daily" ? "Refreshing..." : "Refresh Now"}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex gap-1 rounded-lg bg-[#f0ede8] p-1 mb-4">
+                {([
+                  { key: "hashtags" as const, label: "Hashtags", icon: Hash },
+                  { key: "sounds" as const, label: "Sounds", icon: Volume2 },
+                  { key: "creators" as const, label: "Creators", icon: UserCheck },
+                ]).map(({ key, label, icon: TabIcon }) => (
+                  <button
+                    key={key}
+                    onClick={() => setTrendTab(key)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-xs font-medium transition-all ${
+                      trendTab === key
+                        ? "bg-white text-text-primary shadow-sm"
+                        : "text-text-muted hover:text-text-secondary"
+                    }`}
+                  >
+                    <TabIcon className="h-3 w-3" />
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Tab Content */}
+              {!trendDaily ? (
+                <div className="text-center py-10">
+                  <p className="text-sm text-text-muted font-body">
+                    No trend data yet. Click &ldquo;Refresh Now&rdquo; to pull the latest TikTok trends.
+                  </p>
+                </div>
+              ) : trendTab === "hashtags" ? (
+                <div className="space-y-1.5">
+                  {(trendDaily.hashtags || []).map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#faf8f5] transition-colors"
+                    >
+                      <span className="text-xs font-bold text-text-muted w-5 text-right">
+                        {h.rank || i + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm font-medium text-text-primary">
+                          #{h.name}
+                        </span>
+                      </div>
+                      {h.isNew && (
+                        <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
+                          🔥 NEW
+                        </span>
+                      )}
+                      <span className="text-xs text-text-muted shrink-0">
+                        {fmt(h.viewCount)} views
+                      </span>
+                    </div>
+                  ))}
+                  {trendDaily.hashtags.length === 0 && (
+                    <p className="text-sm text-text-muted text-center py-6">No hashtag data available</p>
+                  )}
+                </div>
+              ) : trendTab === "sounds" ? (
+                <div className="space-y-1.5">
+                  {(trendDaily.sounds || []).map((s, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#faf8f5] transition-colors"
+                    >
+                      <span className="text-xs font-bold text-text-muted w-5 text-right">
+                        {s.rank || i + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-text-primary truncate">
+                          {s.name}
+                        </p>
+                        <p className="text-[10px] text-text-muted truncate">
+                          {s.artist}
+                        </p>
+                      </div>
+                      {s.isNew && (
+                        <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
+                          🔥 NEW
+                        </span>
+                      )}
+                      <span className="text-xs text-text-muted shrink-0">
+                        {fmt(s.useCount)} uses
+                      </span>
+                    </div>
+                  ))}
+                  {trendDaily.sounds.length === 0 && (
+                    <p className="text-sm text-text-muted text-center py-6">No sound data available</p>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  {(trendDaily.creators || []).map((c, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#faf8f5] transition-colors"
+                    >
+                      <span className="text-xs font-bold text-text-muted w-5 text-right">
+                        {c.rank || i + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-text-primary truncate">
+                          @{c.username}
+                        </p>
+                        {c.growth && (
+                          <p className="text-[10px] text-success truncate">
+                            {c.growth}
+                          </p>
+                        )}
+                      </div>
+                      {c.isNew && (
+                        <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
+                          🔥 NEW
+                        </span>
+                      )}
+                      <span className="text-xs text-text-muted shrink-0">
+                        {fmt(c.followers)} followers
+                      </span>
+                    </div>
+                  ))}
+                  {trendDaily.creators.length === 0 && (
+                    <p className="text-sm text-text-muted text-center py-6">No creator data available</p>
+                  )}
+                </div>
+              )}
+            </Card>
+          </div>
+
+          {/* RIGHT 1/3: Weekly Cross-Platform Report */}
+          <div>
+            <Card padding="md" className="h-full">
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-accent-primary" />
+                  <h3 className="font-display text-base text-text-primary">
+                    Weekly Report
+                  </h3>
+                  <Badge variant="info" size="sm">AI-Powered</Badge>
+                </div>
+              </div>
+
+              {!trendWeekly ? (
+                <div className="text-center py-10 space-y-3">
+                  <p className="text-sm text-text-muted font-body">
+                    No weekly report yet.
+                  </p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={refreshWeekly}
+                    disabled={trendsRefreshing === "weekly"}
+                  >
+                    {trendsRefreshing === "weekly" ? (
+                      <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-3 w-3 mr-1.5" />
+                    )}
+                    {trendsRefreshing === "weekly" ? "Generating..." : "Generate Report"}
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  {/* Viral Score Meter */}
+                  <div className="text-center mb-6">
+                    <div className="relative mx-auto h-24 w-24">
+                      <svg viewBox="0 0 36 36" className="h-24 w-24 -rotate-90">
+                        <circle
+                          cx="18"
+                          cy="18"
+                          r="15.9"
+                          fill="none"
+                          stroke="#f0ede8"
+                          strokeWidth="2.5"
+                        />
+                        <circle
+                          cx="18"
+                          cy="18"
+                          r="15.9"
+                          fill="none"
+                          stroke={viralScore >= 70 ? "#6b8f71" : viralScore >= 40 ? "#c4947a" : "#c4626a"}
+                          strokeWidth="2.5"
+                          strokeDasharray={`${viralScore} ${100 - viralScore}`}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-bold font-display text-text-primary">
+                          {viralScore}
+                        </span>
+                        <span className="text-[9px] text-text-muted uppercase tracking-wider">
+                          Score
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-text-muted mt-2 font-body">
+                      Viral Trend Score
+                    </p>
+                  </div>
+
+                  {/* Platform Breakdown */}
+                  {trendWeekly.platforms.length > 0 && (
+                    <div className="mb-5">
+                      <p className="text-[10px] uppercase tracking-widest text-text-muted mb-2 font-body">
+                        Platform Breakdown
+                      </p>
+                      <div className="space-y-2">
+                        {trendWeekly.platforms.map((p, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span className="text-text-secondary font-body truncate">{p.name}</span>
+                            <Badge variant="info" size="sm">{p.trendCount} trends</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI Recommendation */}
+                  {trendWeekly.aiRecommendations.length > 0 && (
+                    <div className="rounded-lg p-3 mb-4" style={{ backgroundColor: "rgba(196, 148, 122, 0.06)", border: "1px solid rgba(196, 148, 122, 0.12)" }}>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-accent-primary mb-1.5">
+                        AI Recommendation
+                      </p>
+                      <p className="text-sm text-text-secondary font-body leading-relaxed">
+                        {trendWeekly.aiRecommendations[0]}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Last updated + Refresh */}
+                  <div className="flex items-center justify-between pt-3 border-t border-card-border">
+                    {trendWeeklyUpdated && (
+                      <span className="text-[10px] text-text-muted">
+                        Updated {formatRelativeTime(trendWeeklyUpdated)}
+                      </span>
+                    )}
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={refreshWeekly}
+                      disabled={trendsRefreshing === "weekly"}
+                    >
+                      {trendsRefreshing === "weekly" ? (
+                        <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-3 w-3 mr-1.5" />
+                      )}
+                      Refresh
+                    </Button>
+                  </div>
+                </>
+              )}
+            </Card>
+          </div>
+        </div>
       </section>
 
       {/* ROW 2 — Your Channels with Goal Trackers */}
