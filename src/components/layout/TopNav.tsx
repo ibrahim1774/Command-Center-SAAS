@@ -117,7 +117,7 @@ export default function TopNav() {
 
               {menuOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-56 rounded-xl border border-card-border bg-card-bg shadow-lg py-2"
+                  className="absolute right-0 mt-2 w-56 rounded-xl border border-card-border bg-card-bg shadow-lg py-2 z-50"
                   style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}
                 >
                   {session?.user && (
