@@ -588,10 +588,20 @@ export default function DashboardPage() {
                         <span className="text-sm font-medium text-text-primary">
                           #{h.name}
                         </span>
+                        {h.videoCount > 0 && (
+                          <span className="text-[10px] text-text-muted ml-2">
+                            {fmt(h.videoCount)} videos
+                          </span>
+                        )}
                       </div>
                       {h.isNew && (
                         <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
                           🔥 NEW
+                        </span>
+                      )}
+                      {h.rankDiff > 0 && (
+                        <span className="text-[10px] font-medium text-success shrink-0">
+                          +{h.rankDiff}
                         </span>
                       )}
                       <span className="text-xs text-text-muted shrink-0">
@@ -645,24 +655,29 @@ export default function DashboardPage() {
                       <span className="text-xs font-bold text-text-muted w-5 text-right">
                         {c.rank || i + 1}
                       </span>
+                      {c.avatar && (
+                        <img
+                          src={c.avatar}
+                          alt={c.username}
+                          className="h-7 w-7 rounded-full object-cover shrink-0"
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        />
+                      )}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-text-primary truncate">
-                          @{c.username}
+                          {c.username}
                         </p>
-                        {c.growth && (
-                          <p className="text-[10px] text-success truncate">
-                            {c.growth}
-                          </p>
-                        )}
                       </div>
-                      {c.isNew && (
-                        <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
-                          🔥 NEW
-                        </span>
+                      {c.profileUrl && (
+                        <a
+                          href={c.profileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] text-accent-primary hover:underline shrink-0"
+                        >
+                          View Profile
+                        </a>
                       )}
-                      <span className="text-xs text-text-muted shrink-0">
-                        {fmt(c.followers)} followers
-                      </span>
                     </div>
                   ))}
                   {trendDaily.creators.length === 0 && (
@@ -754,22 +769,50 @@ export default function DashboardPage() {
                         {trendWeekly.platforms.map((p, i) => (
                           <div key={i} className="flex items-center justify-between text-sm">
                             <span className="text-text-secondary font-body truncate">{p.name}</span>
-                            <Badge variant="info" size="sm">{p.trendCount} trends</Badge>
+                            <div className="flex items-center gap-2">
+                              {p.topTrend && (
+                                <span className="text-[10px] text-text-muted truncate max-w-[80px]">{p.topTrend}</span>
+                              )}
+                              <Badge variant="info" size="sm">{p.trendCount} trends</Badge>
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {/* AI Recommendation */}
+                  {/* Cross-Platform Trends */}
+                  {trendWeekly.topTrends && trendWeekly.topTrends.length > 0 && (
+                    <div className="mb-5">
+                      <p className="text-[10px] uppercase tracking-widest text-text-muted mb-2 font-body">
+                        Cross-Platform Trends
+                      </p>
+                      <div className="space-y-1.5">
+                        {trendWeekly.topTrends.slice(0, 5).map((t, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span className="text-text-primary font-medium font-body truncate">{t.topic}</span>
+                            <span className="text-[10px] text-text-muted shrink-0 ml-2">
+                              {t.platforms.length} platforms
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI Recommendations */}
                   {trendWeekly.aiRecommendations.length > 0 && (
-                    <div className="rounded-lg p-3 mb-4" style={{ backgroundColor: "rgba(196, 148, 122, 0.06)", border: "1px solid rgba(196, 148, 122, 0.12)" }}>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-accent-primary mb-1.5">
-                        AI Recommendation
+                    <div className="space-y-2 mb-4">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-accent-primary">
+                        AI Recommendations
                       </p>
-                      <p className="text-sm text-text-secondary font-body leading-relaxed">
-                        {trendWeekly.aiRecommendations[0]}
-                      </p>
+                      {trendWeekly.aiRecommendations.map((rec, i) => (
+                        <div key={i} className="rounded-lg p-2.5" style={{ backgroundColor: "rgba(196, 148, 122, 0.06)", border: "1px solid rgba(196, 148, 122, 0.12)" }}>
+                          <p className="text-xs text-text-secondary font-body leading-relaxed">
+                            {rec}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   )}
 

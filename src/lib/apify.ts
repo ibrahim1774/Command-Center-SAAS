@@ -253,7 +253,7 @@ export async function scrapeTikTokProfile(
 // ── Trend Intelligence Scrapers ──
 
 export async function scrapeTikTokTrends(): Promise<unknown[]> {
-  return runActor("clockworks~tiktok-trends-scraper", { country: "US" });
+  return runActor("clockworks~tiktok-trends-scraper", { country: "US", maxItems: 20 });
 }
 
 export async function scrapeCrossPlatformTrends(): Promise<unknown[]> {

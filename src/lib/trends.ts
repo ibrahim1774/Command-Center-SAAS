@@ -3,8 +3,10 @@
 export interface TrendHashtag {
   name: string;
   viewCount: number;
+  videoCount: number;
   isNew: boolean;
   rank: number;
+  rankDiff: number;
 }
 
 export interface TrendSound {
@@ -17,8 +19,8 @@ export interface TrendSound {
 
 export interface TrendCreator {
   username: string;
-  followers: number;
-  growth: string;
+  avatar: string;
+  profileUrl: string;
   isNew: boolean;
   rank: number;
 }
@@ -33,13 +35,15 @@ export interface PlatformTrend {
   name: string;
   trendCount: number;
   topTrend: string;
+  avgScore: number;
+  maxScore: number;
 }
 
 export interface WeeklyTrend {
   topic: string;
   platforms: string[];
   score: number;
-  growth: string;
+  recommendation: string;
 }
 
 export interface WeeklyReport {
@@ -47,41 +51,20 @@ export interface WeeklyReport {
   platforms: PlatformTrend[];
   aiRecommendations: string[];
   topTrends: WeeklyTrend[];
-}
-
-// ── Helpers ──
-
-function getStr(obj: Record<string, unknown>, ...keys: string[]): string {
-  for (const k of keys) {
-    const v = obj[k];
-    if (typeof v === "string" && v.length > 0) return v;
-  }
-  return "";
-}
-
-function getNum(obj: Record<string, unknown>, ...keys: string[]): number {
-  for (const k of keys) {
-    const v = obj[k];
-    if (typeof v === "number" && v > 0) return v;
-    if (typeof v === "string") {
-      const n = parseInt(v.replace(/[^0-9]/g, ""), 10);
-      if (n > 0) return n;
-    }
-  }
-  return 0;
-}
-
-function getBool(obj: Record<string, unknown>, ...keys: string[]): boolean {
-  for (const k of keys) {
-    if (obj[k] === true) return true;
-  }
-  return false;
+  insights: string[];
+  topViral: {
+    content: string;
+    author: string;
+    platform: string;
+    trendScore: number;
+    metrics: { views?: number; likes?: number };
+  }[];
 }
 
 // ── Daily Trends Normalizer ──
-// The clockworks~tiktok-trends-scraper may return data in various formats.
-// We try to detect sounds (music fields) and creators (user fields) first,
-// then treat everything else as a hashtag/trend.
+// clockworks~tiktok-trends-scraper returns:
+// [{ id, name, rank, type:"hashtag", viewCount, videoCount, rankDiff,
+//    markedAsNew, relatedCreators:[{avatar, nickName, profileUrl}] }]
 
 export function normalizeDailyTrends(raw: unknown[]): DailyTrends {
   if (!Array.isArray(raw) || raw.length === 0) {
@@ -89,208 +72,198 @@ export function normalizeDailyTrends(raw: unknown[]): DailyTrends {
   }
 
   const hashtags: TrendHashtag[] = [];
-  const sounds: TrendSound[] = [];
   const creators: TrendCreator[] = [];
+  const seenCreators = new Set<string>();
 
   for (const item of raw) {
     if (!item || typeof item !== "object") continue;
     const r = item as Record<string, unknown>;
 
-    // Check for nested structures that some actors use
-    const musicMeta = (r.musicMeta || r.music || r.soundMeta) as Record<string, unknown> | undefined;
-    const authorMeta = (r.authorMeta || r.author) as Record<string, unknown> | undefined;
+    // Extract hashtag
+    const name = (r.name as string) || (r.title as string) || "";
+    if (!name) continue;
 
-    // ── Detect SOUND items ──
-    // Has explicit music/sound fields at top level or nested
-    const hasMusicFields = !!(
-      r.musicId || r.soundId || r.musicTitle || r.musicName ||
-      r.audioTitle || r.soundName ||
-      (musicMeta && typeof musicMeta === "object")
-    );
+    hashtags.push({
+      name,
+      viewCount: (r.viewCount as number) || 0,
+      videoCount: (r.videoCount as number) || 0,
+      isNew: (r.markedAsNew as boolean) || (r.isNew as boolean) || false,
+      rank: (r.rank as number) || hashtags.length + 1,
+      rankDiff: (r.rankDiff as number) || 0,
+    });
 
-    // ── Detect CREATOR items ──
-    // Has explicit user/creator fields (not just an author reference on a post)
-    const hasCreatorFields = !!(
-      (r.uniqueId && r.followerCount) ||
-      (r.username && r.fans) ||
-      (r.nickname && r.followerCount) ||
-      (authorMeta && typeof authorMeta === "object" && (authorMeta as Record<string, unknown>).followerCount)
-    );
+    // Extract related creators from this hashtag
+    const related = r.relatedCreators as unknown[];
+    if (Array.isArray(related)) {
+      for (const c of related) {
+        if (!c || typeof c !== "object") continue;
+        const cr = c as Record<string, unknown>;
+        const nick = (cr.nickName as string) || (cr.nickname as string) || "";
+        if (!nick || seenCreators.has(nick)) continue;
+        seenCreators.add(nick);
 
-    if (hasMusicFields) {
-      const meta = (typeof musicMeta === "object" && musicMeta) ? musicMeta as Record<string, unknown> : r;
-      sounds.push({
-        name: getStr(r, "musicTitle", "musicName", "soundName", "audioTitle", "title", "name") ||
-              (meta !== r ? getStr(meta, "title", "musicName", "name") : ""),
-        artist: getStr(r, "musicAuthor", "musicArtist", "artist", "authorName", "creator") ||
-                (meta !== r ? getStr(meta, "authorName", "artist", "author") : "") || "Unknown",
-        useCount: getNum(r, "useCount", "videoCount", "usageCount", "stats_videoCount", "count") ||
-                  (meta !== r ? getNum(meta, "useCount", "videoCount") : 0),
-        isNew: getBool(r, "isNew", "isBreakout", "breakout", "isNewTrend"),
-        rank: getNum(r, "rank", "position") || sounds.length + 1,
-      });
-    } else if (hasCreatorFields) {
-      const meta = (typeof authorMeta === "object" && authorMeta) ? authorMeta as Record<string, unknown> : r;
-      creators.push({
-        username: getStr(r, "uniqueId", "username", "name", "nickname") ||
-                  (meta !== r ? getStr(meta, "uniqueId", "username", "nickname") : ""),
-        followers: getNum(r, "followerCount", "followers", "fans", "stats_followerCount") ||
-                   (meta !== r ? getNum(meta, "followerCount", "fans") : 0),
-        growth: getStr(r, "growth", "growthRate", "followerGrowth"),
-        isNew: getBool(r, "isNew", "isBreakout", "breakout"),
-        rank: getNum(r, "rank", "position") || creators.length + 1,
-      });
-    } else {
-      // ── Default: treat as HASHTAG/TREND ──
-      const name = getStr(r, "name", "title", "hashtag", "challengeName", "challenge",
-                          "tag", "keyword", "topic", "trend", "text", "query");
-      if (!name && !r.id) continue; // Skip completely empty items
-
-      hashtags.push({
-        name: name || String(r.id || ""),
-        viewCount: getNum(r, "viewCount", "views", "videoCount", "count",
-                          "stats_videoCount", "playCount", "totalViews",
-                          "postsCount", "volume", "searchVolume"),
-        isNew: getBool(r, "isNew", "isBreakout", "breakout", "isNewTrend", "trending"),
-        rank: getNum(r, "rank", "position") || hashtags.length + 1,
-      });
+        creators.push({
+          username: nick,
+          avatar: (cr.avatar as string) || "",
+          profileUrl: (cr.profileUrl as string) || "",
+          isNew: false,
+          rank: creators.length + 1,
+        });
+      }
     }
   }
 
+  // Actor doesn't return sounds — leave empty
   return {
     hashtags: hashtags.slice(0, 30),
-    sounds: sounds.slice(0, 30),
+    sounds: [],
     creators: creators.slice(0, 30),
   };
 }
 
 // ── Weekly Report Normalizer ──
-// The manju4k~social-media-trend-scraper-6-in-1-ai-analysis actor
-// may return structured reports or flat trend items.
+// manju4k~social-media-trend-scraper-6-in-1-ai-analysis returns:
+// [{ trends: { tiktok: { items, totalFound, topHashtags }, instagram: {...}, ... },
+//    insights: string[],
+//    recommendations: [{ action, platform, priority, expectedROI }],
+//    comparisonAnalysis: { platformMetrics, crossPlatformTrends, viralContent },
+//    metadata: { platforms, totalPlatforms } }]
 
 export function normalizeWeeklyReport(raw: unknown[]): WeeklyReport {
   if (!Array.isArray(raw) || raw.length === 0) {
-    return { viralScore: 0, platforms: [], aiRecommendations: [], topTrends: [] };
+    return { viralScore: 0, platforms: [], aiRecommendations: [], topTrends: [], insights: [], topViral: [] };
   }
 
   const first = raw[0] as Record<string, unknown>;
 
-  // ── Try structured report format ──
-  let viralScore = getNum(first, "viralScore", "viral_score", "score", "trendScore", "overallScore");
-  let platforms: PlatformTrend[] = [];
-  let aiRecommendations: string[] = [];
-  let topTrends: WeeklyTrend[] = [];
+  // ── Extract platforms from trends object ──
+  const platforms: PlatformTrend[] = [];
+  const trendsObj = first.trends as Record<string, unknown> | undefined;
 
-  // Extract platforms
-  const rawPlatforms = (first.platforms || first.platformBreakdown || first.platformData || first.sources) as unknown[];
-  if (Array.isArray(rawPlatforms)) {
-    platforms = rawPlatforms.map((p) => {
-      const pl = p as Record<string, unknown>;
-      return {
-        name: getStr(pl, "name", "platform", "source", "network"),
-        trendCount: getNum(pl, "trendCount", "count", "trends", "totalTrends", "numTrends"),
-        topTrend: getStr(pl, "topTrend", "top", "topItem", "bestTrend"),
-      };
-    }).filter(p => p.name);
+  if (trendsObj && typeof trendsObj === "object") {
+    for (const [platformName, platformData] of Object.entries(trendsObj)) {
+      if (!platformData || typeof platformData !== "object") continue;
+      const pd = platformData as Record<string, unknown>;
+
+      const topHashtags = pd.topHashtags as { hashtag: string; count: number }[] | undefined;
+      const topHashtag = Array.isArray(topHashtags) && topHashtags.length > 0
+        ? topHashtags[0].hashtag
+        : "";
+
+      platforms.push({
+        name: platformName.charAt(0).toUpperCase() + platformName.slice(1),
+        trendCount: (pd.totalFound as number) || 0,
+        topTrend: topHashtag,
+        avgScore: 0,
+        maxScore: 0,
+      });
+    }
   }
 
-  // Extract AI recommendations from various possible locations
-  const recSources = [
-    first.recommendations, first.aiRecommendations, first.insights,
-    first.suggestions, first.actions, first.tips,
-    first.ai_recommendations, first.ai_insights,
-  ];
-  for (const source of recSources) {
-    if (Array.isArray(source) && aiRecommendations.length === 0) {
-      for (const rec of source) {
-        if (typeof rec === "string" && rec.length > 0) {
-          aiRecommendations.push(rec);
-        } else if (rec && typeof rec === "object") {
-          const r = rec as Record<string, unknown>;
-          const text = getStr(r, "text", "recommendation", "insight", "suggestion", "action", "tip", "content", "description");
-          if (text) aiRecommendations.push(text);
-        }
+  // ── Extract platform metrics for scores ──
+  const comparison = first.comparisonAnalysis as Record<string, unknown> | undefined;
+  const platformMetrics = comparison?.platformMetrics as Record<string, unknown> | undefined;
+
+  if (platformMetrics && typeof platformMetrics === "object") {
+    for (const p of platforms) {
+      const key = p.name.toLowerCase();
+      const metrics = platformMetrics[key] as Record<string, unknown> | undefined;
+      if (metrics) {
+        p.avgScore = (metrics.avgTrendScore as number) || 0;
+        p.maxScore = (metrics.maxTrendScore as number) || 0;
       }
     }
   }
 
-  // Try top-level text fields for recommendations
-  if (aiRecommendations.length === 0) {
-    for (const key of ["aiAnalysis", "ai_analysis", "summary", "analysis", "recommendation", "insight", "description", "content"]) {
-      const val = first[key];
-      if (typeof val === "string" && val.length > 10) {
-        aiRecommendations.push(val);
-        break;
+  // ── Compute viral score (0-100) ──
+  // Use the highest maxTrendScore across platforms, normalize to 0-100
+  const allMaxScores = platforms.map(p => p.maxScore).filter(s => s > 0);
+  let viralScore = 0;
+  if (allMaxScores.length > 0) {
+    const highest = Math.max(...allMaxScores);
+    // Scale: 1M+ = 100, log scale for lower values
+    if (highest > 0) {
+      viralScore = Math.min(100, Math.round(Math.log10(highest) / Math.log10(10000000) * 100));
+    }
+  }
+
+  // ── Extract recommendations ──
+  const aiRecommendations: string[] = [];
+  const recs = first.recommendations as unknown[];
+  if (Array.isArray(recs)) {
+    for (const rec of recs) {
+      if (!rec || typeof rec !== "object") continue;
+      const r = rec as Record<string, unknown>;
+      const action = (r.action as string) || "";
+      const platform = (r.platform as string) || "";
+      const priority = (r.priority as string) || "";
+      if (action) {
+        const prefix = platform ? `[${platform.toUpperCase()}${priority === "high" ? " — HIGH" : ""}] ` : "";
+        aiRecommendations.push(`${prefix}${action}`);
       }
     }
   }
 
-  // Extract top trends
-  const trendSources = first.topTrends || first.trends || first.trendData || first.items || first.results;
-  if (Array.isArray(trendSources)) {
-    topTrends = (trendSources as Record<string, unknown>[]).slice(0, 10).map((t) => ({
-      topic: getStr(t, "topic", "title", "name", "keyword", "trend", "text", "query"),
-      platforms: Array.isArray(t.platforms)
-        ? (t.platforms as string[])
-        : [getStr(t, "platform", "source", "network") || "Unknown"],
-      score: getNum(t, "score", "viralScore", "viral_score", "trendScore", "popularity", "engagement"),
-      growth: getStr(t, "growth", "growthRate", "change", "trend"),
-    })).filter(t => t.topic);
-  }
-
-  // ── Fallback: if no structured data, build from individual items ──
-  if (platforms.length === 0 && topTrends.length === 0) {
-    const platformMap = new Map<string, { count: number; top: string; scores: number[] }>();
-
-    for (const item of raw) {
-      if (!item || typeof item !== "object") continue;
-      const r = item as Record<string, unknown>;
-
-      const platform = getStr(r, "platform", "source", "network", "socialMedia", "social_media") || "Unknown";
-      const title = getStr(r, "title", "name", "topic", "keyword", "trend", "text", "query", "hashtag");
-      const score = getNum(r, "score", "viralScore", "viral_score", "trendScore", "popularity",
-                           "engagement", "engagementRate", "volume", "searchVolume");
-
-      const existing = platformMap.get(platform) || { count: 0, top: "", scores: [] };
-      existing.count++;
-      if (!existing.top && title) existing.top = title;
-      if (score > 0) existing.scores.push(score);
-      platformMap.set(platform, existing);
-
-      if (title) {
-        topTrends.push({
-          topic: title,
-          platforms: [platform],
-          score,
-          growth: getStr(r, "growth", "growthRate", "change", "trend"),
-        });
-      }
-
-      // Collect recommendation text from individual items
-      const desc = getStr(r, "description", "analysis", "insight", "recommendation", "summary", "content", "aiAnalysis");
-      if (desc && desc.length > 15 && aiRecommendations.length < 5) {
-        aiRecommendations.push(desc);
-      }
-    }
-
-    for (const [name, data] of platformMap) {
-      platforms.push({ name, trendCount: data.count, topTrend: data.top });
-    }
-
-    // Compute viral score from collected scores
-    const allScores = [...platformMap.values()].flatMap(d => d.scores);
-    if (!viralScore && allScores.length > 0) {
-      viralScore = Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length);
+  // ── Extract insights ──
+  const rawInsights = first.insights as unknown[];
+  const insights: string[] = [];
+  if (Array.isArray(rawInsights)) {
+    for (const ins of rawInsights) {
+      if (typeof ins === "string" && ins.length > 0) insights.push(ins);
     }
   }
 
-  // Ensure viral score is in 0-100 range
-  if (viralScore > 100) viralScore = Math.min(100, Math.round(viralScore / 10));
-  viralScore = Math.min(100, Math.max(0, viralScore));
+  // If no recommendations, fall back to insights
+  if (aiRecommendations.length === 0 && insights.length > 0) {
+    aiRecommendations.push(...insights.slice(0, 5));
+  }
 
-  // If still no viral score, generate one from data density
-  if (!viralScore && topTrends.length > 0) {
-    viralScore = Math.min(100, topTrends.length * 8);
+  // Also pull from comparisonAnalysis.insights
+  const compInsights = comparison?.insights as unknown[];
+  if (Array.isArray(compInsights)) {
+    for (const ins of compInsights) {
+      if (typeof ins === "string" && ins.length > 0 && !insights.includes(ins)) {
+        insights.push(ins);
+      }
+    }
+  }
+
+  // ── Extract cross-platform trends ──
+  const topTrends: WeeklyTrend[] = [];
+  const crossPlatformTrends = comparison?.crossPlatformTrends as unknown[];
+  if (Array.isArray(crossPlatformTrends)) {
+    for (const t of crossPlatformTrends) {
+      if (!t || typeof t !== "object") continue;
+      const tr = t as Record<string, unknown>;
+      topTrends.push({
+        topic: (tr.hashtag as string) || (tr.topic as string) || "",
+        platforms: Array.isArray(tr.platforms) ? (tr.platforms as string[]) : [],
+        score: (tr.viralScore as number) || 0,
+        recommendation: (tr.recommendation as string) || "",
+      });
+    }
+  }
+
+  // ── Extract top viral content ──
+  const topViral: WeeklyReport["topViral"] = [];
+  const viralContent = comparison?.viralContent as Record<string, unknown> | undefined;
+  const topViralRaw = viralContent?.topViral as unknown[];
+  if (Array.isArray(topViralRaw)) {
+    for (const v of topViralRaw.slice(0, 5)) {
+      if (!v || typeof v !== "object") continue;
+      const vr = v as Record<string, unknown>;
+      const metrics = (vr.metrics || {}) as Record<string, unknown>;
+      topViral.push({
+        content: (vr.content as string) || "",
+        author: (vr.author as string) || "",
+        platform: (vr.platform as string) || "",
+        trendScore: (vr.trendScore as number) || 0,
+        metrics: {
+          views: (metrics.views as number) || undefined,
+          likes: (metrics.likes as number) || undefined,
+        },
+      });
+    }
   }
 
   return {
@@ -298,5 +271,7 @@ export function normalizeWeeklyReport(raw: unknown[]): WeeklyReport {
     platforms,
     aiRecommendations: aiRecommendations.slice(0, 5),
     topTrends: topTrends.slice(0, 10),
+    insights: insights.slice(0, 5),
+    topViral,
   };
 }
