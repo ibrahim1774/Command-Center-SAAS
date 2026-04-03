@@ -93,29 +93,35 @@ async function resolvePriceIds(): Promise<ResolvedPrices> {
       for (const price of prices.data) {
         if (!price.unit_amount || !price.recurring) continue;
 
-        // Get product name to match against our plans
+        // Only match prices from Nurplix products
         const product = price.product as Stripe.Product;
         const productName = product?.name?.toLowerCase() || "";
+
+        // Skip prices from unrelated products
+        const isNurplixProduct =
+          productName.includes("nurplix") ||
+          productName.includes("hobby") ||
+          productName.includes("starter");
+        const isProProduct =
+          productName.includes("nurplix") && productName.includes("pro");
+        const isHobbyProduct =
+          isNurplixProduct && !productName.includes("pro");
+
+        if (!isNurplixProduct && !productName.includes("pro")) continue;
+
+        // Extra safety: skip if product name contains unrelated keywords
+        if (productName.includes("voice") || productName.includes("ai voice")) continue;
 
         const amount = price.unit_amount;
         const interval = price.recurring.interval;
 
-        // Match hobby plan
-        if (productName.includes("hobby") || productName.includes("starter")) {
+        if (isHobbyProduct) {
           if (amount === 900 && interval === "month") result.hobby.monthly = price.id;
           else if (amount === 6000 && interval === "year") result.hobby.yearly = price.id;
         }
-        // Match pro plan
-        else if (productName.includes("pro") || productName.includes("premium")) {
+        if (isProProduct || (productName.includes("pro") && !productName.includes("voice"))) {
           if (amount === 2900 && interval === "month") result.pro.monthly = price.id;
           else if (amount === 19900 && interval === "year") result.pro.yearly = price.id;
-        }
-        // Fallback: match by amount only (no product name filter)
-        else {
-          if (amount === 900 && interval === "month" && !result.hobby.monthly) result.hobby.monthly = price.id;
-          else if (amount === 6000 && interval === "year" && !result.hobby.yearly) result.hobby.yearly = price.id;
-          else if (amount === 2900 && interval === "month" && !result.pro.monthly) result.pro.monthly = price.id;
-          else if (amount === 19900 && interval === "year" && !result.pro.yearly) result.pro.yearly = price.id;
         }
       }
 
