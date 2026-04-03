@@ -70,8 +70,6 @@ const PRICE_MAP: { amount: number; interval: string; plan: PlanId; billing: "mon
 
 async function resolvePriceIds(): Promise<ResolvedPrices> {
   if (_resolvedPrices) return _resolvedPrices;
-
-  // Prevent multiple concurrent resolutions
   if (_resolving) return _resolving;
 
   _resolving = (async () => {
@@ -82,6 +80,7 @@ async function resolvePriceIds(): Promise<ResolvedPrices> {
     };
 
     try {
+      // Step 1: Look for existing prices
       const prices = await stripe.prices.list({
         active: true,
         limit: 100,
@@ -90,26 +89,75 @@ async function resolvePriceIds(): Promise<ResolvedPrices> {
 
       for (const price of prices.data) {
         if (!price.unit_amount || !price.recurring) continue;
-
         const match = PRICE_MAP.find(
-          (m) =>
-            m.amount === price.unit_amount &&
-            m.interval === price.recurring!.interval
+          (m) => m.amount === price.unit_amount && m.interval === price.recurring!.interval
         );
-
         if (match) {
           result[match.plan][match.billing] = price.id;
         }
       }
 
-      console.log("[stripe] Resolved price IDs:", {
-        hobbyMonthly: result.hobby.monthly ? "found" : "MISSING",
-        hobbyYearly: result.hobby.yearly ? "found" : "MISSING",
-        proMonthly: result.pro.monthly ? "found" : "MISSING",
-        proYearly: result.pro.yearly ? "found" : "MISSING",
+      // Step 2: Auto-create missing products & prices
+      if (!result.hobby.monthly || !result.hobby.yearly) {
+        console.log("[stripe] Auto-creating Nurplix Hobby product & prices...");
+        const product = await stripe.products.create({
+          name: "Nurplix Hobby",
+          description: "1 channel (Instagram), full analytics, trending headlines",
+        });
+        if (!result.hobby.monthly) {
+          const p = await stripe.prices.create({
+            product: product.id,
+            unit_amount: 900,
+            currency: "usd",
+            recurring: { interval: "month" },
+          });
+          result.hobby.monthly = p.id;
+        }
+        if (!result.hobby.yearly) {
+          const p = await stripe.prices.create({
+            product: product.id,
+            unit_amount: 6000,
+            currency: "usd",
+            recurring: { interval: "year" },
+          });
+          result.hobby.yearly = p.id;
+        }
+      }
+
+      if (!result.pro.monthly || !result.pro.yearly) {
+        console.log("[stripe] Auto-creating Nurplix Pro product & prices...");
+        const product = await stripe.products.create({
+          name: "Nurplix Pro",
+          description: "All channels, brand deal CRM, goals & task management, priority support",
+        });
+        if (!result.pro.monthly) {
+          const p = await stripe.prices.create({
+            product: product.id,
+            unit_amount: 2900,
+            currency: "usd",
+            recurring: { interval: "month" },
+          });
+          result.pro.monthly = p.id;
+        }
+        if (!result.pro.yearly) {
+          const p = await stripe.prices.create({
+            product: product.id,
+            unit_amount: 19900,
+            currency: "usd",
+            recurring: { interval: "year" },
+          });
+          result.pro.yearly = p.id;
+        }
+      }
+
+      console.log("[stripe] Price IDs ready:", {
+        hobbyMonthly: result.hobby.monthly ? "OK" : "MISSING",
+        hobbyYearly: result.hobby.yearly ? "OK" : "MISSING",
+        proMonthly: result.pro.monthly ? "OK" : "MISSING",
+        proYearly: result.pro.yearly ? "OK" : "MISSING",
       });
     } catch (error) {
-      console.error("[stripe] Failed to resolve price IDs:", error);
+      console.error("[stripe] Failed to resolve/create price IDs:", error);
     }
 
     _resolvedPrices = result;
