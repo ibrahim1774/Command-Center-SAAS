@@ -250,6 +250,10 @@ function getInitials(name: string | null | undefined): string {
   return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
 }
 
+function scrollToPricing() {
+  document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
@@ -279,9 +283,9 @@ export default function LandingPage() {
             <Link href="#features" className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">
               Features
             </Link>
-            <Link href="#pricing" className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">
+            <button onClick={scrollToPricing} className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors cursor-pointer">
               Pricing
-            </Link>
+            </button>
           </div>
 
           <div className="flex items-center gap-3">
@@ -302,12 +306,12 @@ export default function LandingPage() {
                 <Link href="/login" className="hidden sm:inline-flex items-center text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">
                   Sign In
                 </Link>
-                <Link
-                  href="#pricing"
-                  className="rounded-full border border-accent-primary/30 bg-accent-primary/5 px-4 py-2 text-sm font-medium text-accent-primary transition-all hover:bg-accent-primary hover:text-white"
+                <button
+                  onClick={scrollToPricing}
+                  className="rounded-full border border-accent-primary/30 bg-accent-primary/5 px-4 py-2 text-sm font-medium text-accent-primary transition-all hover:bg-accent-primary hover:text-white cursor-pointer"
                 >
                   See Plans
-                </Link>
+                </button>
               </>
             )}
           </div>
@@ -338,13 +342,13 @@ export default function LandingPage() {
 
           <FadeUp delay={0.22}>
             <div className="mt-10">
-              <Link
-                href="#pricing"
-                className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-10 py-4 min-h-[48px] text-lg font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center"
+              <button
+                onClick={scrollToPricing}
+                className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-10 py-4 min-h-[48px] text-lg font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center cursor-pointer"
               >
                 Start Growing Today
                 <ArrowRight className="h-5 w-5" />
-              </Link>
+              </button>
             </div>
           </FadeUp>
 
@@ -414,13 +418,13 @@ export default function LandingPage() {
                 </ul>
 
                 <div className="mt-10">
-                  <Link
-                    href="#pricing"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#c4947a] px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg hover:shadow-[#c4947a]/20"
+                  <button
+                    onClick={scrollToPricing}
+                    className="inline-flex items-center gap-2 rounded-full bg-[#c4947a] px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg hover:shadow-[#c4947a]/20 cursor-pointer"
                   >
                     See It In Action
                     <ArrowRight className="h-5 w-5" />
-                  </Link>
+                  </button>
                 </div>
               </div>
             </FadeUp>
@@ -477,9 +481,9 @@ export default function LandingPage() {
                 <p className="mt-3 text-base leading-relaxed text-text-secondary">
                   Set a follower goal and watch your progress with a visual tracker. See per-post engagement rates, browse your latest posts with thumbnails, and read recent comments — all in one place.
                 </p>
-                <Link href="#pricing" className="mt-4 inline-flex items-center gap-1 text-base font-medium text-accent-primary hover:opacity-80 transition-opacity">
+                <button onClick={scrollToPricing} className="mt-4 inline-flex items-center gap-1 text-base font-medium text-accent-primary hover:opacity-80 transition-opacity cursor-pointer">
                   See what&apos;s included <ArrowRight className="h-4 w-4" />
-                </Link>
+                </button>
               </div>
             </FadeUp>
             <FadeUp delay={0.1}>
@@ -673,13 +677,13 @@ export default function LandingPage() {
               Pick a plan and start growing in minutes.
             </p>
             <div className="mt-10">
-              <Link
-                href="#pricing"
-                className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-10 py-4 min-h-[48px] text-lg font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center"
+              <button
+                onClick={scrollToPricing}
+                className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-10 py-4 min-h-[48px] text-lg font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center cursor-pointer"
               >
                 See Plans
                 <ArrowRight className="h-5 w-5" />
-              </Link>
+              </button>
             </div>
           </FadeUp>
         </div>
