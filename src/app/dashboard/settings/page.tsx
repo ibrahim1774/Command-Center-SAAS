@@ -15,6 +15,7 @@ import {
   Globe,
   Music,
   Loader2,
+  TrendingUp,
 } from "lucide-react";
 import { notificationSettings } from "@/lib/mock-data";
 import { Card } from "@/components/ui/Card";
@@ -96,6 +97,10 @@ function SettingsContent() {
   const [handleInputs, setHandleInputs] = useState<Record<string, string>>({});
   const [syncing, setSyncing] = useState<string | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [trendKeywords, setTrendKeywords] = useState("");
+  const [trendKeywordsLoading, setTrendKeywordsLoading] = useState(true);
+  const [trendKeywordsSaving, setTrendKeywordsSaving] = useState(false);
+  const [trendKeywordsSaved, setTrendKeywordsSaved] = useState(false);
   const handleSync = async (platform: string) => {
     // Use input value, or fall back to stored username for re-sync
     const inputHandle = handleInputs[platform]?.trim();
@@ -198,6 +203,31 @@ function SettingsContent() {
       return () => clearTimeout(timer);
     }
   }, [searchParams, fetchAccounts]);
+
+  // Fetch trend keywords
+  useEffect(() => {
+    fetch("/api/user/trend-keywords")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.keywords?.length > 0) setTrendKeywords(d.keywords.join(", "));
+      })
+      .catch(() => {})
+      .finally(() => setTrendKeywordsLoading(false));
+  }, []);
+
+  const saveTrendKeywords = async () => {
+    setTrendKeywordsSaving(true);
+    setTrendKeywordsSaved(false);
+    const keywords = trendKeywords.split(",").map((k) => k.trim()).filter(Boolean);
+    await fetch("/api/user/trend-keywords", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ keywords }),
+    });
+    setTrendKeywordsSaving(false);
+    setTrendKeywordsSaved(true);
+    setTimeout(() => setTrendKeywordsSaved(false), 3000);
+  };
 
   // Instagram multi-account picker
   useEffect(() => {
@@ -636,6 +666,60 @@ function SettingsContent() {
         <p className="text-sm text-text-secondary">
           Deleting your account is permanent and cannot be undone. All data, connected accounts, and analytics history will be removed.
         </p>
+      </Card>
+
+      {/* Section 6: Trend Intelligence */}
+      <Card padding="lg">
+        <div className="flex items-center gap-2 mb-6">
+          <TrendingUp className="w-5 h-5 text-text-secondary" />
+          <h2 className="font-display text-xl text-text-primary">
+            Trend Intelligence
+          </h2>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1">
+              Trend Keywords
+            </label>
+            <p className="text-xs text-text-muted mb-3">
+              Enter comma-separated keywords or niches to customize your trend reports (e.g. &ldquo;fitness, wellness, gym&rdquo;). Leave empty for general trends. Max 10 keywords.
+            </p>
+            {trendKeywordsLoading ? (
+              <div className="h-11 rounded-lg bg-page-bg animate-pulse" />
+            ) : (
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  value={trendKeywords}
+                  onChange={(e) => setTrendKeywords(e.target.value)}
+                  placeholder="e.g. fitness, fashion, tech, cooking"
+                  className="flex-1 rounded-lg border border-card-border bg-page-bg px-4 h-11 text-sm outline-none focus:border-accent-primary transition-colors"
+                />
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={saveTrendKeywords}
+                  disabled={trendKeywordsSaving}
+                >
+                  {trendKeywordsSaving ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : trendKeywordsSaved ? (
+                    <>
+                      <Check className="h-4 w-4 mr-1" />
+                      Saved
+                    </>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-text-muted">
+            After saving keywords, click &ldquo;Refresh Report&rdquo; on your dashboard to generate a customized trend report.
+          </p>
+        </div>
       </Card>
 
     </div>

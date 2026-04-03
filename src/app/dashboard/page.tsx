@@ -39,8 +39,6 @@ import {
   ArrowRight,
   Flame,
   Calendar,
-  Hash,
-  UserCheck,
 } from "lucide-react";
 
 interface ChannelSummary {
@@ -253,16 +251,12 @@ export default function DashboardPage() {
   const { data, refetch } = useDashboardData<OverviewData>("/api/dashboard/overview");
   const { insights, generating, regenerate } = useAIInsights();
   const {
-    daily: trendDaily,
     weekly: trendWeekly,
-    dailyUpdated: trendDailyUpdated,
     weeklyUpdated: trendWeeklyUpdated,
     loading: trendsLoading,
     refreshing: trendsRefreshing,
-    refreshDaily,
     refreshWeekly,
   } = useTrendIntelligence();
-  const [trendTab, setTrendTab] = useState<"hashtags" | "creators">("hashtags");
 
   // Fire Meta Pixel Purchase event after Stripe checkout
   useEffect(() => {
@@ -306,9 +300,9 @@ export default function DashboardPage() {
     : [];
 
   const viralScore = trendWeekly?.viralScore ?? 0;
-  const topHashtags = trendDaily?.hashtags?.slice(0, 3) || [];
-  const trendDailyAge = trendDailyUpdated
-    ? formatRelativeTime(trendDailyUpdated)
+  const topCrossPlatform = trendWeekly?.topTrends?.slice(0, 3) || [];
+  const trendWeeklyAge = trendWeeklyUpdated
+    ? formatRelativeTime(trendWeeklyUpdated)
     : null;
 
   return (
@@ -346,30 +340,29 @@ export default function DashboardPage() {
                 What&rsquo;s Blowing Up Right Now
               </h2>
               <p className="text-sm text-white/50 font-body mb-4 max-w-md">
-                Updated daily from TikTok + weekly across 6 platforms.
-                Act on trends before your competitors even see them.
+                AI-powered cross-platform trend analysis across TikTok, Instagram, YouTube, Reddit, and Twitter.
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/80">
                   <Flame className="h-3 w-3 text-orange-400" />
-                  {trendDailyAge ? `Updated ${trendDailyAge}` : "Awaiting first sync"}
+                  {trendWeeklyAge ? `Updated ${trendWeeklyAge}` : "Awaiting first report"}
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/80">
                   <Calendar className="h-3 w-3 text-blue-400" />
-                  Weekly Report: Monday
+                  5 Platforms Tracked
                 </span>
               </div>
             </div>
 
             {/* Right side */}
             <div className="w-full md:w-80 shrink-0 space-y-4">
-              {/* Top 3 hashtags */}
-              {topHashtags.length > 0 ? (
+              {/* Top cross-platform trends */}
+              {topCrossPlatform.length > 0 ? (
                 <div className="space-y-2">
                   <p className="text-[10px] uppercase tracking-widest text-white/40 font-body">
-                    Trending Now
+                    Cross-Platform Trends
                   </p>
-                  {topHashtags.map((h, i) => (
+                  {topCrossPlatform.map((t, i) => (
                     <div
                       key={i}
                       className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2"
@@ -379,16 +372,11 @@ export default function DashboardPage() {
                           {i + 1}
                         </span>
                         <span className="text-sm font-medium text-white truncate">
-                          #{h.name}
+                          {t.topic}
                         </span>
-                        {h.isNew && (
-                          <span className="text-[10px] font-bold text-orange-400">
-                            🔥
-                          </span>
-                        )}
                       </div>
                       <span className="text-xs text-white/50 shrink-0 ml-2">
-                        {fmt(h.viewCount)} views
+                        {t.platforms.length} platforms
                       </span>
                     </div>
                   ))}
@@ -396,7 +384,7 @@ export default function DashboardPage() {
               ) : (
                 <div className="rounded-lg bg-white/5 p-4 text-center">
                   <p className="text-xs text-white/40">
-                    Click &ldquo;Refresh Now&rdquo; below to load trends
+                    Click &ldquo;Generate Report&rdquo; below to load trends
                   </p>
                 </div>
               )}
@@ -508,164 +496,38 @@ export default function DashboardPage() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* LEFT 2/3: Daily TikTok Trends */}
-          <div className="lg:col-span-2">
-            <Card padding="md" className="h-full">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-full bg-black/5 flex items-center justify-center">
-                    <Music className="h-3.5 w-3.5 text-text-primary" />
-                  </div>
-                  <h3 className="font-display text-base text-text-primary">
-                    TikTok Daily Trends
-                  </h3>
-                  <Badge variant="info" size="sm">Daily</Badge>
-                </div>
-                <div className="flex items-center gap-3">
-                  {trendDailyUpdated && (
-                    <span className="text-[10px] text-text-muted">
-                      Updated {formatRelativeTime(trendDailyUpdated)}
-                    </span>
-                  )}
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={refreshDaily}
-                    disabled={trendsRefreshing === "daily"}
-                  >
-                    {trendsRefreshing === "daily" ? (
-                      <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
-                    ) : (
-                      <RefreshCw className="h-3 w-3 mr-1.5" />
-                    )}
-                    {trendsRefreshing === "daily" ? "Refreshing..." : "Refresh Now"}
-                  </Button>
-                </div>
+        <div>
+          {/* Weekly Cross-Platform Report — Full Width */}
+          <Card padding="md">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-accent-primary" />
+                <h3 className="font-display text-lg text-text-primary">
+                  Cross-Platform Trend Report
+                </h3>
+                <Badge variant="info" size="sm">AI-Powered</Badge>
               </div>
-
-              {/* Tabs */}
-              <div className="flex gap-1 rounded-lg bg-[#f0ede8] p-1 mb-4">
-                {([
-                  { key: "hashtags" as const, label: "Hashtags", icon: Hash },
-                  { key: "creators" as const, label: "Creators", icon: UserCheck },
-                ]).map(({ key, label, icon: TabIcon }) => (
-                  <button
-                    key={key}
-                    onClick={() => setTrendTab(key)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-xs font-medium transition-all ${
-                      trendTab === key
-                        ? "bg-white text-text-primary shadow-sm"
-                        : "text-text-muted hover:text-text-secondary"
-                    }`}
-                  >
-                    <TabIcon className="h-3 w-3" />
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Tab Content */}
-              {!trendDaily ? (
-                <div className="text-center py-10">
-                  <p className="text-sm text-text-muted font-body">
-                    No trend data yet. Click &ldquo;Refresh Now&rdquo; to pull the latest TikTok trends.
-                  </p>
-                </div>
-              ) : trendTab === "hashtags" ? (
-                <div className="space-y-1.5">
-                  {(trendDaily.hashtags || []).map((h, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#faf8f5] transition-colors"
-                    >
-                      <span className="text-xs font-bold text-text-muted w-5 text-right">
-                        {h.rank || i + 1}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-sm font-medium text-text-primary">
-                          #{h.name}
-                        </span>
-                        {h.videoCount > 0 && (
-                          <span className="text-[10px] text-text-muted ml-2">
-                            {fmt(h.videoCount)} videos
-                          </span>
-                        )}
-                      </div>
-                      {h.isNew && (
-                        <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
-                          🔥 NEW
-                        </span>
-                      )}
-                      {h.rankDiff > 0 && (
-                        <span className="text-[10px] font-medium text-success shrink-0">
-                          +{h.rankDiff}
-                        </span>
-                      )}
-                      <span className="text-xs text-text-muted shrink-0">
-                        {fmt(h.viewCount)} views
-                      </span>
-                    </div>
-                  ))}
-                  {trendDaily.hashtags.length === 0 && (
-                    <p className="text-sm text-text-muted text-center py-6">No hashtag data available</p>
+              <div className="flex items-center gap-3">
+                {trendWeeklyUpdated && (
+                  <span className="text-[10px] text-text-muted">
+                    Updated {formatRelativeTime(trendWeeklyUpdated)}
+                  </span>
+                )}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={refreshWeekly}
+                  disabled={trendsRefreshing}
+                >
+                  {trendsRefreshing ? (
+                    <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3 w-3 mr-1.5" />
                   )}
-                </div>
-              ) : (
-                <div className="space-y-1.5">
-                  {(trendDaily.creators || []).map((c, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#faf8f5] transition-colors"
-                    >
-                      <span className="text-xs font-bold text-text-muted w-5 text-right">
-                        {c.rank || i + 1}
-                      </span>
-                      {c.avatar && (
-                        <img
-                          src={c.avatar}
-                          alt={c.username}
-                          className="h-7 w-7 rounded-full object-cover shrink-0"
-                          onError={(e) => { e.currentTarget.style.display = "none"; }}
-                        />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-text-primary truncate">
-                          {c.username}
-                        </p>
-                      </div>
-                      {c.profileUrl && (
-                        <a
-                          href={c.profileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[10px] text-accent-primary hover:underline shrink-0"
-                        >
-                          View Profile
-                        </a>
-                      )}
-                    </div>
-                  ))}
-                  {trendDaily.creators.length === 0 && (
-                    <p className="text-sm text-text-muted text-center py-6">No creator data available</p>
-                  )}
-                </div>
-              )}
-            </Card>
-          </div>
-
-          {/* RIGHT 1/3: Weekly Cross-Platform Report */}
-          <div>
-            <Card padding="md" className="h-full">
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-accent-primary" />
-                  <h3 className="font-display text-base text-text-primary">
-                    Weekly Report
-                  </h3>
-                  <Badge variant="info" size="sm">AI-Powered</Badge>
-                </div>
+                  {trendsRefreshing ? "Generating..." : "Refresh Report"}
+                </Button>
               </div>
+            </div>
 
               {!trendWeekly ? (
                 <div className="text-center py-10 space-y-3">
@@ -676,14 +538,14 @@ export default function DashboardPage() {
                     variant="secondary"
                     size="sm"
                     onClick={refreshWeekly}
-                    disabled={trendsRefreshing === "weekly"}
+                    disabled={trendsRefreshing}
                   >
-                    {trendsRefreshing === "weekly" ? (
+                    {trendsRefreshing ? (
                       <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
                     ) : (
                       <RefreshCw className="h-3 w-3 mr-1.5" />
                     )}
-                    {trendsRefreshing === "weekly" ? "Generating..." : "Generate Report"}
+                    {trendsRefreshing ? "Generating..." : "Generate Report"}
                   </Button>
                 </div>
               ) : (
@@ -793,9 +655,9 @@ export default function DashboardPage() {
                       variant="secondary"
                       size="sm"
                       onClick={refreshWeekly}
-                      disabled={trendsRefreshing === "weekly"}
+                      disabled={trendsRefreshing}
                     >
-                      {trendsRefreshing === "weekly" ? (
+                      {trendsRefreshing ? (
                         <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
                       ) : (
                         <RefreshCw className="h-3 w-3 mr-1.5" />
@@ -805,8 +667,7 @@ export default function DashboardPage() {
                   </div>
                 </>
               )}
-            </Card>
-          </div>
+          </Card>
         </div>
       </section>
 

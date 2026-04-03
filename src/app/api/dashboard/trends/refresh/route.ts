@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import { scrapeTikTokTrends, scrapeCrossPlatformTrends } from "@/lib/apify";
-import { normalizeDailyTrends, normalizeWeeklyReport } from "@/lib/trends";
+import { scrapeCrossPlatformTrends } from "@/lib/apify";
+import { normalizeWeeklyReport } from "@/lib/trends";
 
 export const maxDuration = 120;
 
@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
   try {
     const { type } = await req.json();
 
-    if (type !== "daily" && type !== "weekly") {
+    if (type !== "weekly") {
       return NextResponse.json(
-        { error: "Invalid type. Must be 'daily' or 'weekly'" },
+        { error: "Invalid type. Must be 'weekly'" },
         { status: 400 }
       );
     }
@@ -25,48 +25,34 @@ export async function POST(req: NextRequest) {
     const supabase = getSupabaseAdmin();
     const now = new Date().toISOString();
 
-    if (type === "daily") {
-      const raw = await scrapeTikTokTrends();
-      const trends = normalizeDailyTrends(raw);
+    // Fetch user's trend keywords if set
+    const { data: keywordsData } = await supabase
+      .from("cached_data")
+      .select("value")
+      .eq("key", `trends:keywords:${userId}`)
+      .single();
 
-      // Store both normalized and raw data
-      await Promise.all([
-        supabase
-          .from("cached_data")
-          .upsert(
-            { key: "trends:daily:global", value: trends, updated_at: now },
-            { onConflict: "key" }
-          ),
-        supabase
-          .from("cached_data")
-          .upsert(
-            { key: "trends:daily:raw", value: raw, updated_at: now },
-            { onConflict: "key" }
-          ),
-      ]);
+    const keywords = keywordsData?.value?.keywords as string[] | undefined;
 
-      return NextResponse.json({ trends, lastUpdated: now, stale: false, _raw: raw });
-    } else {
-      const raw = await scrapeCrossPlatformTrends();
-      const report = normalizeWeeklyReport(raw);
+    const raw = await scrapeCrossPlatformTrends(keywords);
+    const report = normalizeWeeklyReport(raw);
 
-      await Promise.all([
-        supabase
-          .from("cached_data")
-          .upsert(
-            { key: "trends:weekly:global", value: report, updated_at: now },
-            { onConflict: "key" }
-          ),
-        supabase
-          .from("cached_data")
-          .upsert(
-            { key: "trends:weekly:raw", value: raw, updated_at: now },
-            { onConflict: "key" }
-          ),
-      ]);
+    await Promise.all([
+      supabase
+        .from("cached_data")
+        .upsert(
+          { key: "trends:weekly:global", value: report, updated_at: now },
+          { onConflict: "key" }
+        ),
+      supabase
+        .from("cached_data")
+        .upsert(
+          { key: "trends:weekly:raw", value: raw, updated_at: now },
+          { onConflict: "key" }
+        ),
+    ]);
 
-      return NextResponse.json({ report, lastUpdated: now, stale: false, _raw: raw });
-    }
+    return NextResponse.json({ report, lastUpdated: now, stale: false, _raw: raw });
   } catch (error) {
     console.error("Trends refresh error:", error);
     return NextResponse.json(

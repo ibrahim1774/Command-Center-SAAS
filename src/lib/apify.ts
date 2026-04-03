@@ -252,10 +252,11 @@ export async function scrapeTikTokProfile(
 
 // ── Trend Intelligence Scrapers ──
 
-export async function scrapeTikTokTrends(): Promise<unknown[]> {
-  return runActor("clockworks~tiktok-trends-scraper", { country: "US", maxItems: 20 });
-}
-
-export async function scrapeCrossPlatformTrends(): Promise<unknown[]> {
-  return runActor("manju4k~social-media-trend-scraper-6-in-1-ai-analysis", {});
+export async function scrapeCrossPlatformTrends(keywords?: string[]): Promise<unknown[]> {
+  const input: Record<string, unknown> = {};
+  if (keywords && keywords.length > 0) {
+    input.searchTerms = keywords;
+    input.keywords = keywords;
+  }
+  return runActor("manju4k~social-media-trend-scraper-6-in-1-ai-analysis", input);
 }
