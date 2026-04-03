@@ -681,16 +681,6 @@ export default function DashboardPage() {
                                   {fmt(v.metrics.likes)} likes
                                 </span>
                               )}
-                              {v.url && (
-                                <a
-                                  href={v.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-[10px] font-medium text-accent-primary hover:underline ml-auto"
-                                >
-                                  View Original →
-                                </a>
-                              )}
                             </div>
                           </div>
                         ))}
