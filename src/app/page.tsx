@@ -361,105 +361,87 @@ export default function LandingPage() {
       {/* ── TREND INTELLIGENCE MARKETING ── */}
       <section className="py-16 md:py-24 bg-[#1a1a1a]">
         <div className="mx-auto max-w-6xl px-6">
-          <FadeUp>
-            <p className="text-center text-sm font-medium uppercase tracking-[0.2em] text-[#c4947a]">
-              Trend Intelligence
-            </p>
-            <h2
-              className="mt-3 text-center text-3xl font-bold tracking-tight text-white md:text-4xl"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Stop Chasing Trends. Start Leading Them.
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-center text-base text-white/60 leading-relaxed">
-              While your competitors are scrolling for hours trying to figure out
-              what&rsquo;s working, your dashboard tells you every single morning.
-            </p>
-          </FadeUp>
-
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {/* Card 1 */}
-            <FadeUp delay={0}>
-              <div className="rounded-2xl bg-white/[0.04] border border-white/[0.08] p-7 h-full hover:bg-white/[0.06] transition-colors">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#c4947a]/15 mb-5">
-                  <TrendingUp className="h-5 w-5 text-[#c4947a]" />
-                </div>
-                <h3
-                  className="text-xl font-bold text-white mb-3"
+          <div className="grid gap-12 md:grid-cols-2 md:items-center">
+            {/* Left — Copy */}
+            <FadeUp>
+              <div>
+                <p className="text-sm font-medium uppercase tracking-[0.2em] text-[#c4947a] mb-4">
+                  Trend Intelligence
+                </p>
+                <h2
+                  className="text-3xl font-bold tracking-tight text-white md:text-4xl leading-tight"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  Fresh Trends, Every Morning
-                </h3>
-                <p className="text-[15px] leading-relaxed text-white/55">
-                  Wake up to the exact hashtags, sounds, and creators blowing up
-                  on TikTok — updated daily before you&rsquo;ve had your coffee.
-                  No guessing. No scrolling. Just data.
+                  Know What&rsquo;s Going Viral Before Everyone Else
+                </h2>
+                <p className="mt-5 text-base text-white/60 leading-relaxed">
+                  Your AI-powered trend report scans TikTok, Instagram, YouTube,
+                  Reddit, and Twitter — then tells you exactly which hashtags to
+                  use, which content is blowing up, and what to post next.
                 </p>
+
+                <ul className="mt-8 space-y-4">
+                  <li className="flex items-center gap-3">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#c4947a]/15">
+                      <TrendingUp className="h-3.5 w-3.5 text-[#c4947a]" />
+                    </span>
+                    <span className="text-[15px] text-white/80">
+                      Cross-platform viral score tracking
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#c4947a]/15">
+                      <BarChart3 className="h-3.5 w-3.5 text-[#c4947a]" />
+                    </span>
+                    <span className="text-[15px] text-white/80">
+                      AI-generated hashtag recommendations per platform
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#c4947a]/15">
+                      <Sparkles className="h-3.5 w-3.5 text-[#c4947a]" />
+                    </span>
+                    <span className="text-[15px] text-white/80">
+                      See the exact posts going viral right now
+                    </span>
+                  </li>
+                </ul>
+
+                <div className="mt-10">
+                  <Link
+                    href="#pricing"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#c4947a] px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg hover:shadow-[#c4947a]/20"
+                  >
+                    See It In Action
+                    <ArrowRight className="h-5 w-5" />
+                  </Link>
+                </div>
               </div>
             </FadeUp>
 
-            {/* Card 2 */}
-            <FadeUp delay={0.08}>
-              <div className="rounded-2xl bg-white/[0.04] border border-white/[0.08] p-7 h-full hover:bg-white/[0.06] transition-colors">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#c4947a]/15 mb-5">
-                  <BarChart3 className="h-5 w-5 text-[#c4947a]" />
-                </div>
-                <h3
-                  className="text-xl font-bold text-white mb-3"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  6 Platforms. One Report. Zero Effort.
-                </h3>
-                <p className="text-[15px] leading-relaxed text-white/55">
-                  Every Monday, your dashboard delivers an AI-powered trend
-                  report across TikTok, Instagram, YouTube, Twitter, Reddit, and
-                  Pinterest — with viral predictions before content peaks.
-                </p>
-              </div>
-            </FadeUp>
-
-            {/* Card 3 */}
-            <FadeUp delay={0.16}>
-              <div className="rounded-2xl bg-white/[0.04] border border-white/[0.08] p-7 h-full hover:bg-white/[0.06] transition-colors">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#c4947a]/15 mb-5">
-                  <Sparkles className="h-5 w-5 text-[#c4947a]" />
-                </div>
-                <h3
-                  className="text-xl font-bold text-white mb-3"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  Intelligence You Can Actually Use
-                </h3>
-                <p className="text-[15px] leading-relaxed text-white/55">
-                  No raw data dumps. Every report comes with AI-generated
-                  recommendations so you always know the next move — not just
-                  what&rsquo;s trending, but what to do about it.
-                </p>
+            {/* Right — Screenshot */}
+            <FadeUp delay={0.15}>
+              <div className="relative">
+                <img
+                  src="/SCR-20260403-kybm.png"
+                  alt="Cross-Platform Trend Report showing viral score, platform breakdown, AI recommendations, and top viral content"
+                  className="w-full rounded-xl border border-white/[0.08] shadow-2xl shadow-black/40"
+                  loading="lazy"
+                />
               </div>
             </FadeUp>
           </div>
 
-          {/* Bold statement + CTA */}
+          {/* Bold statement */}
           <FadeUp delay={0.24}>
-            <div className="mt-14 text-center">
-              <p
-                className="text-xl font-bold text-white md:text-2xl leading-snug max-w-2xl mx-auto"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Creators using trend intelligence post at the right time, with
-                the right sounds, on the right platforms. That&rsquo;s the
-                difference between 500 views and 500,000.
-              </p>
-              <div className="mt-8">
-                <Link
-                  href="#pricing"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#c4947a] px-10 py-4 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg hover:shadow-[#c4947a]/20"
-                >
-                  See It In Action
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </div>
-            </div>
+            <p
+              className="mt-16 text-center text-xl font-bold text-white md:text-2xl leading-snug max-w-2xl mx-auto"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Creators using trend intelligence post at the right time, with
+              the right sounds, on the right platforms. That&rsquo;s the
+              difference between 500 views and 500,000.
+            </p>
           </FadeUp>
         </div>
       </section>
