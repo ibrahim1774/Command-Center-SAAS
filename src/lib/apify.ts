@@ -253,9 +253,9 @@ export async function scrapeTikTokProfile(
 // ── Trend Intelligence Scrapers ──
 
 export async function scrapeTikTokTrends(): Promise<unknown[]> {
-  return runActor("clockworks/tiktok-trends-scraper", { country: "US" });
+  return runActor("clockworks~tiktok-trends-scraper", { country: "US" });
 }
 
 export async function scrapeCrossPlatformTrends(): Promise<unknown[]> {
-  return runActor("manju4k/social-media-trend-scraper-6-in-1-ai-analysis", {});
+  return runActor("manju4k~social-media-trend-scraper-6-in-1-ai-analysis", {});
 }

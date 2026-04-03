@@ -15,7 +15,6 @@ import {
   Globe,
   Music,
   Loader2,
-  FlaskConical,
 } from "lucide-react";
 import { notificationSettings } from "@/lib/mock-data";
 import { Card } from "@/components/ui/Card";
@@ -97,28 +96,6 @@ function SettingsContent() {
   const [handleInputs, setHandleInputs] = useState<Record<string, string>>({});
   const [syncing, setSyncing] = useState<string | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
-  const [testMode, setTestMode] = useState(false);
-  const [testModeLoading, setTestModeLoading] = useState(true);
-
-  // Fetch test mode status
-  useEffect(() => {
-    fetch("/api/user/test-mode")
-      .then((r) => r.json())
-      .then((d) => setTestMode(d.enabled || false))
-      .catch(() => {})
-      .finally(() => setTestModeLoading(false));
-  }, []);
-
-  const toggleTestMode = async () => {
-    const newValue = !testMode;
-    setTestMode(newValue);
-    await fetch("/api/user/test-mode", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ enabled: newValue }),
-    });
-  };
-
   const handleSync = async (platform: string) => {
     // Use input value, or fall back to stored username for re-sync
     const inputHandle = handleInputs[platform]?.trim();
@@ -661,48 +638,6 @@ function SettingsContent() {
         </p>
       </Card>
 
-      {/* Section 6: Developer Tools */}
-      <Card padding="lg">
-        <div className="flex items-center gap-2 mb-6">
-          <FlaskConical className="w-5 h-5 text-text-secondary" />
-          <h2 className="font-display text-xl text-text-primary">
-            Developer Tools
-          </h2>
-        </div>
-
-        <div className="flex items-center justify-between py-4">
-          <div>
-            <p className="font-medium text-text-primary">Test Mode</p>
-            <p className="text-sm text-text-secondary">
-              Fill all dashboards with sample data for testing. Toggle off to see real data.
-            </p>
-          </div>
-          {testModeLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin text-text-muted" />
-          ) : (
-            <button
-              type="button"
-              role="switch"
-              aria-checked={testMode}
-              onClick={toggleTestMode}
-              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent-primary/40 focus:ring-offset-2 ${
-                testMode ? "bg-accent-primary" : "bg-[#e8e6e1]"
-              }`}
-            >
-              <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out ${
-                  testMode ? "translate-x-[22px]" : "translate-x-0.5"
-                } mt-0.5`}
-              />
-            </button>
-          )}
-        </div>
-        {testMode && (
-          <p className="text-xs text-accent-primary font-medium mt-1">
-            Test mode is active. All dashboards are showing sample data.
-          </p>
-        )}
-      </Card>
     </div>
   );
 }
