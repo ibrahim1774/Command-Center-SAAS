@@ -16,6 +16,7 @@ export function getStripe(): Stripe {
 export const PLANS = {
   hobby: {
     name: "Hobby",
+    productName: "Nurplix Hobby",
     monthlyPrice: 9,
     yearlyPrice: 60,
     monthlyAmountCents: 900,
@@ -31,6 +32,7 @@ export const PLANS = {
   },
   pro: {
     name: "Pro",
+    productName: "Nurplix Pro",
     monthlyPrice: 29,
     yearlyPrice: 199,
     monthlyAmountCents: 2900,
@@ -53,8 +55,6 @@ export type PlanId = keyof typeof PLANS;
 export type BillingInterval = "monthly" | "yearly";
 
 // ── Dynamic Price Resolution ──
-// Fetches active prices from Stripe and matches by amount + interval.
-// Cached in memory so the API is only called once per server boot.
 
 interface ResolvedPrices {
   hobby: { monthly: string | null; yearly: string | null };
@@ -63,22 +63,13 @@ interface ResolvedPrices {
 
 let _resolvedPrices: ResolvedPrices | null = null;
 let _resolving: Promise<ResolvedPrices> | null = null;
-let _resolvedForKey: string | null = null; // Track which key was used
-
-// Amount (cents) + interval → plan mapping
-const PRICE_MAP: { amount: number; interval: string; plan: PlanId; billing: "monthly" | "yearly" }[] = [
-  { amount: 900, interval: "month", plan: "hobby", billing: "monthly" },
-  { amount: 6000, interval: "year", plan: "hobby", billing: "yearly" },
-  { amount: 2900, interval: "month", plan: "pro", billing: "monthly" },
-  { amount: 19900, interval: "year", plan: "pro", billing: "yearly" },
-];
+let _resolvedForKey: string | null = null;
 
 async function resolvePriceIds(): Promise<ResolvedPrices> {
-  // Invalidate cache if the key changed (e.g. switched test/live)
   const currentKey = process.env.STRIPE_SECRET_KEY || "";
   if (_resolvedPrices && _resolvedForKey !== currentKey) {
     _resolvedPrices = null;
-    _stripe = null; // Also reset the Stripe client
+    _stripe = null;
   }
   if (_resolvedPrices) return _resolvedPrices;
   if (_resolving) return _resolving;
@@ -91,44 +82,66 @@ async function resolvePriceIds(): Promise<ResolvedPrices> {
     };
 
     try {
-      // Step 1: Look for existing prices
+      // Step 1: Find existing prices with expanded product info
       const prices = await stripe.prices.list({
         active: true,
         limit: 100,
         type: "recurring",
+        expand: ["data.product"],
       });
 
       for (const price of prices.data) {
         if (!price.unit_amount || !price.recurring) continue;
-        const match = PRICE_MAP.find(
-          (m) => m.amount === price.unit_amount && m.interval === price.recurring!.interval
-        );
-        if (match) {
-          result[match.plan][match.billing] = price.id;
+
+        // Get product name to match against our plans
+        const product = price.product as Stripe.Product;
+        const productName = product?.name?.toLowerCase() || "";
+
+        const amount = price.unit_amount;
+        const interval = price.recurring.interval;
+
+        // Match hobby plan
+        if (productName.includes("hobby") || productName.includes("starter")) {
+          if (amount === 900 && interval === "month") result.hobby.monthly = price.id;
+          else if (amount === 6000 && interval === "year") result.hobby.yearly = price.id;
+        }
+        // Match pro plan
+        else if (productName.includes("pro") || productName.includes("premium")) {
+          if (amount === 2900 && interval === "month") result.pro.monthly = price.id;
+          else if (amount === 19900 && interval === "year") result.pro.yearly = price.id;
+        }
+        // Fallback: match by amount only (no product name filter)
+        else {
+          if (amount === 900 && interval === "month" && !result.hobby.monthly) result.hobby.monthly = price.id;
+          else if (amount === 6000 && interval === "year" && !result.hobby.yearly) result.hobby.yearly = price.id;
+          else if (amount === 2900 && interval === "month" && !result.pro.monthly) result.pro.monthly = price.id;
+          else if (amount === 19900 && interval === "year" && !result.pro.yearly) result.pro.yearly = price.id;
         }
       }
 
-      // Step 2: Auto-create missing products & prices
+      // Step 2: Auto-create only what's missing
+      // First check for existing products to avoid duplicates
+      const products = await stripe.products.list({ active: true, limit: 100 });
+      const existingHobby = products.data.find((p) => p.name.toLowerCase().includes("hobby"));
+      const existingPro = products.data.find((p) => p.name.toLowerCase().includes("pro"));
+
       if (!result.hobby.monthly || !result.hobby.yearly) {
-        console.log("[stripe] Auto-creating Nurplix Hobby product & prices...");
-        const product = await stripe.products.create({
+        const product = existingHobby || await stripe.products.create({
           name: "Nurplix Hobby",
           description: "1 channel (Instagram), full analytics, trending headlines",
         });
+        console.log(`[stripe] Using Hobby product: ${product.id} (${existingHobby ? "existing" : "created"})`);
+
         if (!result.hobby.monthly) {
           const p = await stripe.prices.create({
-            product: product.id,
-            unit_amount: 900,
-            currency: "usd",
+            product: product.id, unit_amount: 900, currency: "usd",
             recurring: { interval: "month" },
           });
           result.hobby.monthly = p.id;
         }
         if (!result.hobby.yearly) {
           const p = await stripe.prices.create({
-            product: product.id,
-            unit_amount: 6000,
-            currency: "usd",
+            product: product.id, unit_amount: 6000, currency: "usd",
             recurring: { interval: "year" },
           });
           result.hobby.yearly = p.id;
@@ -136,40 +149,36 @@ async function resolvePriceIds(): Promise<ResolvedPrices> {
       }
 
       if (!result.pro.monthly || !result.pro.yearly) {
-        console.log("[stripe] Auto-creating Nurplix Pro product & prices...");
-        const product = await stripe.products.create({
+        const product = existingPro || await stripe.products.create({
           name: "Nurplix Pro",
           description: "All channels, brand deal CRM, goals & task management, priority support",
         });
+        console.log(`[stripe] Using Pro product: ${product.id} (${existingPro ? "existing" : "created"})`);
+
         if (!result.pro.monthly) {
           const p = await stripe.prices.create({
-            product: product.id,
-            unit_amount: 2900,
-            currency: "usd",
+            product: product.id, unit_amount: 2900, currency: "usd",
             recurring: { interval: "month" },
           });
           result.pro.monthly = p.id;
         }
         if (!result.pro.yearly) {
           const p = await stripe.prices.create({
-            product: product.id,
-            unit_amount: 19900,
-            currency: "usd",
+            product: product.id, unit_amount: 19900, currency: "usd",
             recurring: { interval: "year" },
           });
           result.pro.yearly = p.id;
         }
       }
 
-      console.log("[stripe] Price IDs ready:", {
-        hobbyMonthly: result.hobby.monthly ? "OK" : "MISSING",
-        hobbyYearly: result.hobby.yearly ? "OK" : "MISSING",
-        proMonthly: result.pro.monthly ? "OK" : "MISSING",
-        proYearly: result.pro.yearly ? "OK" : "MISSING",
+      console.log("[stripe] All price IDs resolved:", {
+        hobbyMonthly: result.hobby.monthly,
+        hobbyYearly: result.hobby.yearly,
+        proMonthly: result.pro.monthly,
+        proYearly: result.pro.yearly,
       });
     } catch (error) {
       console.error("[stripe] Failed to resolve/create price IDs:", error);
-      // Don't cache failed results — allow retry on next request
       _resolving = null;
       return result;
     }
@@ -191,7 +200,6 @@ export async function getPriceId(planId: PlanId, interval: BillingInterval): Pro
 
 export async function getPlanFromPriceId(priceId: string): Promise<PlanId | null> {
   const prices = await resolvePriceIds();
-
   for (const [planKey, planPrices] of Object.entries(prices)) {
     if (planPrices.monthly === priceId || planPrices.yearly === priceId) {
       return planKey as PlanId;
