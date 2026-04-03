@@ -14,7 +14,11 @@ export async function POST(req: NextRequest) {
 
     const priceId = await getPriceId(planId, interval);
     if (!priceId) {
-      return NextResponse.json({ error: "Price not configured" }, { status: 400 });
+      console.error(`[stripe/guest-checkout] No price found for plan=${planId} interval=${interval}. Check that STRIPE_SECRET_KEY is set and valid.`);
+      return NextResponse.json(
+        { error: "Unable to load pricing. Please try again in a moment." },
+        { status: 500 }
+      );
     }
 
     const stripe = getStripe();

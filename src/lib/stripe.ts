@@ -4,7 +4,11 @@ let _stripe: Stripe | null = null;
 
 export function getStripe(): Stripe {
   if (!_stripe) {
-    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      throw new Error("STRIPE_SECRET_KEY environment variable is not set");
+    }
+    _stripe = new Stripe(key);
   }
   return _stripe;
 }
@@ -59,6 +63,7 @@ interface ResolvedPrices {
 
 let _resolvedPrices: ResolvedPrices | null = null;
 let _resolving: Promise<ResolvedPrices> | null = null;
+let _resolvedForKey: string | null = null; // Track which key was used
 
 // Amount (cents) + interval → plan mapping
 const PRICE_MAP: { amount: number; interval: string; plan: PlanId; billing: "monthly" | "yearly" }[] = [
@@ -69,6 +74,12 @@ const PRICE_MAP: { amount: number; interval: string; plan: PlanId; billing: "mon
 ];
 
 async function resolvePriceIds(): Promise<ResolvedPrices> {
+  // Invalidate cache if the key changed (e.g. switched test/live)
+  const currentKey = process.env.STRIPE_SECRET_KEY || "";
+  if (_resolvedPrices && _resolvedForKey !== currentKey) {
+    _resolvedPrices = null;
+    _stripe = null; // Also reset the Stripe client
+  }
   if (_resolvedPrices) return _resolvedPrices;
   if (_resolving) return _resolving;
 
@@ -158,9 +169,13 @@ async function resolvePriceIds(): Promise<ResolvedPrices> {
       });
     } catch (error) {
       console.error("[stripe] Failed to resolve/create price IDs:", error);
+      // Don't cache failed results — allow retry on next request
+      _resolving = null;
+      return result;
     }
 
     _resolvedPrices = result;
+    _resolvedForKey = currentKey;
     _resolving = null;
     return result;
   })();
