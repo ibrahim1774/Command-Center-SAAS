@@ -40,7 +40,6 @@ import {
   Flame,
   Calendar,
   Hash,
-  Volume2,
   UserCheck,
 } from "lucide-react";
 
@@ -263,7 +262,7 @@ export default function DashboardPage() {
     refreshDaily,
     refreshWeekly,
   } = useTrendIntelligence();
-  const [trendTab, setTrendTab] = useState<"hashtags" | "sounds" | "creators">("hashtags");
+  const [trendTab, setTrendTab] = useState<"hashtags" | "creators">("hashtags");
 
   // Fire Meta Pixel Purchase event after Stripe checkout
   useEffect(() => {
@@ -549,7 +548,6 @@ export default function DashboardPage() {
               <div className="flex gap-1 rounded-lg bg-[#f0ede8] p-1 mb-4">
                 {([
                   { key: "hashtags" as const, label: "Hashtags", icon: Hash },
-                  { key: "sounds" as const, label: "Sounds", icon: Volume2 },
                   { key: "creators" as const, label: "Creators", icon: UserCheck },
                 ]).map(({ key, label, icon: TabIcon }) => (
                   <button
@@ -611,38 +609,6 @@ export default function DashboardPage() {
                   ))}
                   {trendDaily.hashtags.length === 0 && (
                     <p className="text-sm text-text-muted text-center py-6">No hashtag data available</p>
-                  )}
-                </div>
-              ) : trendTab === "sounds" ? (
-                <div className="space-y-1.5">
-                  {(trendDaily.sounds || []).map((s, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#faf8f5] transition-colors"
-                    >
-                      <span className="text-xs font-bold text-text-muted w-5 text-right">
-                        {s.rank || i + 1}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-text-primary truncate">
-                          {s.name}
-                        </p>
-                        <p className="text-[10px] text-text-muted truncate">
-                          {s.artist}
-                        </p>
-                      </div>
-                      {s.isNew && (
-                        <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
-                          🔥 NEW
-                        </span>
-                      )}
-                      <span className="text-xs text-text-muted shrink-0">
-                        {fmt(s.useCount)} uses
-                      </span>
-                    </div>
-                  ))}
-                  {trendDaily.sounds.length === 0 && (
-                    <p className="text-sm text-text-muted text-center py-6">No sound data available</p>
                   )}
                 </div>
               ) : (
