@@ -644,6 +644,50 @@ export default function DashboardPage() {
                     </div>
                   )}
 
+                  {/* Top Viral Content */}
+                  {trendWeekly.topViral && trendWeekly.topViral.length > 0 && (
+                    <div className="mb-5">
+                      <p className="text-[10px] uppercase tracking-widest text-text-muted mb-3 font-body">
+                        Top Viral Content
+                      </p>
+                      <div className="space-y-3">
+                        {trendWeekly.topViral.map((v, i) => (
+                          <div
+                            key={i}
+                            className="rounded-lg border border-card-border p-3 hover:bg-[#faf8f5] transition-colors"
+                          >
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant="platform" size="sm">
+                                {v.platform}
+                              </Badge>
+                              <span className="text-xs font-medium text-text-primary">
+                                @{v.author}
+                              </span>
+                              <span className="text-[10px] text-text-muted ml-auto">
+                                Score: {fmt(v.trendScore)}
+                              </span>
+                            </div>
+                            <p className="text-sm text-text-secondary font-body leading-relaxed line-clamp-2">
+                              {v.content}
+                            </p>
+                            <div className="flex items-center gap-4 mt-2">
+                              {v.metrics.views && (
+                                <span className="text-[10px] text-text-muted">
+                                  {fmt(v.metrics.views)} views
+                                </span>
+                              )}
+                              {v.metrics.likes && (
+                                <span className="text-[10px] text-text-muted">
+                                  {fmt(v.metrics.likes)} likes
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Last updated + Refresh */}
                   <div className="flex items-center justify-between pt-3 border-t border-card-border">
                     {trendWeeklyUpdated && (
