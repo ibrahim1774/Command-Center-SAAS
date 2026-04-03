@@ -143,7 +143,7 @@ function PricingSection() {
   ];
 
   return (
-    <section id="pricing" className="py-16 md:py-24 scroll-mt-20">
+    <section id="pricing" className="py-16 md:py-24 scroll-mt-24">
       <div className="mx-auto max-w-4xl px-6">
         <FadeUp>
           <p className="text-center text-sm font-medium uppercase tracking-widest text-accent-primary">
