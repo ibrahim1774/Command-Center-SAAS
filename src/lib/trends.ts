@@ -57,6 +57,7 @@ export interface WeeklyReport {
     author: string;
     platform: string;
     trendScore: number;
+    url: string;
     metrics: { views?: number; likes?: number };
   }[];
 }
@@ -258,6 +259,7 @@ export function normalizeWeeklyReport(raw: unknown[]): WeeklyReport {
         author: (vr.author as string) || "",
         platform: (vr.platform as string) || "",
         trendScore: (vr.trendScore as number) || 0,
+        url: (vr.url as string) || "",
         metrics: {
           views: (metrics.views as number) || undefined,
           likes: (metrics.likes as number) || undefined,
