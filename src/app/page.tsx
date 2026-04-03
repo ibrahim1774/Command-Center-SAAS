@@ -251,7 +251,13 @@ function getInitials(name: string | null | undefined): string {
 }
 
 function scrollToPricing() {
-  document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const el = document.getElementById("pricing");
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+  // Re-scroll after lazy images load and shift the layout
+  setTimeout(() => {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 600);
 }
 
 export default function LandingPage() {
