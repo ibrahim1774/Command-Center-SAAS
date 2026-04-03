@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
         // Get plan
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const priceId = subscription.items.data[0]?.price.id;
-        const plan = getPlanFromPriceId(priceId) || "hobby";
+        const plan = (await getPlanFromPriceId(priceId)) || "hobby";
 
         // Update user and subscription
         await supabase.from("users").update({ plan }).eq("id", userId);
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(`${appUrl}/dashboard`);
     }
 
-    const priceIdVal = getPriceId(planId, interval);
+    const priceIdVal = await getPriceId(planId, interval);
     if (!priceIdVal) {
       return NextResponse.redirect(`${appUrl}/#pricing`);
     }

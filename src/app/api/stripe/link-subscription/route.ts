@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     // Get plan from subscription
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const priceId = subscription.items.data[0]?.price.id;
-    const plan = getPlanFromPriceId(priceId) || "hobby";
+    const plan = (await getPlanFromPriceId(priceId)) || "hobby";
     const price = subscription.items.data[0]?.price.unit_amount;
     const priceUsd = price ? (price / 100).toFixed(2) : "9.00";
 

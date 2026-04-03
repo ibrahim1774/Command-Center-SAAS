@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
           subscriptionId
         );
         const priceId = subscription.items.data[0]?.price.id;
-        const plan = getPlanFromPriceId(priceId) || "free";
+        const plan = (await getPlanFromPriceId(priceId)) || "free";
 
         // Find user by customer email or metadata
         let userId = session.metadata?.userId;
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
         const priceId = subscription.items.data[0]?.price.id;
-        const plan = getPlanFromPriceId(priceId) || "free";
+        const plan = (await getPlanFromPriceId(priceId)) || "free";
 
         await supabase
           .from("subscriptions")

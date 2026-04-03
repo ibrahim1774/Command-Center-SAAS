@@ -98,8 +98,14 @@ function PricingSection() {
         body: JSON.stringify({ planId, interval: yearly ? "yearly" : "monthly" }),
       });
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || "Failed to start checkout. Please try again.");
+        setCheckoutLoading(null);
+      }
     } catch {
+      alert("Something went wrong. Please try again.");
       setCheckoutLoading(null);
     }
   };

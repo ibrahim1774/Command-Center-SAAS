@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
     }
 
-    const priceId = getPriceId(planId, interval);
+    const priceId = await getPriceId(planId, interval);
     if (!priceId) {
       return NextResponse.json({ error: "Price not configured" }, { status: 400 });
     }

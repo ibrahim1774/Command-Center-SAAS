@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
     const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
     const priceId = subscription.items.data[0]?.price.id;
-    const plan = getPlanFromPriceId(priceId) || "hobby";
+    const plan = (await getPlanFromPriceId(priceId)) || "hobby";
     const unitAmount = subscription.items.data[0]?.price.unit_amount;
     const price = unitAmount ? unitAmount / 100 : 9;
 

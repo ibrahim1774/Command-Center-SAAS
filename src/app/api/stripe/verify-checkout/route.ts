@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     // Retrieve subscription to get price details
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const priceId = subscription.items.data[0]?.price.id;
-    const plan = getPlanFromPriceId(priceId) || "hobby";
+    const plan = (await getPlanFromPriceId(priceId)) || "hobby";
 
     // Find user by metadata or customer email
     let userId = session.metadata?.userId;
