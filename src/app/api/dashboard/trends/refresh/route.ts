@@ -29,26 +29,43 @@ export async function POST(req: NextRequest) {
       const raw = await scrapeTikTokTrends();
       const trends = normalizeDailyTrends(raw);
 
-      await supabase
-        .from("cached_data")
-        .upsert(
-          { key: "trends:daily:global", value: trends, updated_at: now },
-          { onConflict: "key" }
-        );
+      // Store both normalized and raw data
+      await Promise.all([
+        supabase
+          .from("cached_data")
+          .upsert(
+            { key: "trends:daily:global", value: trends, updated_at: now },
+            { onConflict: "key" }
+          ),
+        supabase
+          .from("cached_data")
+          .upsert(
+            { key: "trends:daily:raw", value: raw, updated_at: now },
+            { onConflict: "key" }
+          ),
+      ]);
 
-      return NextResponse.json({ trends, lastUpdated: now, stale: false });
+      return NextResponse.json({ trends, lastUpdated: now, stale: false, _raw: raw });
     } else {
       const raw = await scrapeCrossPlatformTrends();
       const report = normalizeWeeklyReport(raw);
 
-      await supabase
-        .from("cached_data")
-        .upsert(
-          { key: "trends:weekly:global", value: report, updated_at: now },
-          { onConflict: "key" }
-        );
+      await Promise.all([
+        supabase
+          .from("cached_data")
+          .upsert(
+            { key: "trends:weekly:global", value: report, updated_at: now },
+            { onConflict: "key" }
+          ),
+        supabase
+          .from("cached_data")
+          .upsert(
+            { key: "trends:weekly:raw", value: raw, updated_at: now },
+            { onConflict: "key" }
+          ),
+      ]);
 
-      return NextResponse.json({ report, lastUpdated: now, stale: false });
+      return NextResponse.json({ report, lastUpdated: now, stale: false, _raw: raw });
     }
   } catch (error) {
     console.error("Trends refresh error:", error);
