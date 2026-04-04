@@ -209,6 +209,9 @@ function PricingSection() {
                     ${(plan.yearlyPrice / 12).toFixed(2)}/mo billed annually
                   </p>
                 )}
+                <p className="mt-2 text-sm font-medium text-success">
+                  Free for 3 days — cancel anytime
+                </p>
 
                 <ul className="mt-7 flex flex-col gap-3.5">
                   {plan.features.map((f) => (
@@ -229,7 +232,7 @@ function PricingSection() {
                         : "border border-card-border text-text-primary hover:border-accent-primary hover:text-accent-primary"
                     }`}
                   >
-                    {checkoutLoading === plan.planId ? "Loading..." : "Get Started"}
+                    {checkoutLoading === plan.planId ? "Loading..." : "Start 3-Day Free Trial"}
                   </button>
                   <p className="mt-2.5 text-center text-sm text-text-muted">Cancel anytime</p>
                 </div>
@@ -316,7 +319,7 @@ export default function LandingPage() {
                   onClick={scrollToPricing}
                   className="rounded-full border border-accent-primary/30 bg-accent-primary/5 px-4 py-2 text-sm font-medium text-accent-primary transition-all hover:bg-accent-primary hover:text-white cursor-pointer"
                 >
-                  See Plans
+                  Start Free Trial
                 </button>
               </>
             )}
@@ -352,7 +355,7 @@ export default function LandingPage() {
                 onClick={scrollToPricing}
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-10 py-4 min-h-[48px] text-lg font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center cursor-pointer"
               >
-                Start Growing Today
+                Start Free Trial
                 <ArrowRight className="h-5 w-5" />
               </button>
             </div>
@@ -428,7 +431,7 @@ export default function LandingPage() {
                     onClick={scrollToPricing}
                     className="inline-flex items-center gap-2 rounded-full bg-[#c4947a] px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg hover:shadow-[#c4947a]/20 cursor-pointer"
                   >
-                    See It In Action
+                    Start Free Trial
                     <ArrowRight className="h-5 w-5" />
                   </button>
                 </div>
@@ -530,7 +533,7 @@ export default function LandingPage() {
           <FadeUp>
             <div className="mt-12 text-center">
               <button onClick={scrollToPricing} className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg cursor-pointer">
-                Get Started <ArrowRight className="h-5 w-5" />
+                Start Free Trial <ArrowRight className="h-5 w-5" />
               </button>
             </div>
           </FadeUp>
@@ -591,7 +594,7 @@ export default function LandingPage() {
           <FadeUp>
             <div className="mt-12 text-center">
               <button onClick={scrollToPricing} className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg cursor-pointer">
-                Get Started <ArrowRight className="h-5 w-5" />
+                Start Free Trial <ArrowRight className="h-5 w-5" />
               </button>
             </div>
           </FadeUp>
@@ -685,7 +688,7 @@ export default function LandingPage() {
           <FadeUp>
             <div className="mt-12 text-center">
               <button onClick={scrollToPricing} className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg cursor-pointer">
-                Get Started <ArrowRight className="h-5 w-5" />
+                Start Free Trial <ArrowRight className="h-5 w-5" />
               </button>
             </div>
           </FadeUp>
@@ -711,7 +714,7 @@ export default function LandingPage() {
                 onClick={scrollToPricing}
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-10 py-4 min-h-[48px] text-lg font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center cursor-pointer"
               >
-                See Plans
+                Start Free Trial
                 <ArrowRight className="h-5 w-5" />
               </button>
             </div>
