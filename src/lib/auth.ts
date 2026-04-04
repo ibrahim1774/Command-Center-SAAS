@@ -75,37 +75,42 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       // For OAuth providers, upsert user in Supabase
       if (account?.provider === "google" || account?.provider === "facebook") {
-        const { data: existingUser } = await getSupabaseAdmin()
-          .from("users")
-          .select("id")
-          .eq("email", user.email!)
-          .single();
-
-        if (existingUser) {
-          // Update existing user
-          await getSupabaseAdmin()
+        try {
+          const { data: existingUser } = await getSupabaseAdmin()
             .from("users")
-            .update({
-              name: user.name,
-              avatar_url: user.image,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", existingUser.id);
-
-          user.id = existingUser.id;
-        } else {
-          // Insert new user
-          const { data: newUser } = await getSupabaseAdmin()
-            .from("users")
-            .insert({
-              email: user.email!,
-              name: user.name,
-              avatar_url: user.image,
-            })
             .select("id")
+            .eq("email", user.email!)
             .single();
 
-          if (newUser) user.id = newUser.id;
+          if (existingUser) {
+            // Update existing user
+            await getSupabaseAdmin()
+              .from("users")
+              .update({
+                name: user.name,
+                avatar_url: user.image,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", existingUser.id);
+
+            user.id = existingUser.id;
+          } else {
+            // Insert new user
+            const { data: newUser } = await getSupabaseAdmin()
+              .from("users")
+              .insert({
+                email: user.email!,
+                name: user.name,
+                avatar_url: user.image,
+              })
+              .select("id")
+              .single();
+
+            if (newUser) user.id = newUser.id;
+          }
+        } catch (error) {
+          console.error("[auth] OAuth user upsert failed:", error);
+          // Still allow sign-in even if DB upsert fails
         }
       }
 

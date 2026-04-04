@@ -26,12 +26,16 @@ function LoginContent() {
 
   // Check for NextAuth error from redirect
   const authError = searchParams.get("error");
-  const errorMessage =
-    authError === "CredentialsSignin"
-      ? "Invalid email or password"
-      : authError
-      ? "Something went wrong. Please try again."
-      : "";
+  const errorMessages: Record<string, string> = {
+    CredentialsSignin: "Invalid email or password",
+    OAuthAccountNotLinked: "This email is already registered with a different sign-in method. Try signing in with your email and password instead.",
+    OAuthCallback: "Could not complete sign-in with your provider. Please try again.",
+    OAuthSignin: "Could not start sign-in with your provider. Please try again.",
+    Callback: "Something went wrong during sign-in. Please try again.",
+  };
+  const errorMessage = authError
+    ? errorMessages[authError] || "Something went wrong. Please try again."
+    : "";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

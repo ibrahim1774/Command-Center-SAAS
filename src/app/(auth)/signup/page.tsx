@@ -125,7 +125,7 @@ function SignupContent() {
   // OAuth callback URL — if checkout session exists, pass it through
   const oauthCallback = checkoutSession
     ? `/api/stripe/checkout-redirect?checkout_session=${checkoutSession}`
-    : "/pricing";
+    : "/api/auth/post-signup";
 
   return (
     <div className="w-full max-w-md">
