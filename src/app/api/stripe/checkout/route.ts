@@ -37,46 +37,37 @@ export async function POST(req: NextRequest) {
       .eq("user_id", userId)
       .single();
 
-    let stripeCustomerId = existingSub?.stripe_customer_id;
-
-    // If no customer exists, create one
-    if (!stripeCustomerId) {
-      const { data: user } = await supabase
-        .from("users")
-        .select("email, name")
-        .eq("id", userId)
-        .single();
-
-      const customer = await stripe.customers.create({
-        email: user?.email || undefined,
-        name: user?.name || undefined,
-        metadata: { userId },
-      });
-
-      stripeCustomerId = customer.id;
-
-      // Upsert the subscription record with the new customer ID
-      await supabase.from("subscriptions").upsert(
-        {
-          user_id: userId,
-          stripe_customer_id: stripeCustomerId,
-          status: "incomplete",
-          plan: "free",
-        },
-        { onConflict: "user_id" }
-      );
-    }
+    const stripeCustomerId = existingSub?.stripe_customer_id;
 
     const appUrl =
       process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "";
 
+    // If user already has a Stripe customer, reuse it.
+    // Otherwise, let Stripe create the customer during checkout
+    // (avoids premature "new customer" alerts before payment).
+    const customerFields: Record<string, unknown> = stripeCustomerId
+      ? { customer: stripeCustomerId }
+      : {};
+
+    // Get user email for Stripe checkout if no existing customer
+    if (!stripeCustomerId) {
+      const { data: user } = await supabase
+        .from("users")
+        .select("email")
+        .eq("id", userId)
+        .single();
+      if (user?.email) {
+        customerFields.customer_email = user.email;
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
-      customer: stripeCustomerId,
+      ...customerFields,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       subscription_data: { trial_period_days: 3 },
       success_url: `${appUrl}/api/stripe/verify-checkout?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/#pricing`,
+      cancel_url: `${appUrl}/pricing`,
       metadata: { userId, planId },
     });
 
