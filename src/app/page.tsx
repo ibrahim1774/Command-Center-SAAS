@@ -526,6 +526,14 @@ export default function LandingPage() {
               </div>
             </FadeUp>
           </div>
+
+          <FadeUp>
+            <div className="mt-12 text-center">
+              <button onClick={scrollToPricing} className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg cursor-pointer">
+                Get Started <ArrowRight className="h-5 w-5" />
+              </button>
+            </div>
+          </FadeUp>
         </div>
       </section>
 
@@ -579,6 +587,14 @@ export default function LandingPage() {
               </FadeUp>
             ))}
           </div>
+
+          <FadeUp>
+            <div className="mt-12 text-center">
+              <button onClick={scrollToPricing} className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg cursor-pointer">
+                Get Started <ArrowRight className="h-5 w-5" />
+              </button>
+            </div>
+          </FadeUp>
         </div>
       </section>
 
@@ -665,6 +681,14 @@ export default function LandingPage() {
               />
             </FadeUp>
           </div>
+
+          <FadeUp>
+            <div className="mt-12 text-center">
+              <button onClick={scrollToPricing} className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg cursor-pointer">
+                Get Started <ArrowRight className="h-5 w-5" />
+              </button>
+            </div>
+          </FadeUp>
         </div>
       </section>
 
