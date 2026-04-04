@@ -322,12 +322,14 @@ export default function DashboardPage() {
     if (params.get("checkout") === "success" && window.fbq) {
       const price = parseFloat(params.get("price") || "9");
       const plan = params.get("plan") || "hobby";
+      const sid = params.get("sid");
+      const eventID = sid ? `purchase_${sid}` : `purchase_${Date.now()}`;
       window.fbq("track", "Purchase", {
         value: price,
         currency: "USD",
         content_name: `${plan} plan`,
         content_type: "subscription",
-      });
+      }, { eventID });
       // Clean up URL so it doesn't re-fire on refresh
       window.history.replaceState({}, "", "/dashboard");
     }

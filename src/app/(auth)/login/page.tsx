@@ -57,7 +57,7 @@ function LoginContent() {
             body: JSON.stringify({ sessionId: checkoutSession }),
           });
           const linkData = await linkRes.json().catch(() => ({}));
-          window.location.href = `/dashboard?checkout=success&plan=${linkData.plan || "hobby"}&price=${linkData.price || "9.00"}`;
+          window.location.href = `/dashboard?checkout=success&plan=${linkData.plan || "hobby"}&price=${linkData.price || "9.00"}&sid=${checkoutSession}`;
         } catch {
           window.location.href = "/dashboard";
         }

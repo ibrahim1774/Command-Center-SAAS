@@ -31,6 +31,7 @@ function SignupContent() {
 
     const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
     if (fbq) {
+      const eventID = `purchase_${checkoutSession}`;
       // Fetch session details to get the actual price
       fetch(`/api/stripe/session-info?session_id=${checkoutSession}`)
         .then((r) => r.json())
@@ -40,11 +41,11 @@ function SignupContent() {
             currency: "USD",
             content_name: `${data.plan || "hobby"} plan`,
             content_type: "subscription",
-          });
+          }, { eventID });
         })
         .catch(() => {
           // Fire with default values if fetch fails
-          fbq("track", "Purchase", { value: 9, currency: "USD", content_type: "subscription" });
+          fbq("track", "Purchase", { value: 9, currency: "USD", content_type: "subscription" }, { eventID });
         });
     }
   }, [checkoutSession]);
