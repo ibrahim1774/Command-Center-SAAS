@@ -113,8 +113,8 @@ function SignupContent() {
         });
         router.push("/dashboard");
       } else {
-        // No payment session — redirect to pricing
-        router.push("/#pricing");
+        // No payment session — redirect to pricing to pick a plan
+        router.push("/pricing");
       }
     } catch {
       setError("Something went wrong. Please try again.");
@@ -125,7 +125,7 @@ function SignupContent() {
   // OAuth callback URL — if checkout session exists, pass it through
   const oauthCallback = checkoutSession
     ? `/api/stripe/checkout-redirect?checkout_session=${checkoutSession}`
-    : "/dashboard";
+    : "/pricing";
 
   return (
     <div className="w-full max-w-md">
@@ -144,12 +144,6 @@ function SignupContent() {
             style={{ fontFamily: "var(--font-display)" }}
           >
             <span className="font-bold">Nurplix</span>
-            <span
-              className="font-normal text-lg block text-[#8a8580] tracking-widest uppercase"
-              style={{ fontSize: "0.7rem" }}
-            >
-              Command Center
-            </span>
           </h1>
           <p
             className="text-sm tracking-wide"
@@ -260,6 +254,11 @@ function SignupContent() {
           >
             {loading ? "Setting up..." : checkoutSession ? "Create Account & Go to Dashboard" : "Create Account"}
           </button>
+          {!checkoutSession && (
+            <p className="mt-2 text-center text-xs" style={{ color: "#8a8580", fontFamily: "var(--font-body)" }}>
+              Then choose your plan and start your 3-day free trial.
+            </p>
+          )}
         </form>
 
         {/* Divider */}

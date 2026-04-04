@@ -56,7 +56,9 @@ export default function PricingPage() {
       if (typeof window !== "undefined" && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
         (window as unknown as { fbq: (...args: unknown[]) => void }).fbq("track", "InitiateCheckout");
       }
-      const res = await fetch("/api/stripe/guest-checkout", {
+      // Use authenticated checkout if logged in, guest checkout otherwise
+      const endpoint = session?.user ? "/api/stripe/checkout" : "/api/stripe/guest-checkout";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId, interval: yearly ? "yearly" : "monthly" }),
@@ -251,7 +253,6 @@ export default function PricingPage() {
               <Link href="/" className="flex items-baseline gap-2">
                 <span className="font-display text-lg font-bold tracking-tight">Nurplix</span>
               </Link>
-              <p className="mt-1 text-sm text-text-muted">Built with love for creators</p>
             </div>
             <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-secondary">
               {[

@@ -155,7 +155,7 @@ export default function LandingPage() {
                   Sign In
                 </Link>
                 <Link
-                  href="/pricing"
+                  href="/signup"
                   className="rounded-full bg-accent-primary px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90"
                 >
                   Try Nurplix Free
@@ -187,7 +187,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
          SECTION 1: HERO
          ══════════════════════════════════════ */}
-      <section ref={heroRef} className="relative overflow-hidden pt-24 pb-12 md:pt-32 md:pb-20">
+      <section ref={heroRef} className="relative overflow-hidden pt-20 pb-8 md:pt-32 md:pb-20">
         <div className="pointer-events-none absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full bg-accent-primary/5" />
 
         <div className="relative mx-auto max-w-6xl px-6">
@@ -202,20 +202,23 @@ export default function LandingPage() {
               </FadeUp>
 
               <FadeUp delay={0.1}>
-                <div className="mt-5 space-y-2.5">
-                  <p className="text-base text-text-secondary leading-relaxed md:text-lg">
+                <div className="mt-4 md:mt-5 space-y-2.5">
+                  <p className="hidden md:block text-base text-text-secondary leading-relaxed md:text-lg">
                     Your followers, engagement, and brand deals — pulled from Instagram, YouTube, TikTok, and Facebook automatically.
                   </p>
-                  <p className="text-base text-text-secondary leading-relaxed md:text-lg">
+                  <p className="hidden md:block text-base text-text-secondary leading-relaxed md:text-lg">
                     Plus AI that tells you exactly what&apos;s working and what&apos;s flopping.
+                  </p>
+                  <p className="md:hidden text-sm text-text-secondary leading-relaxed">
+                    All your analytics, brand deals, and AI insights from Instagram, YouTube, TikTok, and Facebook — in one dashboard.
                   </p>
                 </div>
               </FadeUp>
 
               <FadeUp delay={0.18}>
-                <div className="mt-7">
+                <div className="mt-5 md:mt-7">
                   <Link
-                    href="/pricing"
+                    href="/signup"
                     className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center"
                   >
                     Try Nurplix Free
@@ -228,7 +231,7 @@ export default function LandingPage() {
               </FadeUp>
 
               <FadeUp delay={0.24}>
-                <div className="mt-6">
+                <div className="mt-4 md:mt-6">
                   <PlatformLogos />
                 </div>
               </FadeUp>
@@ -243,7 +246,7 @@ export default function LandingPage() {
                   width={1200}
                   height={800}
                   priority
-                  className="w-full rounded-xl border border-card-border shadow-2xl shadow-black/5"
+                  className="w-full rounded-xl border border-card-border shadow-2xl shadow-black/5 max-h-[220px] md:max-h-none object-cover object-top"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
@@ -585,7 +588,6 @@ export default function LandingPage() {
               <Link href="/" className="flex items-baseline gap-2">
                 <span className="font-display text-lg font-bold tracking-tight">Nurplix</span>
               </Link>
-              <p className="mt-1 text-sm text-text-muted">Built with love for creators</p>
             </div>
 
             <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-secondary">

@@ -84,7 +84,6 @@ function LoginContent() {
             style={{ fontFamily: "var(--font-display)" }}
           >
             <span className="font-bold">Nurplix</span>
-            <span className="font-normal text-lg block text-[#8a8580] tracking-widest uppercase" style={{ fontSize: "0.7rem" }}>Command Center</span>
           </h1>
           <p
             className="text-sm tracking-wide"

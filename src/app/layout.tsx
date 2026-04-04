@@ -18,22 +18,22 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Nurplix — Social Media Command Center for Creators",
+    default: "Nurplix — Analytics, Brand Deals & Goals for Creators",
     template: "%s | Nurplix",
   },
   description:
-    "Nurplix is your social media command center — AI-powered analytics across Instagram, YouTube, and Facebook with brand deal CRM and productivity tools for creators.",
+    "See your Instagram, YouTube, TikTok, and Facebook analytics in one dashboard. Track brand deals, catch trends early, and get AI insights on what's working. Try free for 3 days.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://www.nurplix.com"),
   openGraph: {
-    title: "Nurplix — Social Media Command Center for Creators",
-    description: "AI-powered analytics, brand deal CRM, goal tracking, and journaling for serious creators.",
+    title: "Nurplix — Analytics, Brand Deals & Goals for Creators",
+    description: "See your Instagram, YouTube, TikTok, and Facebook analytics in one dashboard. Track brand deals, catch trends early, and get AI insights on what's working. Try free for 3 days.",
     type: "website",
     siteName: "Nurplix",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nurplix — Social Media Command Center for Creators",
-    description: "AI-powered analytics, brand deal CRM, and productivity tools for creators.",
+    title: "Nurplix — Analytics, Brand Deals & Goals for Creators",
+    description: "See your Instagram, YouTube, TikTok, and Facebook analytics in one dashboard. Track brand deals, catch trends early, and get AI insights on what's working. Try free for 3 days.",
   },
   icons: {
     icon: "/favicon.svg",
