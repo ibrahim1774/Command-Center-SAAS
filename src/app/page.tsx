@@ -197,7 +197,7 @@ export default function LandingPage() {
               <FadeUp>
                 <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.1] tracking-tight text-text-primary">
                   Your social media, brand deals, and goals{" "}
-                  <span className="text-accent-primary">command center.</span>
+                  <span className="text-accent-primary">Claude command center.</span>
                 </h1>
               </FadeUp>
 
@@ -476,7 +476,7 @@ export default function LandingPage() {
         <div className="relative mx-auto max-w-6xl px-6 text-center">
           <FadeUp>
             <h2 className="font-display text-3xl font-bold tracking-tight text-text-primary md:text-4xl">
-              Your command center for analytics, deals, and trends.
+              Your Claude command center for analytics, deals, and trends.
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-lg text-text-secondary">
               Get your first AI insights in under 2 minutes.

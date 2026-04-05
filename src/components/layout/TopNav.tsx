@@ -77,7 +77,7 @@ export default function TopNav() {
               Nurplix
             </span>
             <span className="hidden sm:inline text-xs font-medium uppercase tracking-widest text-text-muted">
-              Command Center
+              Claude Command Center
             </span>
           </Link>
 

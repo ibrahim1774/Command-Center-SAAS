@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Privacy Policy | Nurplix",
-  description: "Privacy Policy for Nurplix — Your Social Media Command Center.",
+  description: "Privacy Policy for Nurplix — Your Social Media Claude Command Center.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -46,11 +46,11 @@ export default function PrivacyPolicyPage() {
               Introduction
             </h2>
             <p className="font-body text-[#6b6b6b] leading-relaxed">
-              Welcome to Command Center, a product by Nurplix. We are a social
+              Welcome to Claude Command Center, a product by Nurplix. We are a social
               media analytics platform designed for creators who want meaningful
               insights into their audience and content performance. This Privacy
               Policy explains how we collect, use, store, and protect your
-              information when you use our services. By using Command Center, you
+              information when you use our services. By using Claude Command Center, you
               agree to the practices described in this policy.
             </p>
           </section>
@@ -127,7 +127,7 @@ export default function PrivacyPolicyPage() {
                 Stripe.
               </li>
               <li>
-                Improve and refine the Command Center platform, including
+                Improve and refine the Claude Command Center platform, including
                 performance, reliability, and feature development.
               </li>
               <li>
@@ -143,7 +143,7 @@ export default function PrivacyPolicyPage() {
               Third-Party Services
             </h2>
             <p className="font-body text-[#6b6b6b] leading-relaxed mb-6">
-              We rely on trusted third-party services to operate Command Center.
+              We rely on trusted third-party services to operate Claude Command Center.
               Each service has its own privacy policy governing how they handle
               your data.
             </p>
@@ -258,7 +258,7 @@ export default function PrivacyPolicyPage() {
                 encrypted before being stored in our database.
               </p>
               <p>
-                All communication between your browser and Command Center is
+                All communication between your browser and Claude Command Center is
                 encrypted via HTTPS.
               </p>
               <p>
@@ -341,7 +341,7 @@ export default function PrivacyPolicyPage() {
             </h2>
             <div className="font-body text-[#6b6b6b] leading-relaxed space-y-3">
               <p>
-                Command Center uses session cookies that are essential for
+                Claude Command Center uses session cookies that are essential for
                 authentication and maintaining your logged-in state. These
                 cookies are strictly necessary for the platform to function.
               </p>

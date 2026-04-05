@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Terms of Service | Nurplix",
-  description: "Terms of Service for Nurplix — Your Social Media Command Center.",
+  description: "Terms of Service for Nurplix — Your Social Media Claude Command Center.",
 };
 
 export default function TermsOfService() {
@@ -33,7 +33,7 @@ export default function TermsOfService() {
           Terms of Service
         </h1>
         <p className="font-body text-[#6b6b6b] text-lg mb-12">
-          Command Center by Nurplix
+          Claude Command Center by Nurplix
         </p>
 
         {/* Last Updated */}
@@ -47,7 +47,7 @@ export default function TermsOfService() {
             1. Acceptance of Terms
           </h2>
           <p className="font-body text-[#6b6b6b] leading-relaxed">
-            By accessing or using Command Center (&quot;the Service&quot;),
+            By accessing or using Claude Command Center (&quot;the Service&quot;),
             operated by Nurplix (&quot;we,&quot; &quot;us,&quot; or
             &quot;our&quot;), you agree to be bound by these Terms of Service.
             If you do not agree to all of these terms, you may not access or use
@@ -62,7 +62,7 @@ export default function TermsOfService() {
             2. Description of Service
           </h2>
           <p className="font-body text-[#6b6b6b] leading-relaxed mb-4">
-            Command Center is a social media analytics dashboard designed for
+            Claude Command Center is a social media analytics dashboard designed for
             creators and businesses. The Service provides the following
             features:
           </p>
@@ -130,7 +130,7 @@ export default function TermsOfService() {
             4. Subscription Plans &amp; Billing
           </h2>
           <p className="font-body text-[#6b6b6b] leading-relaxed mb-4">
-            Command Center offers the following subscription tiers:
+            Claude Command Center offers the following subscription tiers:
           </p>
           <ul className="font-body text-[#6b6b6b] leading-relaxed list-disc pl-6 space-y-2 mb-4">
             <li>
