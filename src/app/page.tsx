@@ -112,10 +112,10 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             {session?.user ? (
               <div className="flex items-center gap-3">
-                <Link href="/dashboard" className="hidden sm:inline text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">
+                <Link href="/dashboard" className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">
                   Dashboard
                 </Link>
-                <button onClick={() => signOut({ callbackUrl: "/" })} className="hidden sm:inline text-sm font-medium text-text-secondary hover:text-text-primary transition-colors cursor-pointer">
+                <button onClick={() => signOut({ callbackUrl: "/" })} className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors cursor-pointer">
                   Sign Out
                 </button>
                 <Link href="/dashboard" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-primary text-xs font-bold text-white overflow-hidden">
@@ -131,7 +131,7 @@ export default function LandingPage() {
                   href="/signup"
                   className="rounded-full bg-accent-primary px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90"
                 >
-                  Try Claude Command Center Free
+                  Try for Free
                 </Link>
               </>
             )}
@@ -150,7 +150,7 @@ export default function LandingPage() {
           href="/signup"
           className="flex w-full items-center justify-center gap-2 rounded-full bg-accent-primary py-3.5 text-base font-semibold text-white"
         >
-          Try Claude Command Center Free <ArrowRight className="h-4 w-4" />
+          Try for Free <ArrowRight className="h-4 w-4" />
         </Link>
       </motion.div>
 
@@ -185,7 +185,7 @@ export default function LandingPage() {
                     href="/signup"
                     className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center"
                   >
-                    Try Claude Command Center Free
+                    Try for Free
                     <ArrowRight className="h-5 w-5" />
                   </Link>
                 </div>
@@ -332,7 +332,7 @@ export default function LandingPage() {
                 href="/signup"
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
               >
-                Try Claude Command Center Free <ArrowRight className="h-5 w-5" />
+                Try for Free <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
           </FadeUp>
@@ -416,7 +416,7 @@ export default function LandingPage() {
                 href="/signup"
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-10 py-4 min-h-[48px] text-lg font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center"
               >
-                Try Claude Command Center Free
+                Try for Free
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
