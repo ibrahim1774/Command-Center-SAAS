@@ -174,7 +174,7 @@ export default function LandingPage() {
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 backdrop-blur-md border-t border-card-border px-4 py-3"
       >
         <Link
-          href="/pricing"
+          href="/signup"
           className="flex w-full items-center justify-center gap-2 rounded-full bg-accent-primary py-3.5 text-base font-semibold text-white"
         >
           Try Nurplix Free <ArrowRight className="h-4 w-4" />
@@ -197,20 +197,14 @@ export default function LandingPage() {
               <FadeUp>
                 <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.1] tracking-tight text-text-primary">
                   Your analytics, brand deals, and goals —{" "}
-                  <span className="text-accent-primary">finally in one dashboard.</span>
+                  <span className="text-accent-primary">in one dashboard.</span>
                 </h1>
               </FadeUp>
 
               <FadeUp delay={0.1}>
                 <div className="mt-4 md:mt-5 space-y-2.5">
-                  <p className="hidden md:block text-base text-text-secondary leading-relaxed md:text-lg">
-                    Your followers, engagement, and brand deals — pulled from Instagram, YouTube, TikTok, and Facebook automatically.
-                  </p>
-                  <p className="hidden md:block text-base text-text-secondary leading-relaxed md:text-lg">
-                    Plus AI that tells you exactly what&apos;s working and what&apos;s flopping.
-                  </p>
-                  <p className="md:hidden text-sm text-text-secondary leading-relaxed">
-                    All your analytics, brand deals, and AI insights from Instagram, YouTube, TikTok, and Facebook — in one dashboard.
+                  <p className="text-base text-text-secondary leading-relaxed md:text-lg">
+                    Pull your followers, engagement, and brand deals from Instagram, YouTube, TikTok, and Facebook — automatically. Plus AI that shows you what&apos;s working and what&apos;s not.
                   </p>
                 </div>
               </FadeUp>
@@ -225,7 +219,7 @@ export default function LandingPage() {
                     <ArrowRight className="h-5 w-5" />
                   </Link>
                   <p className="mt-3 text-sm text-text-muted">
-                    3-day free trial · Cancel in two clicks · You won&apos;t be charged until day 4
+                    3-day free trial · Cancel in two clicks · No charge until day 4
                   </p>
                 </div>
               </FadeUp>
@@ -268,10 +262,10 @@ export default function LandingPage() {
 
           <div className="mt-10 space-y-6">
             {[
-              "You open Instagram Insights, then YouTube Studio, then TikTok analytics, then Facebook — every single day — just to check your numbers. By the time you're done, you've already lost 30 minutes.",
-              "Your brand deals live in your inbox, a Google Sheet, and maybe a notes app. You've definitely lost track of at least one payment someone owes you.",
-              "You posted three Reels this week and two TikToks. One blew up. But you have no idea why — or whether it actually brought you new followers.",
-              "There's a trending topic that would have been perfect for your niche. You found out about it two days late, from someone else's video.",
+              "You check Instagram Insights, then YouTube Studio, then TikTok, then Facebook — every day. That's 30 minutes gone before you've made anything.",
+              "Brand deals? They're buried in your inbox. You've lost track of at least one payment.",
+              "You posted five times this week. One blew up. You have no idea why.",
+              "A trending topic was perfect for your niche. You found out two days late.",
             ].map((pain, i) => (
               <FadeUp key={i} delay={i * 0.08}>
                 <p className="text-base leading-relaxed text-text-secondary md:text-lg">
@@ -283,7 +277,7 @@ export default function LandingPage() {
 
           <FadeUp delay={0.35}>
             <p className="mt-10 text-center font-display text-xl font-bold text-text-primary md:text-2xl">
-              There&apos;s a better way to run your creator business.
+              There&apos;s a better way.
             </p>
           </FadeUp>
         </div>
@@ -302,10 +296,10 @@ export default function LandingPage() {
                   AI-Powered Insights
                 </p>
                 <h3 className="font-display text-2xl font-bold text-text-primary md:text-3xl">
-                  Know exactly what content to double down on
+                  Know exactly what to double down on.
                 </h3>
                 <p className="mt-4 text-base leading-relaxed text-text-secondary">
-                  Your AI analysis breaks down every post into clear &ldquo;What&apos;s Working&rdquo; and &ldquo;What&apos;s Flopping&rdquo; cards — with real engagement numbers, not vague advice. You&apos;ll see which posts drove followers, which fell flat, and what to do differently next time.
+                  AI breaks your posts into &ldquo;What&apos;s Working&rdquo; and &ldquo;What&apos;s Flopping&rdquo; cards. Real numbers. Clear answers. No guessing.
                 </p>
               </div>
             </FadeUp>
@@ -339,10 +333,10 @@ export default function LandingPage() {
                   Brand Deal Tracking
                 </p>
                 <h3 className="font-display text-2xl font-bold text-text-primary md:text-3xl">
-                  Never lose a deal. Track every one from pitch to payment.
+                  Track every deal from pitch to payment.
                 </h3>
                 <p className="mt-4 text-base leading-relaxed text-text-secondary">
-                  See your total pipeline value, pending payouts, and monthly earnings in one view. Every deal gets a card with the company name, amount, status, and deadline — so nothing slips through the cracks or gets buried in your inbox.
+                  See your pipeline value, pending payouts, and monthly earnings. Every deal gets a card with the company, amount, status, and deadline. Nothing slips through.
                 </p>
               </div>
             </FadeUp>
@@ -356,10 +350,10 @@ export default function LandingPage() {
                   Trend Intelligence
                 </p>
                 <h3 className="font-display text-2xl font-bold text-text-primary md:text-3xl">
-                  Catch what&apos;s blowing up before everyone else does
+                  Catch what&apos;s blowing up — before everyone else.
                 </h3>
                 <p className="mt-4 text-base leading-relaxed text-text-secondary">
-                  Your weekly trend report scans TikTok, Instagram, YouTube, and more — then shows you a viral score, the top trending hashtags, and exactly which topics are gaining momentum in your niche. Post at the right time, with the right topic.
+                  Weekly trend reports scan TikTok, Instagram, and YouTube. You get a viral score, top hashtags, and the topics gaining traction in your niche.
                 </p>
               </div>
             </FadeUp>
@@ -379,13 +373,13 @@ export default function LandingPage() {
           <FadeUp>
             <div className="mt-16 text-center">
               <Link
-                href="/pricing"
+                href="/signup"
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
               >
                 Try Nurplix Free <ArrowRight className="h-5 w-5" />
               </Link>
               <p className="mt-3 text-sm text-text-muted">
-                3-day free trial · Cancel in two clicks · You won&apos;t be charged until day 4
+                3-day free trial · Cancel in two clicks · No charge until day 4
               </p>
             </div>
           </FadeUp>
@@ -414,19 +408,19 @@ export default function LandingPage() {
                 step: "1",
                 icon: <UserPlus className="h-5 w-5" />,
                 title: "Connect your accounts",
-                body: "Enter your Instagram, YouTube, TikTok, or Facebook username. That's it — no passwords, no complicated setup.",
+                body: "Enter your username. No passwords. No setup.",
               },
               {
                 step: "2",
                 icon: <Zap className="h-5 w-5" />,
                 title: "See your data",
-                body: "Your dashboard populates in about 90 seconds. Followers, engagement, recent posts, and AI insights — all there.",
+                body: "Dashboard fills in 90 seconds. Followers, engagement, AI insights — all there.",
               },
               {
                 step: "3",
                 icon: <Rocket className="h-5 w-5" />,
                 title: "Make better decisions",
-                body: "Use your AI analysis, trend reports, and goal tracking to post smarter — not just more often.",
+                body: "Use AI analysis, trends, and goals to know what to post and when.",
               },
             ].map((s, i) => (
               <FadeUp key={s.step} delay={i * 0.1}>
@@ -457,52 +451,54 @@ export default function LandingPage() {
               And there&apos;s more
             </p>
             <h2 className="mt-3 text-center font-display text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
-              Everything else you need to stay consistent
+              Stay consistent without the chaos.
             </h2>
           </FadeUp>
 
-          <div className="mt-14 grid gap-10 md:grid-cols-2">
-            {/* Goals & Journal */}
+          {/* Block 1: Goals — text left, image right */}
+          <div className="mt-14 grid items-center gap-10 md:grid-cols-2">
             <FadeUp>
-              <div className="rounded-2xl border border-card-border bg-card-bg overflow-hidden">
-                <Image
-                  src="/SCR-20260402-nigf.png"
-                  alt="Goals dashboard with progress tracking and daily journal entries"
-                  width={1200}
-                  height={800}
-                  className="w-full border-b border-card-border"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-                <div className="p-6">
-                  <h3 className="font-display text-lg font-bold text-text-primary">
-                    Goals, journal, and daily tasks
-                  </h3>
-                  <p className="mt-2 text-base text-text-secondary leading-relaxed">
-                    Set follower goals with visual progress bars, keep a daily creator journal, and manage your to-do list — so you stay focused instead of scattered.
-                  </p>
-                </div>
+              <div>
+                <h3 className="font-display text-2xl font-bold text-text-primary md:text-3xl">
+                  Goals, journal, and daily tasks
+                </h3>
+                <p className="mt-4 text-base leading-relaxed text-text-secondary">
+                  Set goals with progress bars. Keep a daily journal. Manage your to-do list. Stay focused.
+                </p>
               </div>
             </FadeUp>
-
-            {/* Trending Headlines */}
             <FadeUp delay={0.1}>
-              <div className="rounded-2xl border border-card-border bg-card-bg overflow-hidden">
-                <Image
-                  src="/SCR-20260402-nihq.png"
-                  alt="Trending topics dashboard showing daily headlines from Google Trends"
-                  width={1200}
-                  height={800}
-                  className="w-full border-b border-card-border"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-                <div className="p-6">
-                  <h3 className="font-display text-lg font-bold text-text-primary">
-                    Trending headlines from Google
-                  </h3>
-                  <p className="mt-2 text-base text-text-secondary leading-relaxed">
-                    See what people are searching for right now. Use trending headlines to create timely content that taps into what your audience already cares about.
-                  </p>
-                </div>
+              <Image
+                src="/SCR-20260402-nigf.png"
+                alt="Goals dashboard with progress tracking and daily journal entries"
+                width={1200}
+                height={800}
+                className="w-full rounded-xl border border-card-border shadow-lg"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </FadeUp>
+          </div>
+
+          {/* Block 2: Trending — image left, text right */}
+          <div className="mt-20 md:mt-28 grid items-center gap-10 md:grid-cols-2">
+            <FadeUp className="order-2 md:order-1">
+              <Image
+                src="/SCR-20260402-nihq.png"
+                alt="Trending topics dashboard showing daily headlines from Google Trends"
+                width={1200}
+                height={800}
+                className="w-full rounded-xl border border-card-border shadow-lg"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </FadeUp>
+            <FadeUp delay={0.1} className="order-1 md:order-2">
+              <div>
+                <h3 className="font-display text-2xl font-bold text-text-primary md:text-3xl">
+                  Trending headlines from Google
+                </h3>
+                <p className="mt-4 text-base leading-relaxed text-text-secondary">
+                  See what people are searching for right now. Make content that taps into what&apos;s already trending.
+                </p>
               </div>
             </FadeUp>
           </div>
@@ -523,28 +519,28 @@ export default function LandingPage() {
           <FadeUp delay={0.1}>
             <div className="mt-10">
               <FAQItem
-                question="Is it safe to connect my social accounts?"
-                answer="Yes. Nurplix uses read-only API access to pull your public data — follower counts, engagement rates, post metrics. We never ask for your password and can't post, delete, or modify anything on your accounts."
+                question="Is it safe to connect my accounts?"
+                answer="Yes. We use read-only access. We can see your public data but can't post, delete, or change anything. We never ask for your password."
               />
               <FAQItem
-                question="How is this different from the free analytics built into Instagram and YouTube?"
-                answer="Built-in analytics only show you one platform at a time. Nurplix pulls all your platforms into one view, adds AI analysis that tells you what's actually working, and includes brand deal tracking, trend reports, and goal management — none of which exist in native analytics."
+                question="How is this different from free analytics?"
+                answer="Built-in analytics show one platform at a time. Nurplix shows all of them in one view — plus AI analysis, brand deal tracking, and trend reports."
               />
               <FAQItem
-                question="I only use one or two platforms. Is it still worth it?"
-                answer="Yes. Even on a single platform, the AI insights, goal tracking, trending headlines, and brand deal tools give you more than any built-in analytics dashboard. Most creators start with one platform and add more over time."
+                question="I only use one or two platforms. Worth it?"
+                answer="Yes. AI insights, goal tracking, and brand deal tools work on any platform. Most creators add more over time."
               />
               <FAQItem
                 question="What if I don't have brand deals yet?"
-                answer="The analytics, AI insights, and trend reports work independently — you'll get value from day one. The brand deal CRM is ready whenever your first deal comes in, so you'll be organized from the start."
+                answer="Analytics, AI, and trends work on their own. The deal tracker is there when you need it."
               />
               <FAQItem
                 question="Can I cancel easily?"
-                answer="Two clicks. Go to Settings, click Cancel. No phone calls, no emails, no guilt trip. If you cancel within the first 3 days, you're never charged."
+                answer="Two clicks. Settings → Cancel. No calls, no emails. Cancel in the first 3 days and you're never charged."
               />
               <FAQItem
-                question="I've never heard of Nurplix. Why should I trust you?"
-                answer="We're new — we won't pretend otherwise. The product is live and functional. The best way to judge us is to try it free for 3 days. Connect an account, poke around, see if it's useful. If not, cancel and you've lost nothing."
+                question="Never heard of Nurplix. Why trust you?"
+                answer="We're new. The product is live. Try it free for 3 days. If it's not useful, cancel and you've lost nothing."
               />
             </div>
           </FadeUp>
@@ -559,14 +555,14 @@ export default function LandingPage() {
         <div className="relative mx-auto max-w-6xl px-6 text-center">
           <FadeUp>
             <h2 className="font-display text-3xl font-bold tracking-tight text-text-primary md:text-4xl">
-              See your analytics, deals, and trends — all in one place
+              All your analytics, deals, and trends — one place.
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-lg text-text-secondary">
-              Connect your accounts and get your first AI insights in under 2 minutes.
+              Connect your accounts. Get AI insights in under 2 minutes.
             </p>
             <div className="mt-8">
               <Link
-                href="/pricing"
+                href="/signup"
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-10 py-4 min-h-[48px] text-lg font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center"
               >
                 Try Nurplix Free
@@ -574,7 +570,7 @@ export default function LandingPage() {
               </Link>
             </div>
             <p className="mt-4 text-sm text-text-muted">
-              No credit card charge for 3 days · Cancel in two clicks · Set up in 2 minutes
+              No charge for 3 days · Cancel in two clicks · Set up in 2 minutes
             </p>
           </FadeUp>
         </div>

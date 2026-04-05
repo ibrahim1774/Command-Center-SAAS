@@ -22,18 +22,18 @@ export const metadata: Metadata = {
     template: "%s | Nurplix",
   },
   description:
-    "See your Instagram, YouTube, TikTok, and Facebook analytics in one dashboard. Track brand deals, catch trends early, and get AI insights on what's working. Try free for 3 days.",
+    "See your Instagram, YouTube, TikTok, and Facebook analytics in one dashboard. Track brand deals, catch trends, and get AI insights. Try free for 3 days.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://www.nurplix.com"),
   openGraph: {
     title: "Nurplix — Analytics, Brand Deals & Goals for Creators",
-    description: "See your Instagram, YouTube, TikTok, and Facebook analytics in one dashboard. Track brand deals, catch trends early, and get AI insights on what's working. Try free for 3 days.",
+    description: "See your Instagram, YouTube, TikTok, and Facebook analytics in one dashboard. Track brand deals, catch trends, and get AI insights. Try free for 3 days.",
     type: "website",
     siteName: "Nurplix",
   },
   twitter: {
     card: "summary_large_image",
     title: "Nurplix — Analytics, Brand Deals & Goals for Creators",
-    description: "See your Instagram, YouTube, TikTok, and Facebook analytics in one dashboard. Track brand deals, catch trends early, and get AI insights on what's working. Try free for 3 days.",
+    description: "See your Instagram, YouTube, TikTok, and Facebook analytics in one dashboard. Track brand deals, catch trends, and get AI insights. Try free for 3 days.",
   },
   icons: {
     icon: "/favicon.svg",
