@@ -196,8 +196,8 @@ export default function LandingPage() {
             <div>
               <FadeUp>
                 <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.1] tracking-tight text-text-primary">
-                  Your analytics, brand deals, and goals —{" "}
-                  <span className="text-accent-primary">in one dashboard.</span>
+                  Your social media, brand deals, and goals{" "}
+                  <span className="text-accent-primary">command center.</span>
                 </h1>
               </FadeUp>
 
@@ -252,31 +252,20 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
          SECTION 2: PAIN AGITATION
          ══════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-white">
-        <div className="mx-auto max-w-3xl px-6">
+      <section className="py-8 md:py-12 bg-white">
+        <div className="mx-auto max-w-3xl px-6 text-center">
           <FadeUp>
-            <h2 className="font-display text-2xl font-bold tracking-tight text-text-primary md:text-3xl text-center">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
               Sound familiar?
             </h2>
           </FadeUp>
-
-          <div className="mt-10 space-y-6">
-            {[
-              "You check Instagram Insights, then YouTube Studio, then TikTok, then Facebook — every day. That's 30 minutes gone before you've made anything.",
-              "Brand deals? They're buried in your inbox. You've lost track of at least one payment.",
-              "You posted five times this week. One blew up. You have no idea why.",
-              "A trending topic was perfect for your niche. You found out two days late.",
-            ].map((pain, i) => (
-              <FadeUp key={i} delay={i * 0.08}>
-                <p className="text-base leading-relaxed text-text-secondary md:text-lg">
-                  {pain}
-                </p>
-              </FadeUp>
-            ))}
-          </div>
-
-          <FadeUp delay={0.35}>
-            <p className="mt-10 text-center font-display text-xl font-bold text-text-primary md:text-2xl">
+          <FadeUp delay={0.1}>
+            <p className="mt-5 text-base leading-relaxed text-text-secondary md:text-lg">
+              You check four apps every morning just to see your numbers. Brand deals are buried in your inbox. You don&apos;t know which posts actually grew your audience.
+            </p>
+          </FadeUp>
+          <FadeUp delay={0.2}>
+            <p className="mt-5 font-display text-xl font-bold text-text-primary md:text-2xl">
               There&apos;s a better way.
             </p>
           </FadeUp>
@@ -286,20 +275,20 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
          SECTION 3: CORE VALUE BLOCKS
          ══════════════════════════════════════ */}
-      <section className="py-14 md:py-20">
+      <section className="py-10 md:py-14">
         <div className="mx-auto max-w-6xl px-6">
           {/* Block 1: AI Insights — image right */}
-          <div className="grid items-center gap-10 md:grid-cols-2">
+          <div className="grid items-center gap-8 md:grid-cols-2">
             <FadeUp>
               <div>
-                <p className="text-sm font-medium uppercase tracking-widest text-accent-primary mb-3">
-                  AI-Powered Insights
+                <p className="text-sm font-medium uppercase tracking-widest text-accent-primary mb-2">
+                  AI Insights
                 </p>
                 <h3 className="font-display text-2xl font-bold text-text-primary md:text-3xl">
-                  Know exactly what to double down on.
+                  Know what to double down on.
                 </h3>
-                <p className="mt-4 text-base leading-relaxed text-text-secondary">
-                  AI breaks your posts into &ldquo;What&apos;s Working&rdquo; and &ldquo;What&apos;s Flopping&rdquo; cards. Real numbers. Clear answers. No guessing.
+                <p className="mt-3 text-base leading-relaxed text-text-secondary">
+                  AI splits your posts into &ldquo;Working&rdquo; and &ldquo;Flopping&rdquo; cards with real numbers. No guessing.
                 </p>
               </div>
             </FadeUp>
@@ -316,7 +305,7 @@ export default function LandingPage() {
           </div>
 
           {/* Block 2: Brand Deals — image left */}
-          <div className="mt-20 md:mt-28 grid items-center gap-10 md:grid-cols-2">
+          <div className="mt-14 md:mt-20 grid items-center gap-8 md:grid-cols-2">
             <FadeUp className="order-2 md:order-1">
               <Image
                 src="/SCR-20260402-nieu.png"
@@ -329,31 +318,31 @@ export default function LandingPage() {
             </FadeUp>
             <FadeUp delay={0.1} className="order-1 md:order-2">
               <div>
-                <p className="text-sm font-medium uppercase tracking-widest text-accent-primary mb-3">
-                  Brand Deal Tracking
+                <p className="text-sm font-medium uppercase tracking-widest text-accent-primary mb-2">
+                  Brand Deals
                 </p>
                 <h3 className="font-display text-2xl font-bold text-text-primary md:text-3xl">
-                  Track every deal from pitch to payment.
+                  Track every deal. Pitch to payment.
                 </h3>
-                <p className="mt-4 text-base leading-relaxed text-text-secondary">
-                  See your pipeline value, pending payouts, and monthly earnings. Every deal gets a card with the company, amount, status, and deadline. Nothing slips through.
+                <p className="mt-3 text-base leading-relaxed text-text-secondary">
+                  Pipeline value, pending payouts, monthly earnings. Every deal has a card. Nothing slips through.
                 </p>
               </div>
             </FadeUp>
           </div>
 
           {/* Block 3: Trends — image right */}
-          <div className="mt-20 md:mt-28 grid items-center gap-10 md:grid-cols-2">
+          <div className="mt-14 md:mt-20 grid items-center gap-8 md:grid-cols-2">
             <FadeUp>
               <div>
-                <p className="text-sm font-medium uppercase tracking-widest text-accent-primary mb-3">
-                  Trend Intelligence
+                <p className="text-sm font-medium uppercase tracking-widest text-accent-primary mb-2">
+                  Trends
                 </p>
                 <h3 className="font-display text-2xl font-bold text-text-primary md:text-3xl">
-                  Catch what&apos;s blowing up — before everyone else.
+                  Catch what&apos;s blowing up first.
                 </h3>
-                <p className="mt-4 text-base leading-relaxed text-text-secondary">
-                  Weekly trend reports scan TikTok, Instagram, and YouTube. You get a viral score, top hashtags, and the topics gaining traction in your niche.
+                <p className="mt-3 text-base leading-relaxed text-text-secondary">
+                  Weekly trend reports with viral scores, top hashtags, and the topics gaining traction in your niche.
                 </p>
               </div>
             </FadeUp>
@@ -389,126 +378,66 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
          SECTION 4: HOW IT WORKS
          ══════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-white">
+      <section className="py-8 md:py-12 bg-white">
         <div className="mx-auto max-w-6xl px-6">
           <FadeUp>
             <p className="text-center text-sm font-medium uppercase tracking-widest text-accent-primary">
               How it works
             </p>
-            <h2 className="mt-3 text-center font-display text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
-              Set up in under 2 minutes
+            <h2 className="mt-2 text-center font-display text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
+              Set up in 2 minutes.
             </h2>
           </FadeUp>
 
-          <div className="relative mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
-            <div className="pointer-events-none absolute top-7 left-[16.67%] right-[16.67%] hidden h-px bg-card-border md:block" />
-
+          <div className="mt-10 grid gap-8 md:grid-cols-3 md:gap-6">
             {[
               {
                 step: "1",
                 icon: <UserPlus className="h-5 w-5" />,
                 title: "Connect your accounts",
-                body: "Enter your username. No passwords. No setup.",
+                body: "Enter your username. That's it.",
               },
               {
                 step: "2",
                 icon: <Zap className="h-5 w-5" />,
                 title: "See your data",
-                body: "Dashboard fills in 90 seconds. Followers, engagement, AI insights — all there.",
+                body: "Dashboard fills in 90 seconds.",
               },
               {
                 step: "3",
                 icon: <Rocket className="h-5 w-5" />,
-                title: "Make better decisions",
-                body: "Use AI analysis, trends, and goals to know what to post and when.",
+                title: "Post smarter",
+                body: "AI tells you what's working and what's not.",
               },
             ].map((s, i) => (
               <FadeUp key={s.step} delay={i * 0.1}>
                 <div className="flex flex-col items-center text-center">
-                  <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-accent-primary text-white shadow-md shadow-accent-primary/20">
+                  <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-accent-primary text-white shadow-md shadow-accent-primary/20">
                     {s.icon}
                   </div>
-                  <h3 className="mt-5 font-display text-lg font-bold text-text-primary">
+                  <h3 className="mt-4 font-display text-lg font-bold text-text-primary">
                     {s.title}
                   </h3>
-                  <p className="mt-2 max-w-xs text-base leading-relaxed text-text-secondary">
+                  <p className="mt-1.5 max-w-xs text-sm leading-relaxed text-text-secondary">
                     {s.body}
                   </p>
                 </div>
               </FadeUp>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ══════════════════════════════════════
-         SECTION 5: ADDITIONAL FEATURES
-         ══════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-white">
-        <div className="mx-auto max-w-6xl px-6">
-          <FadeUp>
-            <p className="text-center text-sm font-medium uppercase tracking-widest text-accent-primary">
-              And there&apos;s more
+          <FadeUp delay={0.3}>
+            <p className="mt-8 text-center text-sm text-text-muted">
+              Also includes: goal tracking, daily journal, task manager, and trending Google headlines.
             </p>
-            <h2 className="mt-3 text-center font-display text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
-              Stay consistent without the chaos.
-            </h2>
           </FadeUp>
-
-          {/* Block 1: Goals — text left, image right */}
-          <div className="mt-14 grid items-center gap-10 md:grid-cols-2">
-            <FadeUp>
-              <div>
-                <h3 className="font-display text-2xl font-bold text-text-primary md:text-3xl">
-                  Goals, journal, and daily tasks
-                </h3>
-                <p className="mt-4 text-base leading-relaxed text-text-secondary">
-                  Set goals with progress bars. Keep a daily journal. Manage your to-do list. Stay focused.
-                </p>
-              </div>
-            </FadeUp>
-            <FadeUp delay={0.1}>
-              <Image
-                src="/SCR-20260402-nigf.png"
-                alt="Goals dashboard with progress tracking and daily journal entries"
-                width={1200}
-                height={800}
-                className="w-full rounded-xl border border-card-border shadow-lg"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </FadeUp>
-          </div>
-
-          {/* Block 2: Trending — image left, text right */}
-          <div className="mt-20 md:mt-28 grid items-center gap-10 md:grid-cols-2">
-            <FadeUp className="order-2 md:order-1">
-              <Image
-                src="/SCR-20260402-nihq.png"
-                alt="Trending topics dashboard showing daily headlines from Google Trends"
-                width={1200}
-                height={800}
-                className="w-full rounded-xl border border-card-border shadow-lg"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </FadeUp>
-            <FadeUp delay={0.1} className="order-1 md:order-2">
-              <div>
-                <h3 className="font-display text-2xl font-bold text-text-primary md:text-3xl">
-                  Trending headlines from Google
-                </h3>
-                <p className="mt-4 text-base leading-relaxed text-text-secondary">
-                  See what people are searching for right now. Make content that taps into what&apos;s already trending.
-                </p>
-              </div>
-            </FadeUp>
-          </div>
         </div>
       </section>
 
       {/* ══════════════════════════════════════
          SECTION 7: FAQ
          ══════════════════════════════════════ */}
-      <section className="py-14 md:py-20">
+      <section className="py-8 md:py-14">
         <div className="mx-auto max-w-3xl px-6">
           <FadeUp>
             <h2 className="text-center font-display text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
@@ -517,30 +446,22 @@ export default function LandingPage() {
           </FadeUp>
 
           <FadeUp delay={0.1}>
-            <div className="mt-10">
+            <div className="mt-8">
               <FAQItem
                 question="Is it safe to connect my accounts?"
-                answer="Yes. We use read-only access. We can see your public data but can't post, delete, or change anything. We never ask for your password."
+                answer="Yes. Read-only access. We see your public data. We can't post, delete, or change anything."
               />
               <FAQItem
                 question="How is this different from free analytics?"
-                answer="Built-in analytics show one platform at a time. Nurplix shows all of them in one view — plus AI analysis, brand deal tracking, and trend reports."
-              />
-              <FAQItem
-                question="I only use one or two platforms. Worth it?"
-                answer="Yes. AI insights, goal tracking, and brand deal tools work on any platform. Most creators add more over time."
-              />
-              <FAQItem
-                question="What if I don't have brand deals yet?"
-                answer="Analytics, AI, and trends work on their own. The deal tracker is there when you need it."
+                answer="Free analytics show one platform at a time. Nurplix shows all of them — plus AI analysis, deal tracking, and trends."
               />
               <FAQItem
                 question="Can I cancel easily?"
-                answer="Two clicks. Settings → Cancel. No calls, no emails. Cancel in the first 3 days and you're never charged."
+                answer="Two clicks. Settings → Cancel. No calls, no emails. Cancel in 3 days and you're never charged."
               />
               <FAQItem
                 question="Never heard of Nurplix. Why trust you?"
-                answer="We're new. The product is live. Try it free for 3 days. If it's not useful, cancel and you've lost nothing."
+                answer="We're new. The product works. Try it free for 3 days. If it's not useful, cancel. You lose nothing."
               />
             </div>
           </FadeUp>
@@ -550,17 +471,17 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
          SECTION 8: FINAL CTA
          ══════════════════════════════════════ */}
-      <section className="relative overflow-hidden py-20 md:py-28">
+      <section className="relative overflow-hidden py-14 md:py-20">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-accent-primary/[0.06] via-transparent to-accent-primary/[0.04]" />
         <div className="relative mx-auto max-w-6xl px-6 text-center">
           <FadeUp>
             <h2 className="font-display text-3xl font-bold tracking-tight text-text-primary md:text-4xl">
-              All your analytics, deals, and trends — one place.
+              Your command center for analytics, deals, and trends.
             </h2>
-            <p className="mx-auto mt-4 max-w-lg text-lg text-text-secondary">
-              Connect your accounts. Get AI insights in under 2 minutes.
+            <p className="mx-auto mt-3 max-w-lg text-lg text-text-secondary">
+              Get your first AI insights in under 2 minutes.
             </p>
-            <div className="mt-8">
+            <div className="mt-6">
               <Link
                 href="/signup"
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-10 py-4 min-h-[48px] text-lg font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center"
@@ -569,15 +490,15 @@ export default function LandingPage() {
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
-            <p className="mt-4 text-sm text-text-muted">
-              No charge for 3 days · Cancel in two clicks · Set up in 2 minutes
+            <p className="mt-3 text-sm text-text-muted">
+              No charge for 3 days · Cancel in two clicks
             </p>
           </FadeUp>
         </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-card-border bg-white py-12 pb-24 md:pb-12">
+      <footer className="border-t border-card-border bg-white py-8 pb-24 md:pb-8">
         <div className="mx-auto max-w-6xl px-6">
           <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
             <div>
