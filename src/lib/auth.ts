@@ -1,6 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { getSupabaseAdmin } from "./supabase-admin";
@@ -14,15 +13,6 @@ export const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           scope: "openid email profile",
-        },
-      },
-    }),
-    FacebookProvider({
-      clientId: process.env.META_CLIENT_ID ?? "",
-      clientSecret: process.env.META_CLIENT_SECRET ?? "",
-      authorization: {
-        params: {
-          scope: "email,public_profile",
         },
       },
     }),
@@ -74,7 +64,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       // For OAuth providers, upsert user in Supabase
-      if (account?.provider === "google" || account?.provider === "facebook") {
+      if (account?.provider === "google") {
         try {
           const { data: existingUser } = await getSupabaseAdmin()
             .from("users")
