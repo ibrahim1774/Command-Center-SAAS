@@ -12,7 +12,6 @@ import {
 } from "framer-motion";
 import {
   ArrowRight,
-  ChevronDown,
   UserPlus,
   Zap,
   Rocket,
@@ -73,33 +72,6 @@ function PlatformLogos() {
   );
 }
 
-/* ─────────────────────────────────────────────
-   FAQ accordion item
-   ───────────────────────────────────────────── */
-function FAQItem({ question, answer }: { question: string; answer: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="border-b border-card-border">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between py-5 text-left cursor-pointer"
-      >
-        <span className="text-base font-medium text-text-primary pr-4">{question}</span>
-        <ChevronDown
-          className={`h-5 w-5 shrink-0 text-text-muted transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-      <motion.div
-        initial={false}
-        animate={{ height: open ? "auto" : 0, opacity: open ? 1 : 0 }}
-        transition={{ duration: 0.25 }}
-        className="overflow-hidden"
-      >
-        <p className="pb-5 text-base leading-relaxed text-text-secondary">{answer}</p>
-      </motion.div>
-    </div>
-  );
-}
 
 /* ═════════════════════════════════════════════
    PAGE
@@ -134,6 +106,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
           <Link href="/" className="flex items-baseline gap-2">
             <span className="font-display text-xl font-bold tracking-tight">Nurplix</span>
+            <span className="hidden sm:inline text-xs font-medium uppercase tracking-widest text-text-muted">Claude Command Center</span>
           </Link>
 
           <div className="flex items-center gap-3">
@@ -179,9 +152,6 @@ export default function LandingPage() {
         >
           Try Nurplix Free <ArrowRight className="h-4 w-4" />
         </Link>
-        <p className="mt-1.5 text-center text-xs text-text-muted">
-          3-day free trial · No charge until day 4
-        </p>
       </motion.div>
 
       {/* ══════════════════════════════════════
@@ -218,9 +188,6 @@ export default function LandingPage() {
                     Try Nurplix Free
                     <ArrowRight className="h-5 w-5" />
                   </Link>
-                  <p className="mt-3 text-sm text-text-muted">
-                    3-day free trial · Cancel in two clicks · No charge until day 4
-                  </p>
                 </div>
               </FadeUp>
 
@@ -367,9 +334,6 @@ export default function LandingPage() {
               >
                 Try Nurplix Free <ArrowRight className="h-5 w-5" />
               </Link>
-              <p className="mt-3 text-sm text-text-muted">
-                3-day free trial · Cancel in two clicks · No charge until day 4
-              </p>
             </div>
           </FadeUp>
         </div>
@@ -435,41 +399,7 @@ export default function LandingPage() {
       </section>
 
       {/* ══════════════════════════════════════
-         SECTION 7: FAQ
-         ══════════════════════════════════════ */}
-      <section className="py-8 md:py-14">
-        <div className="mx-auto max-w-3xl px-6">
-          <FadeUp>
-            <h2 className="text-center font-display text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
-              Questions you might have
-            </h2>
-          </FadeUp>
-
-          <FadeUp delay={0.1}>
-            <div className="mt-8">
-              <FAQItem
-                question="Is it safe to connect my accounts?"
-                answer="Yes. Read-only access. We see your public data. We can't post, delete, or change anything."
-              />
-              <FAQItem
-                question="How is this different from free analytics?"
-                answer="Free analytics show one platform at a time. Nurplix shows all of them — plus AI analysis, deal tracking, and trends."
-              />
-              <FAQItem
-                question="Can I cancel easily?"
-                answer="Two clicks. Settings → Cancel. No calls, no emails. Cancel in 3 days and you're never charged."
-              />
-              <FAQItem
-                question="Never heard of Nurplix. Why trust you?"
-                answer="We're new. The product works. Try it free for 3 days. If it's not useful, cancel. You lose nothing."
-              />
-            </div>
-          </FadeUp>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════
-         SECTION 8: FINAL CTA
+         FINAL CTA
          ══════════════════════════════════════ */}
       <section className="relative overflow-hidden py-14 md:py-20">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-accent-primary/[0.06] via-transparent to-accent-primary/[0.04]" />
@@ -490,9 +420,6 @@ export default function LandingPage() {
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
-            <p className="mt-3 text-sm text-text-muted">
-              No charge for 3 days · Cancel in two clicks
-            </p>
           </FadeUp>
         </div>
       </section>

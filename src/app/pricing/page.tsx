@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -49,6 +49,15 @@ export default function PricingPage() {
   const { data: session } = useSession();
 
   useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 40));
+
+  // Reset loading state when user navigates back from Stripe via browser back button
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setCheckoutLoading(null);
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
 
   const handleCheckout = async (planId: string) => {
     setCheckoutLoading(planId);
