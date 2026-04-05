@@ -131,7 +131,7 @@ export default function LandingPage() {
                   href="/signup"
                   className="rounded-full bg-accent-primary px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90"
                 >
-                  Try Nurplix Free
+                  Try Claude Command Center Free
                 </Link>
               </>
             )}
@@ -150,7 +150,7 @@ export default function LandingPage() {
           href="/signup"
           className="flex w-full items-center justify-center gap-2 rounded-full bg-accent-primary py-3.5 text-base font-semibold text-white"
         >
-          Try Nurplix Free <ArrowRight className="h-4 w-4" />
+          Try Claude Command Center Free <ArrowRight className="h-4 w-4" />
         </Link>
       </motion.div>
 
@@ -185,7 +185,7 @@ export default function LandingPage() {
                     href="/signup"
                     className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center"
                   >
-                    Try Nurplix Free
+                    Try Claude Command Center Free
                     <ArrowRight className="h-5 w-5" />
                   </Link>
                 </div>
@@ -332,7 +332,7 @@ export default function LandingPage() {
                 href="/signup"
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-8 py-3.5 min-h-[48px] text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
               >
-                Try Nurplix Free <ArrowRight className="h-5 w-5" />
+                Try Claude Command Center Free <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
           </FadeUp>
@@ -416,7 +416,7 @@ export default function LandingPage() {
                 href="/signup"
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-10 py-4 min-h-[48px] text-lg font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center"
               >
-                Try Nurplix Free
+                Try Claude Command Center Free
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
