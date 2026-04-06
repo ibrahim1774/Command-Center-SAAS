@@ -26,8 +26,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(`${appUrl}/dashboard`);
     }
 
-    // No subscription — send to pricing to pick a plan
-    return NextResponse.redirect(`${appUrl}/pricing`);
+    // No subscription — send to pricing to pick a plan (with registration flag for pixel)
+    return NextResponse.redirect(`${appUrl}/pricing?registered=true`);
   } catch (error) {
     console.error("[auth/post-signup] Error:", error);
     return NextResponse.redirect(`${appUrl}/pricing`);

@@ -59,6 +59,19 @@ export default function PricingPage() {
     return () => window.removeEventListener("pageshow", handlePageShow);
   }, []);
 
+  // Fire CompleteRegistration pixel for OAuth signups arriving from post-signup redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("registered") === "true") {
+      const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
+      if (fbq) {
+        fbq("track", "CompleteRegistration", { content_name: "google_signup" });
+      }
+      // Clean URL so it doesn't re-fire
+      window.history.replaceState({}, "", "/pricing");
+    }
+  }, []);
+
   const handleCheckout = async (planId: string) => {
     setCheckoutLoading(planId);
     try {

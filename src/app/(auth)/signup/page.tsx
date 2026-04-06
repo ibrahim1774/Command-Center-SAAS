@@ -104,7 +104,13 @@ function SignupContent() {
         return;
       }
 
-      // 3. If coming from payment, link the subscription then go to dashboard
+      // 3. Fire CompleteRegistration pixel
+      const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
+      if (fbq) {
+        fbq("track", "CompleteRegistration", { content_name: "email_signup" });
+      }
+
+      // 4. If coming from payment, link the subscription then go to dashboard
       if (checkoutSession) {
         await fetch("/api/stripe/link-subscription", {
           method: "POST",
