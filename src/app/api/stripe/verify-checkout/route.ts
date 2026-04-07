@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     // Retrieve the checkout session from Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-    if (session.payment_status !== "paid") {
+    if (session.status !== "complete") {
       return NextResponse.redirect(`${appUrl}/#pricing`);
     }
 

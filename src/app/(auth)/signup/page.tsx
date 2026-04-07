@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -22,33 +22,6 @@ function SignupContent() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const purchaseTracked = useRef(false);
-
-  // Fire Meta Pixel Purchase immediately after Stripe redirects back
-  useEffect(() => {
-    if (!checkoutSession || purchaseTracked.current) return;
-    purchaseTracked.current = true;
-
-    const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
-    if (fbq) {
-      const eventID = `purchase_${checkoutSession}`;
-      // Fetch session details to get the actual price
-      fetch(`/api/stripe/session-info?session_id=${checkoutSession}`)
-        .then((r) => r.json())
-        .then((data) => {
-          fbq("track", "Purchase", {
-            value: data.price || 9,
-            currency: "USD",
-            content_name: `${data.plan || "hobby"} plan`,
-            content_type: "subscription",
-          }, { eventID });
-        })
-        .catch(() => {
-          // Fire with default values if fetch fails
-          fbq("track", "Purchase", { value: 9, currency: "USD", content_type: "subscription" }, { eventID });
-        });
-    }
-  }, [checkoutSession]);
 
   const inputStyle = {
     border: "1px solid #e8e6e1",
@@ -112,12 +85,15 @@ function SignupContent() {
 
       // 4. If coming from payment, link the subscription then go to dashboard
       if (checkoutSession) {
-        await fetch("/api/stripe/link-subscription", {
+        const linkRes = await fetch("/api/stripe/link-subscription", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId: checkoutSession }),
         });
-        router.push("/dashboard");
+        const linkData = linkRes.ok ? await linkRes.json() : {};
+        const plan = linkData.plan || "hobby";
+        const price = linkData.price || "9.00";
+        router.push(`/dashboard?checkout=success&plan=${plan}&price=${price}&sid=${checkoutSession}`);
       } else {
         // No payment session — redirect to pricing to pick a plan
         router.push("/pricing");

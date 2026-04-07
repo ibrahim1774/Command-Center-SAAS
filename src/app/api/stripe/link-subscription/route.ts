@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     // Retrieve the checkout session
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-    if (session.payment_status !== "paid") {
+    if (session.status !== "complete") {
       return NextResponse.json({ error: "Payment not completed" }, { status: 400 });
     }
 
