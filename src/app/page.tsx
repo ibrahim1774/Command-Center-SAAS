@@ -16,7 +16,6 @@ import {
   Zap,
   Rocket,
 } from "lucide-react";
-import { ExitIntentPopup } from "@/components/ui/ExitIntentPopup";
 
 /* ─────────────────────────────────────────────
    Reusable fade-up wrapper
@@ -96,7 +95,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-page-bg text-text-primary font-body">
-      <ExitIntentPopup />
       {/* ── STICKY NAV ── */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
