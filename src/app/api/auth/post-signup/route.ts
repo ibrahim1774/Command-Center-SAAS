@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const supabase = getSupabaseAdmin();
     const { data: user } = await supabase
       .from("users")
-      .select("plan")
+      .select("plan, created_at")
       .eq("id", userId)
       .single();
 
@@ -26,8 +26,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(`${appUrl}/dashboard`);
     }
 
-    // No subscription — send to pricing to pick a plan (with registration flag for pixel)
-    return NextResponse.redirect(`${appUrl}/pricing?registered=true`);
+    // Only fire CompleteRegistration for genuinely new accounts (created within last 2 minutes)
+    const isNewUser = user?.created_at
+      ? Date.now() - new Date(user.created_at).getTime() < 120_000
+      : false;
+
+    return NextResponse.redirect(
+      `${appUrl}/pricing${isNewUser ? "?registered=true" : ""}`
+    );
   } catch (error) {
     console.error("[auth/post-signup] Error:", error);
     return NextResponse.redirect(`${appUrl}/pricing`);
