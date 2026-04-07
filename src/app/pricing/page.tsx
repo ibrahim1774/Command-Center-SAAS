@@ -10,6 +10,7 @@ import {
   useInView,
 } from "framer-motion";
 import { Check, ArrowLeft } from "lucide-react";
+import { ExitIntentPopup } from "@/components/ui/ExitIntentPopup";
 
 /* ── Fade-up wrapper ── */
 function FadeUp({
@@ -132,6 +133,7 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-page-bg text-text-primary font-body">
+      <ExitIntentPopup />
       {/* ── STICKY NAV ── */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
