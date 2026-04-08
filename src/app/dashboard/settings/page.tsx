@@ -16,6 +16,7 @@ import {
   Music,
   Loader2,
   TrendingUp,
+  Mail,
 } from "lucide-react";
 import { notificationSettings } from "@/lib/mock-data";
 import { Card } from "@/components/ui/Card";
@@ -668,7 +669,27 @@ function SettingsContent() {
         </p>
       </Card>
 
-      {/* Section 6: Trend Intelligence */}
+      {/* Section 6: Support */}
+      <Card padding="lg">
+        <div className="flex items-center gap-2 mb-6">
+          <Mail className="w-5 h-5 text-text-secondary" />
+          <h2 className="font-display text-xl text-text-primary">
+            Support
+          </h2>
+        </div>
+        <p className="text-sm text-text-secondary mb-4">
+          Report any bugs, membership issues, or questions.
+        </p>
+        <a
+          href="mailto:support@nurplix.com"
+          className="inline-flex items-center gap-2 text-sm font-medium text-accent-primary hover:underline transition-colors"
+        >
+          <Mail className="w-4 h-4" />
+          support@nurplix.com
+        </a>
+      </Card>
+
+      {/* Section 7: Trend Intelligence */}
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-6">
           <TrendingUp className="w-5 h-5 text-text-secondary" />
