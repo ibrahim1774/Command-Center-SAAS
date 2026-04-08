@@ -33,7 +33,7 @@ interface FacebookData {
     post_id: string;
     message: string | null;
     post_type: string;
-    reactions: Record<string, number>;
+    reactions: { total: number };
     comments_count: number;
     shares: number;
     reach: number;

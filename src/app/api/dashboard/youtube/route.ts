@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
       })),
       comments: youtubeComments.map((c) => ({
         id: c.id,
-        author_name: c.author,
+        author: c.author,
         text: c.text,
         like_count: c.likes,
         published_at: c.timestamp,

@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
           likes: v.likeCount,
           comments: v.commentCount,
           shares: v.shareCount,
-          thumbnail: "",
+          thumbnail: v.coverUrl || "",
           createdAt: v.timestamp,
         })),
       };

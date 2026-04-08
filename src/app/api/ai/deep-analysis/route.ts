@@ -78,14 +78,14 @@ export async function POST(req: NextRequest) {
     await Promise.all([
       supabase
         .from("instagram_posts")
-        .select("caption, like_count, comments_count, timestamp, media_type")
+        .select("caption, likes, comments_count, timestamp, media_type")
         .eq("user_id", userId)
         .gte("timestamp", ninetyDaysAgo)
         .order("timestamp", { ascending: false })
         .limit(60),
       supabase
         .from("youtube_videos")
-        .select("title, view_count, like_count, comment_count, published_at")
+        .select("title, views, likes, comments_count, published_at")
         .eq("user_id", userId)
         .gte("published_at", ninetyDaysAgo)
         .order("published_at", { ascending: false })
@@ -126,10 +126,27 @@ export async function POST(req: NextRequest) {
         .limit(30),
     ]);
 
+  // Log any Supabase query errors
+  for (const [name, result] of Object.entries({ igPosts, ytVideos, fbPosts, emails, igMetrics, igComments, ytComments })) {
+    if (result.error) console.error(`[ai/deep-analysis] Supabase query error (${name}):`, result.error.message);
+  }
+
+  // Fetch TikTok cached data (stored as JSON blob, not in normalized tables)
+  const { data: tiktokCached } = await supabase
+    .from("cached_data")
+    .select("value")
+    .eq("key", `tiktok:${userId}`)
+    .single();
+
+  const tiktokVideos = tiktokCached?.value
+    ? ((tiktokCached.value as Record<string, unknown>).videos as unknown[] || [])
+    : [];
+
   const platformData = {
     instagram_posts: igPosts.data || [],
     youtube_videos: ytVideos.data || [],
     facebook_posts: fbPosts.data || [],
+    tiktok_videos: tiktokVideos,
     emails: emails.data || [],
     instagram_daily_metrics: igMetrics.data || [],
     instagram_comments: igComments.data || [],
@@ -154,7 +171,7 @@ export async function POST(req: NextRequest) {
       model: "claude-sonnet-4-20250514",
       max_tokens: 4096,
       system:
-        "You are a world-class social media strategist providing a deep analysis for a content creator. " +
+        "You are a world-class social media strategist providing a deep analysis for a content creator across Instagram, YouTube, Facebook, and TikTok. " +
         "This is a premium report — be thorough, specific, and actionable. " +
         "Reference actual post captions, video titles, and specific numbers from the data. " +
         "Identify patterns over the 90-day period. Make predictions based on trends. " +

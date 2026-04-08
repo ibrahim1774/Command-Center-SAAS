@@ -63,11 +63,13 @@ export async function GET(req: NextRequest) {
       },
       posts: facebookPosts.map((p) => ({
         id: p.id,
+        post_id: p.id,
         message: p.content,
         post_type: p.type,
         reactions: { total: Object.values(p.reactions).reduce((a, b) => a + b, 0) },
         comments_count: p.comments,
         shares: p.shares,
+        reach: p.reach,
         created_time: p.publishedAt,
       })),
       comments: facebookComments.map((c) => ({

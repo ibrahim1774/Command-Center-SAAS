@@ -12,7 +12,8 @@ const INSIGHTS_SCHEMA = `{
   "instagram": { "whats_working": [{ "text": "IG-specific insight", "metric": "optional metric" }], "whats_flopping": [{ "text": "IG-specific insight", "metric": "optional metric" }] },
   "youtube": { "whats_working": [{ "text": "YT-specific insight", "metric": "optional" }], "whats_flopping": [{ "text": "YT-specific insight", "metric": "optional" }], "content_ideas": ["idea 1", "idea 2", "idea 3"] },
   "facebook": { "whats_working": [{ "text": "FB-specific insight", "metric": "optional" }], "whats_flopping": [{ "text": "FB-specific insight", "metric": "optional" }] },
-  "top_comments": [{ "platform": "instagram|youtube|facebook", "username": "...", "text": "comment text", "post_reference": "which post it's on" }]
+  "tiktok": { "whats_working": [{ "text": "TikTok-specific insight", "metric": "optional" }], "whats_flopping": [{ "text": "TikTok-specific insight", "metric": "optional" }] },
+  "top_comments": [{ "platform": "instagram|youtube|facebook|tiktok", "username": "...", "text": "comment text", "post_reference": "which post it's on" }]
 }`;
 
 function today(): string {
@@ -123,10 +124,27 @@ export async function POST(req: NextRequest) {
         .limit(15),
     ]);
 
+  // Log any Supabase query errors
+  for (const [name, result] of Object.entries({ igPosts, ytVideos, fbPosts, igComments, ytComments })) {
+    if (result.error) console.error(`[ai/insights] Supabase query error (${name}):`, result.error.message);
+  }
+
+  // Fetch TikTok cached data (stored as JSON blob, not in normalized tables)
+  const { data: tiktokCached } = await supabase
+    .from("cached_data")
+    .select("value")
+    .eq("key", `tiktok:${userId}`)
+    .single();
+
+  const tiktokVideos = tiktokCached?.value
+    ? ((tiktokCached.value as Record<string, unknown>).videos as unknown[] || [])
+    : [];
+
   const platformData = {
     instagram_posts: igPosts.data || [],
     youtube_videos: ytVideos.data || [],
     facebook_posts: fbPosts.data || [],
+    tiktok_videos: tiktokVideos,
     instagram_comments: igComments.data || [],
     youtube_comments: ytComments.data || [],
   };
@@ -150,7 +168,7 @@ export async function POST(req: NextRequest) {
       model: "claude-haiku-4-5-20251001",
       max_tokens: 4096,
       system:
-        "You are an elite social media strategist analyzing a content creator's performance across Instagram, YouTube, and Facebook. " +
+        "You are an elite social media strategist analyzing a content creator's performance across Instagram, YouTube, Facebook, and TikTok. " +
         "Be specific with numbers. Reference actual post captions and video titles from the data. Give actionable, data-driven advice. " +
         "Each whats_working and whats_flopping array should have 3-4 items. " +
         "The metric field should be a short stat like '+24% engagement' or '340K views'. " +

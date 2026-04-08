@@ -245,6 +245,7 @@ export async function scrapeTikTokProfile(
       likeCount: (v.diggCount as number) || (v.likes as number) || 0,
       commentCount: (v.commentCount as number) || (v.comments as number) || 0,
       shareCount: (v.shareCount as number) || (v.shares as number) || 0,
+      coverUrl: (v.coverUrl as string) || (v.cover as string) || (v.originCover as string) || null,
       timestamp: (v.createTime as string) || new Date().toISOString(),
     })),
   };

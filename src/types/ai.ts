@@ -20,6 +20,10 @@ export interface AIInsightsResponse {
     whats_working: InsightItem[];
     whats_flopping: InsightItem[];
   };
+  tiktok: {
+    whats_working: InsightItem[];
+    whats_flopping: InsightItem[];
+  };
   top_comments: {
     platform: string;
     username: string;
