@@ -40,6 +40,13 @@ interface TikTokData {
     thumbnail: string;
     createdAt: string;
   }>;
+  comments?: Array<{
+    id: string;
+    author: string;
+    text: string;
+    likes: number;
+    timestamp: string;
+  }>;
 }
 
 function fmt(n: number): string {

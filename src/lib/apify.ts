@@ -209,6 +209,7 @@ export interface ScrapedTikTokProfile {
     likeCount: number;
     commentCount: number;
     shareCount: number;
+    coverUrl: string | null;
     timestamp: string;
   }[];
 }
