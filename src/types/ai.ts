@@ -20,7 +20,7 @@ export interface AIInsightsResponse {
     whats_working: InsightItem[];
     whats_flopping: InsightItem[];
   };
-  tiktok: {
+  tiktok?: {
     whats_working: InsightItem[];
     whats_flopping: InsightItem[];
   };

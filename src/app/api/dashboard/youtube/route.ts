@@ -65,6 +65,7 @@ export async function GET(req: NextRequest) {
       },
       videos: youtubeVideos.map((v) => ({
         id: v.id,
+        video_id: v.id,
         title: v.title,
         views: v.views,
         likes: v.likes,
