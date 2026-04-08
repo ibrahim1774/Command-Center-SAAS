@@ -47,12 +47,21 @@ export async function GET(req: NextRequest) {
       .order("timestamp", { ascending: false })
       .limit(5);
 
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0];
+    const { data: dailyMetrics } = await supabase
+      .from("instagram_daily_metrics")
+      .select("date, follower_count, reach, impressions")
+      .eq("user_id", userId)
+      .gte("date", thirtyDaysAgo)
+      .order("date", { ascending: true });
+
     return NextResponse.json({
       connected: true,
       lastSynced: account.last_synced,
       profile: profile || null,
       posts: posts || [],
       comments: comments || [],
+      dailyMetrics: dailyMetrics || [],
     });
   }
 
@@ -86,6 +95,7 @@ export async function GET(req: NextRequest) {
         text: c.text,
         timestamp: c.timestamp,
       })),
+      dailyMetrics: [],
     });
   }
 

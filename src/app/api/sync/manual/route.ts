@@ -7,6 +7,7 @@ import {
   scrapeYouTubeChannel,
   scrapeTikTokProfile,
 } from "@/lib/apify";
+import { syncFacebook } from "@/lib/platform-sync";
 
 function ensureISOTimestamp(ts: string): string {
   if (!ts) return new Date().toISOString();
@@ -191,6 +192,9 @@ export async function POST(req: NextRequest) {
         })
         .eq("user_id", userId)
         .eq("platform", "tiktok");
+
+    } else if (platform === "facebook") {
+      await syncFacebook(userId);
 
     } else {
       return NextResponse.json({ error: "Unsupported platform" }, { status: 400 });
