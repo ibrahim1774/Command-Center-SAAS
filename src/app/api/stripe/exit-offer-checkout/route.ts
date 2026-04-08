@@ -48,7 +48,6 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      subscription_data: { trial_period_days: 3 },
       metadata: { planId, userId: userId || "", exitOffer: "true" },
       success_url: userId
         ? `${appUrl}/api/stripe/verify-checkout?session_id={CHECKOUT_SESSION_ID}`
