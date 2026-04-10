@@ -65,8 +65,8 @@ function LoginContent() {
         } catch {
           window.location.href = "/dashboard";
         }
-      } else if (result?.url) {
-        window.location.href = result.url;
+      } else {
+        window.location.href = callbackUrl;
       }
     }
   }
