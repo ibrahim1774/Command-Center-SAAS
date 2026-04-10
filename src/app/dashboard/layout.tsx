@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-import { DEMO_EMAIL } from "@/lib/demo-mode";
+import { isDemoEmail } from "@/lib/demo-mode";
 import TopNav from "@/components/layout/TopNav";
 
 export default async function DashboardLayout({
@@ -17,7 +17,7 @@ export default async function DashboardLayout({
   }
 
   // Demo user always gets through
-  const isDemo = session.user.email === DEMO_EMAIL;
+  const isDemo = isDemoEmail(session.user.email);
 
   // No active paid plan → pricing page
   const plan = session.user.plan;

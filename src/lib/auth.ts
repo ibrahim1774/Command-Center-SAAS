@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { getSupabaseAdmin } from "./supabase-admin";
-import { DEMO_EMAIL } from "./demo-mode";
+import { isDemoEmail } from "./demo-mode";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -114,7 +114,7 @@ export const authOptions: NextAuthOptions = {
         token.plan = user.plan ?? "free";
       }
       // Demo user always gets pro
-      if (token.email === DEMO_EMAIL) {
+      if (isDemoEmail(token.email as string)) {
         token.plan = "pro";
         return token;
       }

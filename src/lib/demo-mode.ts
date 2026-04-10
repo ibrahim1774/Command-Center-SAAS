@@ -2,16 +2,19 @@ import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
-export const DEMO_EMAIL = "ibrahimttshop@gmail.com";
+const DEMO_EMAILS = new Set([
+  "ibrahimttshop@gmail.com",
+  "hello123@gmail.com",
+]);
 
 export async function isDemoUser(req: NextRequest): Promise<boolean> {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const email = (token?.email as string) || "";
-  return email === DEMO_EMAIL;
+  return DEMO_EMAILS.has(email);
 }
 
 export function isDemoEmail(email: string | null | undefined): boolean {
-  return email === DEMO_EMAIL;
+  return DEMO_EMAILS.has(email ?? "");
 }
 
 export async function isTestModeEnabled(userId: string): Promise<boolean> {
