@@ -4,7 +4,8 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email: rawEmail, password } = await req.json();
+    const email = (rawEmail as string)?.toLowerCase().trim();
 
     if (!email || !password) {
       return NextResponse.json(

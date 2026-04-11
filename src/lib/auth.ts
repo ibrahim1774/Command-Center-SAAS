@@ -25,10 +25,11 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
+        const normalizedEmail = credentials.email.toLowerCase().trim();
         const { data: user, error } = await getSupabaseAdmin()
           .from("users")
           .select("id, email, name, password_hash, avatar_url, plan")
-          .eq("email", credentials.email)
+          .ilike("email", normalizedEmail)
           .single();
 
         if (error || !user || !user.password_hash) return null;
@@ -69,7 +70,7 @@ export const authOptions: NextAuthOptions = {
           const { data: existingUser } = await getSupabaseAdmin()
             .from("users")
             .select("id")
-            .eq("email", user.email!)
+            .ilike("email", user.email!)
             .single();
 
           if (existingUser) {
@@ -89,7 +90,7 @@ export const authOptions: NextAuthOptions = {
             const { data: newUser } = await getSupabaseAdmin()
               .from("users")
               .insert({
-                email: user.email!,
+                email: user.email!.toLowerCase().trim(),
                 name: user.name,
                 avatar_url: user.image,
               })
