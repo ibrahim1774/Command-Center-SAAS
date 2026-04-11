@@ -3,7 +3,83 @@ import { getAuthenticatedUserId } from "@/lib/oauth-helpers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getAnthropicClient } from "@/lib/anthropic";
 import { parseClaudeJSON } from "@/lib/parse-claude-json";
+import { isDemoUser } from "@/lib/demo-mode";
 import type { AIInsightsResponse } from "@/types/ai";
+
+const DEMO_INSIGHTS: AIInsightsResponse = {
+  daily_briefing: {
+    summary: "Strong week across all platforms. Instagram Reels are your top performer with 6.8% avg engagement — nearly 3x your carousel rate. YouTube collabs are driving subscriber surges, and TikTok duets are picking up momentum.",
+    highlights: [
+      "Instagram Reels averaging 6.8% engagement rate this week — your best format by far",
+      "YouTube collab video hit 340K views, driving 2,400 new subscribers in 3 days",
+      "3 new brand deal inquiries landed: Glossier, Nike Digital, and Adobe Creative Cloud",
+      "TikTok duet with @creativestudio went semi-viral — 89K views in 24 hours",
+    ],
+  },
+  whats_working: [
+    { text: "Instagram Reels with text overlays are crushing it — saves up 312% vs last month", metric: "+312% saves" },
+    { text: "YouTube Shorts repurposed from Reels are driving 40% of new subscribers", metric: "+40% subs" },
+    { text: "Posting between 6-8 PM EST consistently gets 2x the reach of morning posts", metric: "2x reach" },
+    { text: "Behind-the-scenes content is generating the most comments and DMs across all platforms", metric: "+185% comments" },
+  ],
+  whats_flopping: [
+    { text: "Static carousel posts are seeing declining reach — algorithm clearly favoring video", metric: "-42% reach" },
+    { text: "Facebook link posts get almost no organic distribution anymore", metric: "-68% impressions" },
+    { text: "Long-form YouTube videos over 15 min have 73% drop-off before the midpoint", metric: "73% drop-off" },
+    { text: "Posting on weekends is underperforming — your audience is most active Mon-Thu", metric: "-35% engagement" },
+  ],
+  instagram: {
+    whats_working: [
+      { text: "Reels with trending audio get 4x the reach of original audio", metric: "4x reach" },
+      { text: "Your 'Day in the Life' series has the highest save rate at 8.2%", metric: "8.2% save rate" },
+    ],
+    whats_flopping: [
+      { text: "Single-image posts are getting buried — only 1.2% engagement rate", metric: "1.2% engagement" },
+      { text: "Story polls and quizzes aren't driving profile visits like they used to", metric: "-28% profile visits" },
+    ],
+  },
+  youtube: {
+    whats_working: [
+      { text: "Collab videos average 3x your solo video views", metric: "3x views" },
+      { text: "Shorts with a hook in the first 2 seconds have 60% higher completion rate", metric: "+60% completion" },
+    ],
+    whats_flopping: [
+      { text: "Tutorial-style videos are underperforming — viewers prefer vlogs", metric: "-45% CTR" },
+      { text: "Videos posted on Sundays get 50% fewer impressions", metric: "-50% impressions" },
+    ],
+    content_ideas: [
+      "Behind-the-scenes of your brand deal workflow — your audience loves authenticity content",
+      "A '5 tools I use daily' Shorts series — high save potential and brand deal tie-in opportunity",
+      "Collab with another creator in your niche for a 'swap routines' video — proven 3x view multiplier",
+    ],
+  },
+  facebook: {
+    whats_working: [
+      { text: "Native video uploads get 3x the reach of YouTube link shares", metric: "3x reach" },
+      { text: "Community posts asking questions drive the most comments", metric: "+120% comments" },
+    ],
+    whats_flopping: [
+      { text: "Shared links are essentially invisible — 12 reach per post on average", metric: "12 avg reach" },
+      { text: "Posting more than once per day causes a drop in per-post engagement", metric: "-55% per post" },
+    ],
+  },
+  tiktok: {
+    whats_working: [
+      { text: "Duets and stitches are your fastest-growing format — 89K avg views", metric: "89K avg views" },
+      { text: "Videos under 30 seconds have 2.5x the completion rate", metric: "2.5x completion" },
+    ],
+    whats_flopping: [
+      { text: "Longer storytelling TikToks (60s+) lose viewers at the 15-second mark", metric: "75% drop at 15s" },
+      { text: "Posting without hashtags reduces discoverability by roughly half", metric: "-48% discovery" },
+    ],
+  },
+  top_comments: [
+    { platform: "instagram", username: "@sarah_creates", text: "This is exactly the content I needed today! Your editing style is so clean 🔥", post_reference: "Day in the Life Reel" },
+    { platform: "youtube", username: "DigitalNomadMike", text: "Been following since 10K subs. So proud of your growth! The collab was incredible.", post_reference: "Studio Tour Collab" },
+    { platform: "tiktok", username: "@viralvault", text: "This duet format is genius — definitely stealing this idea lol", post_reference: "Creative workflow duet" },
+    { platform: "facebook", username: "Maria Thompson", text: "Just shared this with my entire team. The tips are so actionable!", post_reference: "5 Productivity Hacks video" },
+  ],
+};
 
 const INSIGHTS_SCHEMA = `{
   "daily_briefing": { "summary": "2-3 sentence overview of highlights and priorities", "highlights": ["specific highlight 1", "highlight 2", "highlight 3", "highlight 4"] },
@@ -26,6 +102,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (await isDemoUser(req)) {
+    return NextResponse.json({ cached: true, insights: DEMO_INSIGHTS });
+  }
+
   const supabase = getSupabaseAdmin();
   const { data: cached } = await supabase
     .from("ai_insights")
@@ -46,6 +126,10 @@ export async function POST(req: NextRequest) {
   const userId = await getAuthenticatedUserId(req);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (await isDemoUser(req)) {
+    return NextResponse.json({ cached: true, insights: DEMO_INSIGHTS });
   }
 
   const supabase = getSupabaseAdmin();
