@@ -325,10 +325,10 @@ export default function PrivacyPolicyPage() {
             <p className="font-body text-[#6b6b6b] leading-relaxed mt-4">
               To exercise any of these rights, please contact us at{" "}
               <a
-                href="mailto:support@nurplix.com"
+                href="mailto:support@davoxa.com"
                 className="text-[#c4947a] underline underline-offset-2 hover:opacity-80 transition-opacity"
               >
-                support@nurplix.com
+                support@davoxa.com
               </a>
               .
             </p>
@@ -377,10 +377,10 @@ export default function PrivacyPolicyPage() {
               Privacy Policy or how we handle your data, please reach out to us
               at{" "}
               <a
-                href="mailto:support@nurplix.com"
+                href="mailto:support@davoxa.com"
                 className="text-[#c4947a] underline underline-offset-2 hover:opacity-80 transition-opacity"
               >
-                support@nurplix.com
+                support@davoxa.com
               </a>
               .
             </p>

@@ -28,10 +28,10 @@ export default function ContactPage() {
           <p className="font-body text-[#2c2c2c]">
             Email:{" "}
             <a
-              href="mailto:support@nurplix.com"
+              href="mailto:support@davoxa.com"
               className="text-[#c4947a] hover:underline"
             >
-              support@nurplix.com
+              support@davoxa.com
             </a>
           </p>
           <p className="font-body text-sm text-[#6b6b6b] mt-3">

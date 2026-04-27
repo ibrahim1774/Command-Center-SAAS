@@ -327,10 +327,10 @@ export default function TermsOfService() {
             If you have any questions or concerns about these Terms of Service,
             please contact us at{" "}
             <a
-              href="mailto:support@nurplix.com"
+              href="mailto:support@davoxa.com"
               className="text-[#c4947a] hover:opacity-80 transition-opacity"
             >
-              support@nurplix.com
+              support@davoxa.com
             </a>
             .
           </p>

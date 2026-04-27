@@ -681,11 +681,11 @@ function SettingsContent() {
           Report any bugs, membership issues, or questions.
         </p>
         <a
-          href="mailto:support@nurplix.com"
+          href="mailto:support@davoxa.com"
           className="inline-flex items-center gap-2 text-sm font-medium text-accent-primary hover:underline transition-colors"
         >
           <Mail className="w-4 h-4" />
-          support@nurplix.com
+          support@davoxa.com
         </a>
       </Card>
 
