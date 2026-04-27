@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       ...customerFields,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      subscription_data: { trial_period_days: 3 },
+      subscription_data: { trial_period_days: 1 },
       success_url: `${appUrl}/api/stripe/verify-checkout?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing`,
       metadata: { userId, planId },

@@ -183,7 +183,7 @@ export default function PricingPage() {
               Pick the plan that fits
             </h1>
             <p className="mx-auto mt-4 max-w-lg text-center text-base text-text-secondary">
-              Start with a 3-day free trial. Cancel in two clicks. You won&apos;t be charged until day 4.
+              Start with a 1-day free trial. Cancel in two clicks. You won&apos;t be charged until day 2.
             </p>
           </FadeUp>
 
@@ -234,7 +234,7 @@ export default function PricingPage() {
                     </p>
                   )}
                   <p className="mt-2 text-sm font-medium text-success">
-                    Free for 3 days — cancel anytime
+                    Free for 1 day — cancel anytime
                   </p>
 
                   <ul className="mt-7 flex flex-col gap-3.5">

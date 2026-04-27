@@ -238,7 +238,7 @@ function SignupContent() {
           </button>
           {!checkoutSession && (
             <p className="mt-2 text-center text-xs" style={{ color: "#8a8580", fontFamily: "var(--font-body)" }}>
-              Then choose your plan and start your 3-day free trial.
+              Then choose your plan and start your 1-day free trial.
             </p>
           )}
         </form>
